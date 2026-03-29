@@ -1,0 +1,37 @@
+/* src/pages/error/NotFound.module.css */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 80vh; /* 헤더/푸터를 제외한 높이만큼 설정 */
+  text-align: center;
+}
+
+.title {
+  font-size: 6rem;
+  font-weight: bold;
+  color: var(--color-brand); /* 기존에 쓰던 브랜드 컬러 */
+  margin: 0;
+}
+
+.message {
+  font-size: 1.5rem;
+  margin: 20px 0 10px;
+  color: #333;
+}
+
+.sub_message {
+  color: #888;
+  margin-bottom: 30px;
+}
+
+.home_btn {
+  padding: 12px 24px;
+  background-color: var(--color-brand);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}

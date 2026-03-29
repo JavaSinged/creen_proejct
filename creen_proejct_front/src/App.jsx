@@ -5,6 +5,7 @@ import { Route, Routes } from "react-router-dom";
 import Home from "./pages/main/Home";
 import StoreView from "./pages/main/StoreView";
 import StoreDetail from "./pages/main/StoreDetail";
+import NotFound from "./pages/error/NotFound";
 
 function App() {
   return (
@@ -19,6 +20,9 @@ function App() {
           {/* store */}
           <Route path="/storeView" element={<StoreView />}></Route>
           <Route path="/storeDetail" element={<StoreDetail />}></Route>
+
+          {/* 없는 페이지 라우트 */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
       <Footer />
