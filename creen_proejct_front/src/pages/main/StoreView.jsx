@@ -48,7 +48,10 @@ export default function StoreView() {
   const [selectedMenu, setSelectedMenu] = useState(null); // ✅ ID 대신 객체 전체 저장
   const [selectedCategory, setSelectedCategory] = useState("전체");
   const [searchTerm, setSearchTerm] = useState("");
-
+  // const { cart, clearCart } = useCartStore((state) => ({
+  //   cart: state.cart,
+  //   clearCart: state.clearCart
+  // }));
   const filteredMenu = MENU_DATA.filter((item) => {
     const isCategoryMatch =
       selectedCategory === "전체" || item.category === selectedCategory;
@@ -98,9 +101,8 @@ export default function StoreView() {
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
-                className={`${styles.filter_btn} ${
-                  selectedCategory === cat ? styles.active : ""
-                }`}
+                className={`${styles.filter_btn} ${selectedCategory === cat ? styles.active : ""
+                  }`}
                 onClick={() => setSelectedCategory(cat)}
               >
                 {cat}

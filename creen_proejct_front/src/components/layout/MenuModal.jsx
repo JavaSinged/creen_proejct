@@ -4,6 +4,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import useCartStore from "../../store/useCartStore";
+import { useNavigate } from "react-router-dom";
 
 // ✅ axios 제거 - props로 받은 menuData를 바로 사용
 export default function MenuModal({ isOpen, onClose, menuData }) {
@@ -14,6 +15,8 @@ export default function MenuModal({ isOpen, onClose, menuData }) {
   const [ecoDisposable, setEcoDisposable] = useState(false);
   const [reusable, setReusable] = useState(false);
   const [quantity, setQuantity] = useState(1);
+
+  const navigate = useNavigate();
 
   // ✅ 모달이 열릴 때마다 옵션 초기화
   useEffect(() => {
@@ -48,6 +51,7 @@ export default function MenuModal({ isOpen, onClose, menuData }) {
     ? Math.max(0, baseCarbonG - 15) * quantity
     : baseCarbonG * quantity;
 
+
   const handleAddToCart = () => {
     const cartItem = {
       id: Date.now(),
@@ -62,7 +66,10 @@ export default function MenuModal({ isOpen, onClose, menuData }) {
       carbonSaved: reusable ? 15 * quantity : 0,
     };
     addToCart(cartItem);
+
     onClose();
+
+
   };
 
   return (
@@ -104,9 +111,8 @@ export default function MenuModal({ isOpen, onClose, menuData }) {
             ].map(({ value, label, diff }) => (
               <label
                 key={value}
-                className={`${styles.option_row} ${
-                  size === value ? styles.selected : ""
-                }`}
+                className={`${styles.option_row} ${size === value ? styles.selected : ""
+                  }`}
               >
                 <input
                   type="radio"
@@ -124,9 +130,8 @@ export default function MenuModal({ isOpen, onClose, menuData }) {
           <div className={styles.option_section}>
             <h4>오늘도 그린하게 🌱</h4>
             <label
-              className={`${styles.option_row} ${
-                ecoSide ? styles.selected : ""
-              }`}
+              className={`${styles.option_row} ${ecoSide ? styles.selected : ""
+                }`}
             >
               <input
                 type="checkbox"
@@ -137,9 +142,8 @@ export default function MenuModal({ isOpen, onClose, menuData }) {
               <span className={styles.eco_point}>+20P</span>
             </label>
             <label
-              className={`${styles.option_row} ${
-                ecoDisposable ? styles.selected : ""
-              }`}
+              className={`${styles.option_row} ${ecoDisposable ? styles.selected : ""
+                }`}
             >
               <input
                 type="checkbox"
@@ -153,9 +157,8 @@ export default function MenuModal({ isOpen, onClose, menuData }) {
 
           {/* 다회용 용기 */}
           <div
-            className={`${styles.reusable_card} ${
-              reusable ? styles.reusable_active : ""
-            }`}
+            className={`${styles.reusable_card} ${reusable ? styles.reusable_active : ""
+              }`}
           >
             <div className={styles.reusable_info}>
               <div className={styles.reusable_title}>
@@ -196,7 +199,8 @@ export default function MenuModal({ isOpen, onClose, menuData }) {
             {/* ✅ 동적으로 계산된 탄소량 표시 */}
             <span className={styles.carbon_total}>{carbonTotal}g CO2e</span>
           </div>
-          <button className={styles.submit_btn} onClick={handleAddToCart}>
+          <button className={styles.submit_btn} onClick={handleAddToCart
+          }>
             {totalPrice.toLocaleString()}원 담기
           </button>
         </div>

@@ -1,6 +1,8 @@
 // CartBar.jsx
+import { useNavigate } from "react-router-dom";
 import useCartStore from "../../../store/useCartStore";
 import styles from "./CartBar.module.css";
+import { useState } from "react";
 
 export default function CartBar() {
   const cart = useCartStore((state) => state.cart);
@@ -10,10 +12,14 @@ export default function CartBar() {
   const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cart.reduce((sum, item) => sum + item.totalPrice, 0);
   const totalCarbon = cart.reduce((sum, item) => sum + item.carbonSaved, 0);
+  const navigate = useNavigate();
+  const cartList = useCartStore((state) => state.cart);
 
   return (
     <div className={styles.cart_container}>
-      <button className={styles.cart_button}>
+      <button className={styles.cart_button} onClick={() => {
+        navigate("/orderPage")
+      }}>
         {/* 좌측: 수량 뱃지 */}
         <div className={styles.badge_wrap}>
           <span className={styles.quantity_badge}>{totalQuantity}</span>
@@ -35,3 +41,4 @@ export default function CartBar() {
     </div>
   );
 }
+
