@@ -25,7 +25,7 @@ public class MemberService {
         if (dbMember != null) {
             // [테스트 로그] 공백 확인을 위해 대괄호로 감싸서 출력해보세요
             System.out.println("입력비번: [" + member.getMemberPw() + "]");
-            System.out.println("### 진짜 암호문: " + passwordEncoder.encode("Green1234!"));
+            System.out.println("### 진짜 암호문: " + passwordEncoder.encode(member.getMemberPw()));
 
             String Pw = dbMember.getMemberPw();
             System.out.println("DB비번: [" + Pw + "]");
