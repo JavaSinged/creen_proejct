@@ -12,17 +12,40 @@ const login = () => {
   const [password, setPassword] = useState("");
   const [rememberId, setRememberId] = useState(true);
 
-  // 로그인 버튼 클릭 시 실행
+  const validateForm = () => {
+    // 1. 아이디: 영문자 + 숫자 포함, 8자 이상
+    const idRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    // 2. 비밀번호: 영문자 + 숫자 포함, 10자 이상
+    const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{10,}$/;
+
+    if (!idRegex.test(userId)) {
+      alert("아이디는 영문자와 숫자를 포함하여 8자 이상이어야 합니다.");
+      return false;
+    }
+
+    if (!pwRegex.test(password)) {
+      alert("비밀번호는 영문자와 숫자를 포함하여 10자 이상이어야 합니다.");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleLogin = (e) => {
     e.preventDefault();
-    console.log("로그인 시도:", {
+
+    // 🌟 로그인 전 검증 실시
+    if (!validateForm()) return;
+
+    console.log("로그인 성공 시도:", {
       tab: activeTab,
-      admin: isAdmin,
       id: userId,
       pw: password,
       save: rememberId,
     });
-    // TODO: axios 연동
+
+    // axios 연동 등 실제 로그인 로직 진행
+    alert("로그인 형식이 올바릅니다!");
   };
 
   return (
@@ -97,14 +120,14 @@ const login = () => {
           <form className="login-form" onSubmit={handleLogin}>
             <input
               type="text"
-              placeholder="아이디를 입력하세요"
+              placeholder="아이디(영문+숫자 8자 이상)"
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
               required
             />
             <input
               type="password"
-              placeholder="비밀번호를 입력하세요"
+              placeholder="비밀번호(영문+숫자 10자 이상)"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
