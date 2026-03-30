@@ -6,6 +6,26 @@
         select * from store_tbl
     </select>
 
+    <select id="findStoreById" parameterType="int" resultType="store">
+        SELECT
+            store_id AS storeId,
+            member_id AS memberId,
+            store_name AS storeName,
+            store_address AS storeAddress,
+            store_phone AS storePhone,
+            store_intro AS storeIntro,
+            store_owner AS storeOwner,
+            store_owner_address AS storeOwnerAddress,
+            store_origin_info AS storeOriginInfo,
+            store_owner_no AS storeOwnerNo,
+            store_category AS storeCategory,
+            store_rating AS storeRating,
+            latitude AS LATITUDE,
+            longitude AS LONGITUDE,
+            store_thumb AS storeThumb
+        FROM STORE_TBL
+        WHERE store_id = #{storeId}
+    </select>
 
 
     <select id="selectAllMenu" resultType="menu">

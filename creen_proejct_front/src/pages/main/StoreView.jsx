@@ -55,7 +55,11 @@ export default function StoreView() {
         </div>
         <div className={styles.store_text_wrap}>
           <h2 className={styles.store_name}>지웅이네 김치찜</h2>
-          <Link to="/storeDetail" className={styles.store_link}>
+          <Link
+            to="/storeDetail"
+            state={{ storeId: storeId }}
+            className={styles.store_link}
+          >
             가게 정보, 원산지 정보
           </Link>
           <p className={styles.store_desc}>

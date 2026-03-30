@@ -1,35 +1,34 @@
-import { useEffect, useRef, useState } from "react";
-import styles from "./StoreDetail.module.css";
-
-// db로 처리할 내용
-const STORE_INFO = {
-  name: "포시즌 파스타",
-  address: "서울특별시 양천구 화곡로13길 19 2층 201호 (신월동)",
-  hours: [
-    { day: "화요일", time: "24시간 운영" },
-    { day: "수요일", time: "24시간 운영" },
-    { day: "목요일", time: "24시간 운영" },
-  ],
-  holiday: "연중무휴",
-  phone: "050-6271-5057",
-  lat: 37.497952,
-  lng: 127.027619,
-  description:
-    "저희 매장은 직접 이태리 본사에서 공수받은 면으로 제조하여 더욱 풍미있고 식감이 좋은 완벽한 파스타를 추구합니다. 집에서도 레스토랑 같은 파스타를 즐기실 수 있도록 정성을 다하겠습니다.",
-  business: {
-    ceo: "박성신",
-    bizName: "포시즌 파스타",
-    bizAddress: "서울특별시 양천구 신월동 22-19 2층 201호(신월동)",
-    bizNumber: "404-27-20812",
-  },
-  origin:
-    "쌀(국내산), 파스타면(이탈리아), 마늘(국내산), 고춧가루(중국산), 꽃삼겹(칠레산:아그로수퍼), 오징어링(포클랜드)...",
-};
+import { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import axios from 'axios';
+import styles from './StoreDetail.module.css';
 
 export default function StoreDetail() {
+  const location = useLocation();
+  const storeId = location.state?.storeId || 1;
+
+  const [storeInfo, setStoreInfo] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
   const mapElement = useRef(null);
   const [mapLoaded, setMapLoaded] = useState(false);
 
+  // 🚀 상점 상세 정보 API 호출
+  useEffect(() => {
+    axios
+      .get(`${import.meta.env.VITE_BACKSERVER}/stores/${storeId}`) // 본인 환경에 맞게 '/api/stores' 등으로 수정
+      .then((res) => {
+        console.log('상점 상세 정보 응답:', res.data);
+        setStoreInfo(res.data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error('상점 정보 로딩 실패:', err);
+        setIsLoading(false);
+      });
+  }, [storeId]);
+
+  // 🚀 지도 스크립트 로드
   useEffect(() => {
     const checkNaver = setInterval(() => {
       if (window.naver && window.naver.maps && mapElement.current) {
@@ -40,10 +39,17 @@ export default function StoreDetail() {
     return () => clearInterval(checkNaver);
   }, []);
 
+  // 🚀 마커 렌더링
   useEffect(() => {
-    if (!mapLoaded || !mapElement.current) return;
+    if (!mapLoaded || !mapElement.current || !storeInfo) return;
     const { naver } = window;
-    const location = new naver.maps.LatLng(STORE_INFO.lat, STORE_INFO.lng);
+
+    // ✅ VO에 정의된 대문자 필드명 사용
+    const lat = storeInfo.LATITUDE || 37.497952;
+    const lng = storeInfo.LONGITUDE || 127.027619;
+
+    const location = new naver.maps.LatLng(lat, lng);
+
     try {
       const map = new naver.maps.Map(mapElement.current, {
         center: location,
@@ -69,9 +75,18 @@ export default function StoreDetail() {
         },
       });
     } catch (e) {
-      console.error("지도 생성 중 에러:", e);
+      console.error('지도 생성 중 에러:', e);
     }
-  }, [mapLoaded]);
+  }, [mapLoaded, storeInfo]);
+
+  if (isLoading)
+    return (
+      <div className={styles.container}>상점 정보를 불러오는 중입니다...</div>
+    );
+  if (!storeInfo)
+    return (
+      <div className={styles.container}>상점 정보를 찾을 수 없습니다.</div>
+    );
 
   return (
     <div className={styles.container}>
@@ -87,35 +102,22 @@ export default function StoreDetail() {
 
       {/* 매장 기본 정보 */}
       <section className={styles.section}>
-        <h3 className={styles.storeName}>{STORE_INFO.name}</h3>
+        <h3 className={styles.storeName}>{storeInfo.storeName}</h3>
         <table className={styles.infoTable}>
           <tbody>
             <tr>
               <th>상호명</th>
-              <td>{STORE_INFO.name}</td>
+              <td>{storeInfo.storeName}</td>
             </tr>
             <tr>
               <th>주소</th>
-              <td>{STORE_INFO.address}</td>
-            </tr>
-            <tr>
-              <th>운영시간</th>
-              <td>
-                {STORE_INFO.hours.map((h) => (
-                  <div key={h.day}>
-                    {h.day} - {h.time}
-                  </div>
-                ))}
-              </td>
-            </tr>
-            <tr>
-              <th>휴무일</th>
-              <td>{STORE_INFO.holiday}</td>
+              <td>{storeInfo.storeAddress}</td>
             </tr>
             <tr>
               <th>전화번호</th>
-              <td>{STORE_INFO.phone}</td>
+              <td>{storeInfo.storePhone}</td>
             </tr>
+            {/* 운영시간과 휴무일은 VO에 없으므로 일단 제외하거나 추후 추가 필요 */}
           </tbody>
         </table>
       </section>
@@ -123,7 +125,7 @@ export default function StoreDetail() {
       {/* 매장 소개 */}
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>매장 소개</h3>
-        <p className={styles.description}>{STORE_INFO.description}</p>
+        <p className={styles.description}>{storeInfo.storeIntro}</p>
       </section>
 
       {/* 사업자 정보 */}
@@ -133,19 +135,19 @@ export default function StoreDetail() {
           <tbody>
             <tr>
               <th>대표자명</th>
-              <td>{STORE_INFO.business.ceo}</td>
+              <td>{storeInfo.storeOwner}</td>
             </tr>
             <tr>
               <th>상호명</th>
-              <td>{STORE_INFO.business.bizName}</td>
+              <td>{storeInfo.storeName}</td>
             </tr>
             <tr>
               <th>사업자 주소</th>
-              <td>{STORE_INFO.business.bizAddress}</td>
+              <td>{storeInfo.storeOwnerAddress}</td>
             </tr>
             <tr>
               <th>사업자등록번호</th>
-              <td>{STORE_INFO.business.bizNumber}</td>
+              <td>{storeInfo.storeOwnerNo}</td>
             </tr>
           </tbody>
         </table>
@@ -154,7 +156,7 @@ export default function StoreDetail() {
       {/* 원산지 표기 */}
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>원산지 표기</h3>
-        <p className={styles.description}>{STORE_INFO.origin}</p>
+        <p className={styles.description}>{storeInfo.storeOriginInfo}</p>
       </section>
     </div>
   );

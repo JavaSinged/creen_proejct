@@ -18,6 +18,9 @@ public class StoreService {
         return storeDao.selectAllStore();
     }
 
+    public Store getStoreById(Integer storeId) {
+        return storeDao.findStoreById(storeId);
+    }
     public List<Menu> selectAllMenu(Long storeId) {
         return storeDao.selectAllMenu(storeId);
     }
@@ -25,4 +28,5 @@ public class StoreService {
     public List<MenuOption> getMenuOptions(Long menuId){
         return storeDao.getMenuOptions(menuId);
     }
+
 }

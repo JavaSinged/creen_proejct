@@ -26,6 +26,16 @@ public class StoreController {
         return ResponseEntity.ok(list);
     }
 
+    @GetMapping("/{storeId}")
+    public ResponseEntity<Store> getStoreDetail(@PathVariable Integer storeId) {
+        Store store = storeService.getStoreById(storeId);
+
+        if (store == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(store);
+    }
+
     @GetMapping("/{storeId}/menus")
     public ResponseEntity<List<Menu>> getMenuList(@PathVariable Long storeId) {
         // 서비스 호출

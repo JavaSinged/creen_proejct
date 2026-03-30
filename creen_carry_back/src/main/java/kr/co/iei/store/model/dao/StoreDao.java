@@ -11,7 +11,10 @@ import java.util.List;
 public interface StoreDao {
     List<Store> selectAllStore();
 
+    Store findStoreById(Integer storeId);
+
     List<Menu> selectAllMenu(Long storeId);
 
     List<MenuOption> getMenuOptions(Long menuId);
+
 }
