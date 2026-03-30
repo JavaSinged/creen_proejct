@@ -24,16 +24,17 @@
   justify-content: center; /* 가로 중앙 정렬 */
   align-items: center; /* 세로 중앙 정렬 */
   gap: 60px;
-  /* 패딩을 조절해서 시각적으로 더 완벽한 중앙에 오도록 맞춤 */
   padding: 0 50px;
 }
 
-/* 좌측 텍스트 정보 섹션 */
+/* ⚖️ 양팔 저울의 왼쪽 (좌측 텍스트 정보 섹션) */
 .info-section {
-  max-width: 400px;
+  width: 320px; /* ✨ max-width를 지우고 고정 너비로 꽉 잡아줍니다! */
   display: flex;
+  height: 350px;
   flex-direction: column;
   gap: 15px;
+  /* height: 350px; 은 글씨 높이에 맞춰 자연스럽게 변하도록 지웠습니다. */
 }
 
 .eco-brand {

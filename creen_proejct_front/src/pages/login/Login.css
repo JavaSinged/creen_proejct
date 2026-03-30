@@ -1,4 +1,37 @@
 /* 전체 화면 컨테이너 (여기에 배경 이미지를 넣어야 화면 전체에 깔립니다) */
+/* 1. 전체 기본 폰트 적용 (프리텐다드) */
+.screen-container {
+  font-family: var(--font-body); /* ✨ 본문 폰트 적용 */
+  /* 기존 설정들 (position: absolute... 등) 유지 */
+}
+
+/* 2. 상단 로고 폰트 적용 */
+.logo {
+  font-family: var(--font-logo); /* ✨ 로고 전용 폰트(Gaegu) 적용 */
+  /* 기존 설정들 (font-size: 2.2rem... 등) 유지 */
+}
+
+/* 3. 메인 타이틀 폰트 적용 (탄소 발자국을 줄이는... / 계정을 잊으셨나요?) */
+.main-title {
+  font-family: var(--font-title); /* ✨ 제목 전용 폰트(Jalnan) 적용 */
+  /* 기존 설정 유지 */
+}
+
+/* 4. 서브 타이틀 및 강조 텍스트 (여기어때 고딕) */
+.eco-text,
+.card-title,
+.find-tab-btn {
+  font-family: var(--font-sub); /* ✨ 부제목/탭 버튼 등에 적용 */
+}
+
+/* 5. 입력칸(Input)과 버튼(Button)에도 본문 폰트 덮어씌우기 */
+input,
+button {
+  font-family: var(
+    --font-body
+  ); /* 기본적으로 input/button은 전역 폰트를 무시하므로 강제 적용! */
+}
+
 .screen-container {
   /* 기존 레이아웃 무시하고 화면 꽉 채우기 */
   position: absolute;
@@ -35,24 +68,23 @@
   color: white;
 }
 
-/* 메인 콘텐츠 구역 */
 .main-content {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 50px;
-  padding: 0 50px 50px 50px;
+  padding: 0 50px; /* 위아래 패딩을 똑같이 0으로 맞춰서 완벽한 세로 중앙으로! */
 }
 
-/* 좌측 정보 섹션 */
+/* 2. 좌측 정보 섹션 (너비 고정) */
 .info-section {
-  max-width: 350px;
+  width: 300px; /* max-width 대신 고정 너비로 변경 */
   display: flex;
+  height: 350px;
   flex-direction: column;
   gap: 15px;
 }
-
 .eco-brand {
   display: flex;
   align-items: center;
@@ -231,14 +263,14 @@
   color: #388e3c;
 }
 
-/* 우측 일러스트 섹션 */
+/* 3. 우측 일러스트 섹션 (좌측과 똑같은 너비로 변경) */
 .illustration-section {
-  width: 250px;
+  width: 300px; /* 좌측과 똑같이 300px로 맞춰서 양팔 저울 균형 맞추기! */
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 15px;
-  margin-top: 50px;
+  /* margin-top: 50px; (이 부분은 세로 중앙 정렬을 방해하므로 지워주세요!) */
 }
 
 /* 말풍선 스타일 */

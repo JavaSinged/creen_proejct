@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./FindAccount.css";
 
-const Account = () => {
+const account = () => {
   // 1. 상태 관리
   const [activeTab, setActiveTab] = useState("findId"); // 탭 상태
   const [isCodeSent, setIsCodeSent] = useState(false); // 인증번호 전송 여부
@@ -241,4 +241,4 @@ const Account = () => {
   );
 };
 
-export default Account;
+export default account;

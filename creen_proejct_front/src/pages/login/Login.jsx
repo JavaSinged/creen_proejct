@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./Login.css";
 
-const Login = () => {
+const login = () => {
   // 탭 상태 관리 (개인 이용자 vs 사업자)
   const [activeTab, setActiveTab] = useState("personal");
 
@@ -142,4 +142,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default login;

@@ -26,8 +26,8 @@ function App() {
     <div>
       <Routes>
         {/* 1. 헤더/푸터가 필요 없는 단독 화면 */}
-        <Route path="/Login" element={<Login />} />
-        <Route path="/Account" element={<Account />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/account" element={<Account />} />
 
         {/* 2. 헤더/푸터가 무조건 붙어야 하는 화면들 (BasicLayout 안에 넣기) */}
         <Route element={<BasicLayout />}>
