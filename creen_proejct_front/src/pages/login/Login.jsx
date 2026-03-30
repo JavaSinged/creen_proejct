@@ -71,16 +71,6 @@ const Login = () => {
             로그인하여 친환경 배달을 시작하세요
           </p>
 
-          <div className="admin-login">
-            <input
-              type="checkbox"
-              id="admin_check"
-              checked={isAdmin}
-              onChange={(e) => setIsAdmin(e.target.checked)}
-            />
-            <label htmlFor="admin_check">관리자 로그인</label>
-          </div>
-
           {/* 탭 버튼 */}
           <div className="tabs">
             <button
