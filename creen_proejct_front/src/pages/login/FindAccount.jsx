@@ -2,30 +2,38 @@ import React, { useState } from "react";
 import "./FindAccount.css";
 
 const Account = () => {
-  // 탭 상태 관리 (아이디 찾기 vs 비밀번호 재설정)
-  const [activeTab, setActiveTab] = useState("findId");
+  // 1. 상태 관리
+  const [activeTab, setActiveTab] = useState("findId"); // 탭 상태
+  const [isCodeSent, setIsCodeSent] = useState(false); // 인증번호 전송 여부
+  const [isVerified, setIsVerified] = useState(false); // ✨ 인증 완료 여부 (비밀번호 변경창 띄우기용)
+
+  // 2. 탭을 변경할 때 실행되는 함수 (모든 상태를 초기화)
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setIsCodeSent(false);
+    setIsVerified(false); // 탭을 바꾸면 인증 상태도 초기화
+  };
+
+  // 3. 인증번호 확인 폼 제출 시 실행
+  const handleVerifySubmit = (e) => {
+    e.preventDefault();
+    if (activeTab === "findId") {
+      alert("고객님의 아이디는 green*** 입니다."); // 아이디 찾기 완료 (예시)
+    } else {
+      // 비밀번호 재설정 탭에서 인증이 완료되면, 비밀번호 변경창으로 화면을 전환!
+      setIsVerified(true);
+    }
+  };
+
+  // 4. 새 비밀번호 변경 폼 제출 시 실행
+  const handlePasswordChangeSubmit = (e) => {
+    e.preventDefault();
+    alert("비밀번호가 성공적으로 변경되었습니다. 로그인 화면으로 이동합니다.");
+    window.location.href = "/login"; // 완료 후 로그인 화면으로 튕겨주기
+  };
 
   return (
-    <div
-      className="screen-container"
-      style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width: "100vw",
-        minHeight: "100vh",
-        backgroundImage: 'url("/image/login/loginsign.jpg")', // 기존 로그인 배경과 동일한 경로
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        backgroundColor: "#2e8b57",
-        display: "flex",
-        flexDirection: "column",
-        color: "white",
-        overflowY: "auto",
-      }}
-    >
-      {/* 상단 로고 */}
+    <div className="screen-container">
       <h1
         className="logo"
         style={{
@@ -39,9 +47,7 @@ const Account = () => {
         GreenCarry
       </h1>
 
-      {/* 메인 콘텐츠 구역 (div로 유지하여 글로벌 CSS 충돌 방지) */}
       <div className="main-content find-content">
-        {/* 좌측 정보 섹션 */}
         <section className="info-section">
           <div className="eco-brand">
             <span className="eco-icon">E</span>
@@ -64,56 +70,171 @@ const Account = () => {
           </div>
         </section>
 
-        {/* 중앙 계정 찾기 카드 */}
         <section className="find-card">
           {/* 탭 메뉴 */}
           <div className="find-tabs">
             <button
               type="button"
               className={`find-tab-btn ${activeTab === "findId" ? "active" : ""}`}
-              onClick={() => setActiveTab("findId")}
+              onClick={() => handleTabChange("findId")}
             >
               아이디 찾기
             </button>
             <button
               type="button"
               className={`find-tab-btn ${activeTab === "resetPw" ? "active" : ""}`}
-              onClick={() => setActiveTab("resetPw")}
+              onClick={() => handleTabChange("resetPw")}
             >
               비밀번호 재설정
             </button>
           </div>
 
-          {/* 입력 폼 */}
-          <form className="find-form">
-            <input type="text" className="full-input" placeholder="이름" />
+          {activeTab === "findId" ? (
+            /* ==================== 아이디 찾기 폼 ==================== */
+            <form className="find-form" onSubmit={handleVerifySubmit}>
+              <input
+                type="text"
+                className="full-input"
+                placeholder="이름"
+                required
+              />
 
-            {/* 이메일 & 인증번호 전송 버튼 (가로 배치) */}
-            <div className="input-with-btn">
-              <input type="email" className="flex-input" placeholder="이메일" />
-              <button type="button" className="verify-send-btn">
-                인증번호 전송
+              <div className="input-with-btn">
+                <input
+                  type="email"
+                  className="flex-input"
+                  placeholder="이메일"
+                  required
+                />
+                <button
+                  type="button"
+                  className="verify-send-btn"
+                  onClick={() => setIsCodeSent(true)}
+                >
+                  {isCodeSent ? "재전송" : "인증번호 전송"}
+                </button>
+              </div>
+
+              {isCodeSent && (
+                <>
+                  <input
+                    type="text"
+                    className="full-input"
+                    placeholder="인증번호 입력"
+                    required
+                  />
+                  <button type="submit" className="submit-verify-btn">
+                    아이디 찾기
+                  </button>
+                </>
+              )}
+            </form>
+          ) : /* ==================== 비밀번호 재설정 폼 (인증 전/후 분기) ==================== */
+          !isVerified ? (
+            /* ✨ 1단계: 인증 진행 화면 ✨ */
+            <form className="find-form" onSubmit={handleVerifySubmit}>
+              <input
+                type="text"
+                className="full-input"
+                placeholder="아이디"
+                required
+              />
+              <input
+                type="text"
+                className="full-input"
+                placeholder="이름"
+                required
+              />
+
+              <div className="input-with-btn">
+                <input
+                  type="email"
+                  className="flex-input"
+                  placeholder="가입한 이메일"
+                  required
+                />
+                <button
+                  type="button"
+                  className="verify-send-btn"
+                  onClick={() => setIsCodeSent(true)}
+                >
+                  {isCodeSent ? "재전송" : "인증번호 전송"}
+                </button>
+              </div>
+
+              {isCodeSent && (
+                <>
+                  <input
+                    type="text"
+                    className="full-input"
+                    placeholder="인증번호 입력"
+                    required
+                  />
+                  <button type="submit" className="submit-verify-btn">
+                    인증 확인
+                  </button>
+                </>
+              )}
+            </form>
+          ) : (
+            /* ✨ 2단계: 인증 완료 후 새 비밀번호 설정 화면 ✨ */
+            <form className="find-form" onSubmit={handlePasswordChangeSubmit}>
+              <h3
+                style={{
+                  textAlign: "center",
+                  color: "#333",
+                  marginBottom: "10px",
+                  marginTop: "0",
+                }}
+              >
+                새 비밀번호 설정
+              </h3>
+              <p
+                style={{
+                  textAlign: "center",
+                  color: "#888",
+                  fontSize: "0.9rem",
+                  marginTop: "0",
+                  marginBottom: "20px",
+                }}
+              >
+                새롭게 사용할 비밀번호를 입력해주세요.
+              </p>
+
+              {/* 비밀번호 입력은 글자가 안 보이게 type="password" 적용 */}
+              <input
+                type="password"
+                className="full-input"
+                placeholder="새 비밀번호 (8자 이상 영문/숫자 조합)"
+                required
+              />
+              <input
+                type="password"
+                className="full-input"
+                placeholder="새 비밀번호 확인"
+                required
+              />
+
+              <button type="submit" className="submit-verify-btn">
+                비밀번호 변경 완료
               </button>
-            </div>
+            </form>
+          )}
 
-            <input
-              type="text"
-              className="full-input"
-              placeholder="인증번호 입력"
-            />
-
-            <button type="submit" className="submit-verify-btn">
-              인증 확인
-            </button>
-          </form>
-
-          {/* 하단 링크 & 로고 */}
           <div className="find-footer">
             <a href="/login" className="back-to-login">
               ← 로그인 화면으로 돌아가기
             </a>
             <div className="footer-logo">GreenCarry</div>
           </div>
+        </section>
+        <section
+          className="illustration-section"
+          style={{ width: "320px", visibility: "hidden" }}
+        >
+          {/* 공간만 차지하게 투명(hidden) 처리했습니다. 
+              만약 로그인 화면처럼 동물 그림을 똑같이 넣고 싶으시다면 
+              visibility: "hidden"을 지우고 안에 img 태그를 넣으시면 됩니다! */}
         </section>
       </div>
     </div>
