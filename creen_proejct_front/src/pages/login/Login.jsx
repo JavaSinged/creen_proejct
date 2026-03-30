@@ -15,8 +15,9 @@ const login = () => {
   const validateForm = () => {
     // 1. 아이디: 영문자 + 숫자 포함, 8자 이상
     const idRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
-    // 2. 비밀번호: 영문자 + 숫자 포함, 10자 이상
-    const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{10,}$/;
+    // 2. 비밀번호: 영문자 + 숫자 + 특수문자 포함, 10자 이상
+    const pwRegex =
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/;
 
     if (!idRegex.test(userId)) {
       alert("아이디는 영문자와 숫자를 포함하여 8자 이상이어야 합니다.");
@@ -24,7 +25,9 @@ const login = () => {
     }
 
     if (!pwRegex.test(password)) {
-      alert("비밀번호는 영문자와 숫자를 포함하여 10자 이상이어야 합니다.");
+      alert(
+        "비밀번호는 영문자와 숫자,특수문자를 포함하여 10자 이상이어야 합니다.",
+      );
       return false;
     }
 
