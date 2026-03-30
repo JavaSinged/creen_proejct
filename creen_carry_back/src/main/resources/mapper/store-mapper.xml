@@ -4,4 +4,20 @@
     <select id="selectAllStore" >
         select * from store_tbl
     </select>
+
+    <select id="selectAllMenu" resultType="menu">
+        SELECT
+            menu_id,
+            store_id,
+            menu_name,
+            menu_carbon,
+            menu_price,
+            menu_category,
+            menu_image,
+            menu_info
+        FROM MENU_TBL
+        WHERE store_id = #{storeId}
+          AND menu_status = 1
+        ORDER BY menu_category ASC, menu_id ASC
+    </select>
 </mapper>

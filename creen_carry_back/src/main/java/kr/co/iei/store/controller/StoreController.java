@@ -1,16 +1,16 @@
 package kr.co.iei.store.controller;
 
 import kr.co.iei.store.model.service.StoreService;
+import kr.co.iei.store.model.vo.Menu;
 import kr.co.iei.store.model.vo.Store;
 import org.apache.ibatis.type.Alias;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/stores")
@@ -24,4 +24,15 @@ public class StoreController {
         List<Store> list = storeService.selectAllStore();
         return ResponseEntity.ok(list);
     }
+
+    @GetMapping("/{storeId}/menus")
+    public ResponseEntity<List<Menu>> getMenuList(@PathVariable Long storeId) {
+        // 서비스 호출
+        List<Menu> menuList = storeService.selectAllMenu(storeId);
+
+        // 데이터가 없어도 빈 배열([])을 담아 200 OK 응답 (프론트 에러 방지)
+        return ResponseEntity.ok(menuList);
+    }
+
+
 }

@@ -1,6 +1,7 @@
 package kr.co.iei.store.model.service;
 
 import kr.co.iei.store.model.dao.StoreDao;
+import kr.co.iei.store.model.vo.Menu;
 import kr.co.iei.store.model.vo.Store;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,5 +15,9 @@ public class StoreService {
 
     public List<Store> selectAllStore() {
         return storeDao.selectAllStore();
+    }
+
+    public List<Menu> selectAllMenu(Long storeId) {
+        return storeDao.selectAllMenu(storeId);
     }
 }
