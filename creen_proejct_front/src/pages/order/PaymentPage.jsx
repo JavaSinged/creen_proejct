@@ -6,17 +6,26 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import { useNavigate } from "react-router-dom";
+import CheckoutPage from "./CheckoutPage";
 
 const PaymentPage = () => {
   const navigate = useNavigate();
   const [storeRequest, setStoreRequest] = useState("");
   const [deliveryRequest, setDeliveryRequest] = useState("");
   const [ecoPoint, setEcoPoint] = useState(0);
+  const [reducedCarbon, setReducedCarbon] = useState(300);
   const [selectedPayment, setSelectedPayment] = useState("card");
   const [itemPrice, setItemPrice] = useState(45000);
   const [deliveryPrice, setDeliveryPrice] = useState(1000);
   const totalPrice = itemPrice + deliveryPrice - ecoPoint;
   const phone = /^010-\d{4}-\d{4}$/;
+  const [availableEcoPoint, setAvailableEcoPoint] = useState(3000);
+  const [payInfo, setPayInfo] = useState({
+    totalPrice: totalPrice,
+    ecoPoint: ecoPoint,
+    deliveryPrice: deliveryPrice,
+    reducedCarbon: reducedCarbon,
+  });
 
   return (
     <div className={styles["payment-page"]}>
@@ -74,7 +83,6 @@ const PaymentPage = () => {
                   <ChatBubbleIcon></ChatBubbleIcon>
                   <h2>요청사항</h2>
                 </div>
-                <ExpandMoreIcon></ExpandMoreIcon>
               </div>
 
               <div className={styles["form-group"]}>
@@ -123,10 +131,24 @@ const PaymentPage = () => {
                       // 숫자만 허용
                       if (!/^[0-9]*$/.test(value)) return;
 
-                      // 최대값 제한 (itemPrice)
-                      if (Number(value) > itemPrice) return;
+                      // 빈값 처리
+                      if (value === "") {
+                        setEcoPoint("");
+                        setPayInfo({
+                          ...payInfo,
+                          ecoPoint: 0,
+                        });
+                        return;
+                      }
 
-                      setEcoPoint(value);
+                      const maxPoint = Math.min(availableEcoPoint, itemPrice);
+                      const num = Math.min(Number(value), maxPoint);
+
+                      setEcoPoint(num);
+                      setPayInfo({
+                        ...payInfo,
+                        ecoPoint: num,
+                      });
                     }}
                   />
                   <button
@@ -138,12 +160,14 @@ const PaymentPage = () => {
                     사용취소
                   </button>
                 </div>
-                <p className={styles["point-desc"]}>보유 : 7,000 점(원)</p>
+                <p className={styles["point-desc"]}>
+                  보유 : {availableEcoPoint} 점(원)
+                </p>
               </div>
 
               <div className={styles["form-group"]}>
                 <label>이번 주문으로 받을 에코포인트</label>
-                <input type="text" value="450" readOnly />
+                <input type="text" value={reducedCarbon} readOnly />
               </div>
             </div>
           </section>
@@ -175,7 +199,9 @@ const PaymentPage = () => {
 
               <div className={styles["carbon-card"]}>
                 <p className={styles["carbon-title"]}>이 주문의 탄소 절감</p>
-                <strong className={styles["carbon-value"]}>450g</strong>
+                <strong className={styles["carbon-value"]}>
+                  {reducedCarbon}g
+                </strong>
                 <p className={styles["carbon-desc"]}>
                   이번 주문으로 나무 가지 하나를 틔웠습니다!
                 </p>
@@ -184,7 +210,11 @@ const PaymentPage = () => {
               <button
                 className={styles["pay-btn"]}
                 onClick={() => {
-                  navigate("/checkoutPage");
+                  console.log(payInfo);
+                  setPayInfo({ ...payInfo, totalPrice: totalPrice });
+                  navigate("/checkoutPage", {
+                    state: { payInfo },
+                  });
                 }}
               >
                 {totalPrice}원 결제하기
