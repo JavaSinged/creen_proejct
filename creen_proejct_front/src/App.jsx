@@ -7,6 +7,7 @@ import StoreView from "./pages/main/StoreView";
 import StoreDetail from "./pages/main/StoreDetail";
 import NotFound from "./pages/error/NotFound";
 import OrderPage from "./pages/order/OrderPage";
+import PaymentPage from "./pages/order/PaymentPage";
 
 function App() {
   return (
@@ -22,6 +23,8 @@ function App() {
           <Route path="/storeView" element={<StoreView />}></Route>
           <Route path="/storeDetail" element={<StoreDetail />}></Route>
           <Route path="/orderPage" element={<OrderPage />}></Route>
+          <Route path="/paymentPage" element={<PaymentPage />}></Route>
+
           {/* 없는 페이지 라우트 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
