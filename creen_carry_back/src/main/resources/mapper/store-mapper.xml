@@ -6,8 +6,6 @@
         select * from store_tbl
     </select>
 
-<mapper namespace="temp.store">
-
 
 
     <select id="selectAllMenu" resultType="menu">
