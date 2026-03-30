@@ -28,7 +28,8 @@ const Account = () => {
   // 🌟 새 비밀번호 입력 시 형식 검증 (10자 이상, 영문+숫자 조합)
   const handlePwChange = (val) => {
     setNewPassword(val);
-    const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{10,}$/;
+    const pwRegex =
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/;
 
     if (val && !pwRegex.test(val)) {
       setPwError("비밀번호는 영문자와 숫자를 포함하여 10자 이상이어야 합니다.");
