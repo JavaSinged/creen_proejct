@@ -185,7 +185,7 @@ const ManagerSignup = () => {
   const getPhoneMessage = () => {
     if (!member.memberPhone.trim())
       return {
-        text: isSubmitted ? "연락처를 입력하세요." : "\u00A0",
+        text: isSubmitted ? "휴대폰 번호를 입력하세요." : "\u00A0",
         isError: isSubmitted,
       };
     return { text: "\u00A0", isError: false };
@@ -290,7 +290,7 @@ const ManagerSignup = () => {
         <form className={styles.form} onSubmit={joinSubmit}>
           {/* 아이디 */}
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>아이디 *</label>
+            <label className={styles.label}>아이디</label>
             <div className={styles.inputArea}>
               <div className={styles.inputAreaInner}>
                 <input
@@ -322,7 +322,7 @@ const ManagerSignup = () => {
 
           {/* 비밀번호 */}
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>비밀번호 *</label>
+            <label className={styles.label}>비밀번호</label>
             <div className={styles.inputArea}>
               <input
                 type="password"
@@ -364,7 +364,7 @@ const ManagerSignup = () => {
 
           {/* 이메일 */}
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>이메일 *</label>
+            <label className={styles.label}>이메일</label>
             <div className={styles.inputArea}>
               <div className={styles.inputAreaInner}>
                 <input
@@ -414,7 +414,7 @@ const ManagerSignup = () => {
 
           {/* 연락처 */}
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>연락처 *</label>
+            <label className={styles.label}>휴대폰 번호</label>
             <div className={styles.inputArea}>
               <input
                 type="text"
@@ -422,7 +422,7 @@ const ManagerSignup = () => {
                 value={member.memberPhone}
                 onChange={inputMember}
                 className={styles.inputUnderline}
-                placeholder="(-)을 제외한 숫자 11자리를 입력하세요"
+                placeholder="(-)을 제외한 숫자를 입력하세요"
               />
               <p
                 className={`${styles.statusMessage} ${phoneStatus.isError ? styles.errorMessage : ""}`}
@@ -434,7 +434,7 @@ const ManagerSignup = () => {
 
           {/* 💡 변경된 사업자번호 입력란 */}
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>사업자번호 *</label>
+            <label className={styles.label}>사업자 번호</label>
             <div className={styles.inputArea}>
               <div className={styles.inputAreaInner}>
                 <input
@@ -466,7 +466,7 @@ const ManagerSignup = () => {
 
           {/* 상호명 */}
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>상호명 *</label>
+            <label className={styles.label}>상호명</label>
             <div className={styles.inputArea}>
               <input
                 type="text"
@@ -485,7 +485,7 @@ const ManagerSignup = () => {
 
           {/* 대표자성명 */}
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>대표자성명 *</label>
+            <label className={styles.label}>대표자성명</label>
             <div className={styles.inputArea}>
               <input
                 type="text"
@@ -504,8 +504,8 @@ const ManagerSignup = () => {
 
           {/* 개업일자 */}
           <div className={styles.fieldGroup}>
-            <label className={styles.label}>개업일자 *</label>
-            <div className={styles.inputArea}>
+            <label className={styles.label}>개업일자</label>
+            <div className={styles.inputArea} id="openingDataArea">
               <div className={styles.dateInputWrapper}>
                 <input
                   type="text"
