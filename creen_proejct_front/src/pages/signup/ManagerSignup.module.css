@@ -1,0 +1,170 @@
+/* NormalUserSignup.module.css */
+
+/* 1. 폰트 불러오기 */
+
+/* 2. 전역 변수 설정 (폰트 + 컬러) */
+
+/* 3. 컴포넌트 스타일 */
+.signupPage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column; /* 로고와 카드를 세로로 정렬 */
+  justify-content: center;
+  align-items: center;
+  background: url("/image/login/loginsign.jpg") no-repeat center center/cover;
+  padding: 40px;
+  font-family: var(--font-body); /* 기본 본문 폰트 적용 */
+}
+
+.mainLogo {
+  color: var(--color-bg);
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 25px;
+  letter-spacing: 1px;
+  font-family: var(--font-logo); /* 로고 폰트 적용 */
+  cursor: pointer;
+}
+
+.card {
+  background-color: var(--color-bg);
+  border-radius: 20px;
+  padding: 50px 60px;
+  width: 100%;
+  max-width: 650px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 40px;
+  color: var(--text-main); /* 타이틀 색상 적용 */
+  font-family: var(--font-title); /* 타이틀 폰트 적용 */
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* 안정적인 Flexbox 정렬 (사업자 회원가입과 동일) */
+.fieldGroup {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.label {
+  width: 120px;
+  flex-shrink: 0;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 300; /* 400에서 300으로 더 얇게 수정됨 */
+  color: var(--text-main); /* 라벨 색상 적용 */
+  font-family: var(--font-sub); /* 라벨은 서브 폰트로 강조 */
+  padding-top: 5px; /* 밑줄과 텍스트 수평 정렬용 */
+}
+
+.inputArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.inputAreaInner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.inputUnderline {
+  flex: 1;
+  border: none;
+  border-bottom: 1px solid #777; /* 적용할 변수가 없어 기존 색상 유지 */
+  padding: 5px 0;
+  font-size: 14px;
+  outline: none;
+  background: transparent;
+  color: var(--text-main); /* 입력 텍스트 색상 적용 */
+  font-family: var(--font-body); /* 입력창 기본 폰트 */
+}
+
+.inputUnderline:focus {
+  border-bottom: 1px solid var(--color-brand); /* 포커스 시 브랜드 색상 적용 */
+}
+
+.inputUnderline::placeholder {
+  color: #999; /* 적용할 변수가 없어 기존 placeholder 색상 유지 */
+}
+
+/* 주소 입력을 위한 텍스트 중앙 정렬 설정 */
+.textCenter {
+  text-align: center;
+}
+
+/* 여러 줄 입력을 위한 상단 마진 */
+.mt10 {
+  margin-top: 10px;
+}
+
+.buttonFilled {
+  background-color: var(--color-brand); /* 브랜드 색상 적용 */
+  color: var(--color-bg);
+  border: none;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600; /* 버튼 폰트 굵기 명시적 감소 */
+  font-family: var(--font-body); /* 버튼 텍스트 서브 폰트 적용 */
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.buttonOutlined {
+  background-color: var(--color-bg);
+  color: var(--color-brand); /* 브랜드 색상 적용 */
+  border: 1px solid var(--color-brand); /* 브랜드 색상 적용 */
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600; /* 버튼 폰트 굵기 명시적 감소 */
+  font-family: var(--font-body); /* 버튼 텍스트 서브 폰트 적용 */
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.statusMessage {
+  font-size: 11px;
+  color: var(--text-sub); /* 부가설명 텍스트 색상 적용 */
+  margin-top: 6px;
+  margin-left: 2px;
+}
+
+.errorMessage {
+  color: #d9534f; /* 에러 메시지용 변수가 없어 기존 빨간색 유지 */
+}
+
+.submitContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.submitButton {
+  background-color: var(--color-brand); /* 브랜드 색상 적용 */
+  color: var(--color-bg);
+  border: none;
+  border-radius: 25px;
+  padding: 10px 50px;
+  font-size: 15px;
+  font-weight: 600; /* 600에서 400으로 얇게 수정됨 */
+  font-family: var(--font-body); /* 제출 버튼 서브 폰트 적용 */
+  cursor: pointer;
+}
