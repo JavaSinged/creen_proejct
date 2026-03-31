@@ -5,9 +5,11 @@
     <select id="loginMember" resultType="member">
         SELECT 
         MEMBER_ID as memberId,
-        MEMBER_PW as memberPw
+        MEMBER_PW as memberPw,
+        MEMBER_GRADE as memberGrade
     FROM MEMBER_TBL
-    WHERE MEMBER_ID = #{memberId}
+    WHERE MEMBER_ID = #{memberId} and
+    MEMBER_GRADE = #{memberGrade}
     </select>
 
 
