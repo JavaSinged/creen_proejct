@@ -4,6 +4,10 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import "./Login.css";
 import { AuthContext } from "../../context/AuthContext";
+import PersonIcon from "@mui/icons-material/Person"; // 사람 모양
+import LockIcon from "@mui/icons-material/Lock"; // 자물쇠 모양
+import InputAdornment from "@mui/material/InputAdornment"; // 아이콘 배치를 위한 컴포넌트
+import TextField from "@mui/material/TextField"; // MUI 입력창 (기존 input 대신 사용 권장)
 
 const Login = () => {
   const [member, setMember] = useState({
@@ -196,19 +200,53 @@ const Login = () => {
               login();
             }}
           >
-            <input
-              type="text"
+            {/* 아이디 입력창 */}
+            <TextField
+              fullWidth
+              variant="outlined"
               name="memberId"
               placeholder="아이디를 입력해주세요."
               value={member.memberId}
               onChange={inputMember}
+              margin="normal"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PersonIcon style={{ color: "#2e7d32" }} />{" "}
+                    {/* 사람 아이콘 */}
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "12px", // 기존 디자인과 맞추기 위해 조정
+                },
+              }}
             />
-            <input
+
+            {/* 비밀번호 입력창 */}
+            <TextField
+              fullWidth
+              variant="outlined"
               type="password"
               name="memberPw"
               placeholder="비밀번호를 입력해주세요."
               value={member.memberPw}
               onChange={inputMember}
+              margin="normal"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockIcon style={{ color: "#2e7d32" }} />{" "}
+                    {/* 자물쇠 아이콘 */}
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "12px",
+                },
+              }}
             />
 
             <div className="remember-me">
