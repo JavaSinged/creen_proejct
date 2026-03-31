@@ -1,30 +1,51 @@
-import { Link, Outlet } from 'react-router-dom';
-import styles from './Layout.module.css'; // CSS 파일
+import { NavLink, Outlet } from 'react-router-dom';
+import styles from './Layout.module.css';
 
 export default function UserLayout() {
   return (
     <div className={styles.container}>
       {/* 👈 왼쪽 고정 사이드바 */}
       <aside className={styles.sidebar}>
+        <h2 className={styles.sidebarTitle}>마이페이지</h2>
         <ul>
           <li>
-            <Link to="/mypage/orders">주문내역</Link>
+            <NavLink
+              to="/mypage/orders"
+              className={({ isActive }) => (isActive ? styles.activeMenu : '')}
+            >
+              주문내역
+            </NavLink>
           </li>
           <li>
-            <Link to="/mypage/reviews">리뷰관리</Link>
+            <NavLink
+              to="/mypage/reviews"
+              className={({ isActive }) => (isActive ? styles.activeMenu : '')}
+            >
+              리뷰관리
+            </NavLink>
           </li>
           <li>
-            <Link to="/mypage/points">에코포인트</Link>
+            <NavLink
+              to="/mypage/points"
+              className={({ isActive }) => (isActive ? styles.activeMenu : '')}
+            >
+              에코포인트
+            </NavLink>
           </li>
           <li>
-            <Link to="/mypage/profile">개인정보 수정</Link>
+            <NavLink
+              to="/mypage/profile"
+              className={({ isActive }) => (isActive ? styles.activeMenu : '')}
+            >
+              개인정보 수정
+            </NavLink>
           </li>
         </ul>
       </aside>
 
       {/* 👉 오른쪽 동적 렌더링 영역 */}
       <main className={styles.content}>
-        <Outlet /> {/* 라우터 설정에 따라 이곳의 컴포넌트가 바뀜! */}
+        <Outlet />
       </main>
     </div>
   );
