@@ -176,6 +176,10 @@ const Login = () => {
 
         <section className="login-card">
           <h3 className="card-title">반가워요, 에코 히어로!</h3>
+          <h2 className="card-info">
+            로그인하여 <span className="leaf-point">친</span>환경 배달을
+            시작하세요
+          </h2>
           <div className="tabs">
             <button
               type="button"
