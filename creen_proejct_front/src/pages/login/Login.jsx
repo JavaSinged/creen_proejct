@@ -78,19 +78,30 @@ const Login = () => {
             memberGrade: loginUser.memberGrade,
           });
 
-          // 환영 메시지 분기
-          let welcomeTitle = "로그인 성공!";
+          // 🌟 [2] 권한별 메시지 및 이동 경로 설정
+          let welcomeTitle = "";
           let welcomeHtml = "";
+          let targetPath = "/"; // 기본 메인 페이지
 
           if (loginUser.memberGrade === 0) {
+            // 관리자
             welcomeTitle = "관리자 시스템 접속";
-            welcomeHtml = `<b style="color: #2e7d32;">관리자님</b> 환영합니다! <br/>그린캐리 관리자 모드로 로그인되었습니다.`;
+            welcomeHtml = `<b style="color: #2e7d32;">관리자님</b> 환영합니다! <br/>그린캐리 관리자 모드로 로그인되었습니다.
+            <br/>관리자 페이지로 이동합니다.`;
+            targetPath = "/"; // 🚩 실제 구현 시: targetPath = "/admin/dashboard";
+          } else if (loginUser.memberGrade === 2) {
+            // 사업자
+            welcomeTitle = "파트너 센터 접속";
+            welcomeHtml = `<b>${loginUser.memberName}</b> 사장님! <br/>매장 관리 화면으로 이동합니다.`;
+            targetPath = "/"; // 🚩 실제 구현 시: targetPath = "/seller/store-manage";
           } else {
-            const gradeText =
-              loginUser.memberGrade === 1 ? "개인 이용자" : "사업자";
-            welcomeHtml = `<b>${loginUser.memberName}</b>님 (${gradeText}) 환영합니다!`;
+            // 개인 사용자 (Grade 1 등)
+            welcomeTitle = "로그인 성공!";
+            welcomeHtml = `<b>${loginUser.memberName}</b> 에코 히어로님! 환영합니다!<br/>메인 페이지로 이동합니다.`;
+            targetPath = "/"; // 🚩 실제 구현 시: targetPath = "/";
           }
 
+          // [3] 환영 알림창 띄우기
           Swal.fire({
             icon: "success",
             title: welcomeTitle,
@@ -99,20 +110,23 @@ const Login = () => {
             timer: 2000,
           });
 
+          // [4] 아이디 저장 로직 (생략 - 기존과 동일)
           if (rememberId) {
             localStorage.setItem("savedUserId", member.memberId);
           } else {
             localStorage.removeItem("savedUserId");
           }
 
-          navigate("/");
+          // 🌟 [5] 설정된 경로로 이동
+          navigate(targetPath);
         }
       })
       .catch((err) => {
+        // 에러 처리 (생략 - 기존과 동일)
         console.error("로그인 에러:", err);
         Swal.fire({
           title: "로그인 실패",
-          text: "아이디, 비밀번호 또는 회원 유형을 확인해주세요.",
+          text: "정보를 확인해주세요.",
           icon: "error",
         });
       });
