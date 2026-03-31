@@ -47,9 +47,12 @@ export default function MenuModal({ isOpen, onClose, menuData }) {
 
   // 탄소 계산 (다회용 용기 사용 시 15g 감소)
   const baseCarbonG = menuData.carbonPer100g ?? 100;
-  const carbonTotal = reusable
-    ? Math.max(0, baseCarbonG - 15) * quantity
-    : baseCarbonG * quantity;
+  const carbonTotal =
+    (reusable
+      ? Math.max(0, baseCarbonG - 15) * quantity
+      : baseCarbonG * quantity) -
+    (ecoSide ? 10 : 0) -
+    (ecoDisposable ? 10 : 0);
 
   const handleAddToCart = () => {
     const cartItem = {
@@ -63,7 +66,10 @@ export default function MenuModal({ isOpen, onClose, menuData }) {
       quantity,
       totalPrice,
       unitPrice,
-      carbonSaved: reusable ? 15 * quantity : 0,
+      carbonSaved:
+        (reusable ? 15 * quantity : 0) +
+        (ecoSide ? 10 : 0) +
+        (ecoDisposable ? 10 : 0),
     };
     addToCart(cartItem);
 

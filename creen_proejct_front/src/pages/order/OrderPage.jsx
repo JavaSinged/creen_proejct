@@ -20,10 +20,11 @@ const OrderPage = () => {
   const list = useLocation();
   const cartList = useCartStore((state) => state.cart);
   const [realTotal, setRealTotal] = useState(0);
-  const [deliveryType, setDeliveryType] = useState(0);
+  const [deliveryType, setDeliveryType] = useState(1);
   const [num, setNum] = useState(0);
   const setSuperTotalPrice = useCartStore((state) => state.setSuperTotalPrice);
   const setDeilveryPrice = useCartStore((state) => state.setDeilveryPrice);
+  const totalCarbon = cartList.reduce((sum, item) => sum + item.carbonSaved, 0);
   useEffect(() => {
     setNum(deliveryType === 1 ? 0 : deliveryType === 2 ? 1000 : 3000);
   }, [deliveryType]);
@@ -50,7 +51,7 @@ const OrderPage = () => {
           </div>
           <div className={styles.totalPriceText}>
             <u>
-              총 결제금액
+              총 결제금액 <tr></tr>
               {(realTotal + num).toLocaleString()}원
             </u>
           </div>
@@ -116,11 +117,13 @@ const OrderPage = () => {
                 </div>
                 <div className={styles.ecoItem}>
                   <span>탄소 절감:</span>
-                  <span>450g</span>
+                  <span>{totalCarbon + (deliveryType === 3 ? 0 : 300)}g</span>
                 </div>
                 <div className={styles.ecoItem}>
                   <span>적립 예정:</span>
-                  <span>450 포인트</span>
+                  <span>
+                    {totalCarbon + (deliveryType === 3 ? 0 : 300)} 포인트
+                  </span>
                 </div>
               </div>
             </div>

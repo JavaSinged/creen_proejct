@@ -1,12 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./CheckoutPage.module.css";
 import { useLocation, useNavigate } from "react-router-dom";
+import useCartStore from "../../store/useCartStore";
 const CheckoutPage = () => {
+  const cartList = useCartStore((state) => state.cart);
   const navigate = useNavigate();
   const location = useLocation();
   const mapElement = useRef(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const STORE_INFO = { lat: 37.497952, lng: 127.027619 };
+  const totalPrice = cartList.reduce((sum, item) => sum + item.totalPrice, 0);
+  const totalCarbon = cartList.reduce((sum, item) => sum + item.carbonSaved, 0);
 
   const payInfo = location.state?.payInfo;
   console.log(payInfo);
@@ -136,9 +140,6 @@ const CheckoutPage = () => {
                   )}
                   <div ref={mapElement} className={styles.map} />
                 </div>
-                <button className={styles.storeBadge}>가게</button>
-                <div className={styles.mapPin}>⌖</div>
-                <button className={styles.myLocationBtn}>내 위치</button>
               </div>
 
               <div className={styles.arrivalRow}>
@@ -157,25 +158,14 @@ const CheckoutPage = () => {
               <h3 className={styles.rightTitle}>주문 내역</h3>
 
               <div className={styles.orderList}>
-                <div className={styles.orderRow}>
-                  <span>슈프림 양념치킨 x 1</span>
-                  <span>25,000 원</span>
-                </div>
-                <div className={styles.orderSubRow}>
-                  <span>• 매운 소스 x 1</span>
-                  <span>1,000 원</span>
-                </div>
-                <div className={styles.orderRow}>
-                  <span>매운 슈프림 양념치킨 x 1</span>
-                  <span>25,000 원</span>
-                </div>
+                <OrderListMap cartList={cartList} />
                 <div className={styles.orderRow}>
                   <span>에코 딜리버리</span>
-                  <span>{payInfo.deliveryPrice} 원</span>
+                  <span>{payInfo.deliveryPrice.toLocaleString()} 원</span>
                 </div>
                 <div className={styles.orderRow}>
                   <span>에코포인트 사용</span>
-                  <span>－ {payInfo.ecoPoint} 원</span>
+                  <span>- {payInfo.ecoPoint.toLocaleString()} 원</span>
                 </div>
               </div>
 
@@ -183,7 +173,7 @@ const CheckoutPage = () => {
 
               <div className={styles.totalRow}>
                 <span>총 결제 금액</span>
-                <strong>{payInfo.totalPrice} 원</strong>
+                <strong>{totalPrice.toLocaleString()} 원</strong>
               </div>
             </div>
 
@@ -197,9 +187,7 @@ const CheckoutPage = () => {
                 <p className={styles.ecoInnerTitle}>
                   이번 주문으로 절감한 탄소
                 </p>
-                <strong className={styles.ecoValue}>
-                  {payInfo.reducedCarbon}g
-                </strong>
+                <strong className={styles.ecoValue}>{totalCarbon}g</strong>
                 <p className={styles.ecoInnerDesc}>
                   이번 주문으로 나무 가지 하나를 피웠습니다!
                 </p>
@@ -207,7 +195,7 @@ const CheckoutPage = () => {
 
               <div className={styles.ecoInfoRow}>
                 <span>에코 포인트 적립</span>
-                <strong>+{payInfo.reducedCarbon}p</strong>
+                <strong>+{totalCarbon.toLocaleString()}p</strong>
               </div>
               <div className={styles.ecoInfoRow}>
                 <span>누적 탄소 절감량</span>
@@ -239,3 +227,20 @@ const CheckoutPage = () => {
 };
 
 export default CheckoutPage;
+
+const OrderListMap = ({ cartList }) => {
+  console.log(cartList);
+  return cartList.map((cart, index) => {
+    return <OrderItemList key={`cartList-${index}`} cart={cart} />;
+  });
+};
+const OrderItemList = ({ cart }) => {
+  return (
+    <div>
+      <div className={styles.orderRow}>
+        <span>{cart.name}</span>
+        <span>{(cart.unitPrice * cart.quantity).toLocaleString()}원</span>
+      </div>
+    </div>
+  );
+};

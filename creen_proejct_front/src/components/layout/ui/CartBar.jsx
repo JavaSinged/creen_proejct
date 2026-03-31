@@ -15,9 +15,12 @@ export default function CartBar() {
   if (cart.length === 0) return null;
   return (
     <div className={styles.cart_container}>
-      <button className={styles.cart_button} onClick={() => {
-        navigate("/orderPage")
-      }}>
+      <button
+        className={styles.cart_button}
+        onClick={() => {
+          navigate("/orderPage");
+        }}
+      >
         {/* 좌측: 수량 뱃지 */}
         <div className={styles.badge_wrap}>
           <span className={styles.quantity_badge}>{totalQuantity}</span>
@@ -39,4 +42,3 @@ export default function CartBar() {
     </div>
   );
 }
-

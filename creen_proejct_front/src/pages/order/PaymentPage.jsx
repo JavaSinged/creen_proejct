@@ -2,24 +2,23 @@ import React, { useState } from "react";
 import styles from "./PaymentPage.module.css";
 import RoomIcon from "@mui/icons-material/Room";
 import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
-import CreditCardIcon from "@mui/icons-material/CreditCard";
 import { useNavigate } from "react-router-dom";
-import CheckoutPage from "./CheckoutPage";
+import useCartStore from "../../store/useCartStore";
 
 const PaymentPage = () => {
+  const { superTotalPrice, deliveryPrice, setUsingEcoPoint } = useCartStore();
   const navigate = useNavigate();
   const [storeRequest, setStoreRequest] = useState("");
   const [deliveryRequest, setDeliveryRequest] = useState("");
   const [ecoPoint, setEcoPoint] = useState(0);
   const [reducedCarbon, setReducedCarbon] = useState(300);
-  const [selectedPayment, setSelectedPayment] = useState("card");
-  const [itemPrice, setItemPrice] = useState(45000);
-  const [deliveryPrice, setDeliveryPrice] = useState(1000);
+  const [itemPrice, setItemPrice] = useState(superTotalPrice);
   const totalPrice = itemPrice + deliveryPrice - ecoPoint;
   const phone = /^010-\d{4}-\d{4}$/;
   const [availableEcoPoint, setAvailableEcoPoint] = useState(3000);
+  const cartList = useCartStore((state) => state.cart);
+  const totalCarbon = cartList.reduce((sum, item) => sum + item.carbonSaved, 0);
   const [payInfo, setPayInfo] = useState({
     totalPrice: totalPrice,
     ecoPoint: ecoPoint,
@@ -162,13 +161,17 @@ const PaymentPage = () => {
                   </button>
                 </div>
                 <p className={styles["point-desc"]}>
-                  보유 : {availableEcoPoint} 점(원)
+                  보유 : {availableEcoPoint.toLocaleString()} 점(원)
                 </p>
               </div>
 
               <div className={styles["form-group"]}>
                 <label>이번 주문으로 받을 에코포인트</label>
-                <input type="text" value={reducedCarbon} readOnly />
+                <input
+                  type="text"
+                  value={totalCarbon.toLocaleString()}
+                  readOnly
+                />
               </div>
             </div>
           </section>
@@ -181,11 +184,11 @@ const PaymentPage = () => {
               <div className={styles["price-list"]}>
                 <div className={styles["price-row"]}>
                   <span>상품합계</span>
-                  <span>{itemPrice}원</span>
+                  <span>{itemPrice.toLocaleString()}원</span>
                 </div>
                 <div className={styles["price-row"]}>
                   <span>배달비</span>
-                  <span>{deliveryPrice}원</span>
+                  <span>{deliveryPrice.toLocaleString()}원</span>
                 </div>
                 <div className={styles["price-row"]}>
                   <span>에코포인트 사용</span>
@@ -201,7 +204,7 @@ const PaymentPage = () => {
               <div className={styles["carbon-card"]}>
                 <p className={styles["carbon-title"]}>이 주문의 탄소 절감</p>
                 <strong className={styles["carbon-value"]}>
-                  {reducedCarbon}g
+                  {totalCarbon.toLocaleString()}g
                 </strong>
                 <p className={styles["carbon-desc"]}>
                   이번 주문으로 나무 가지 하나를 틔웠습니다!
@@ -212,13 +215,14 @@ const PaymentPage = () => {
                 className={styles["pay-btn"]}
                 onClick={() => {
                   console.log(payInfo);
+                  setUsingEcoPoint(ecoPoint);
                   setPayInfo({ ...payInfo, totalPrice: totalPrice });
                   navigate("/checkoutPage", {
                     state: { payInfo },
                   });
                 }}
               >
-                {totalPrice}원 결제하기
+                {totalPrice.toLocaleString()}원 결제하기
               </button>
 
               <p className={styles["pay-notice"]}>
