@@ -67,6 +67,13 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("일치하는 회원이 없습니다.");
         }
     }
+    //비밀번호 재설정 1차 인증
+    @PostMapping("/checkMember")
+    public ResponseEntity<?> checkMember(@RequestBody Member member) {
+        // 아이디와 이메일이 일치하는 행이 있는지 COUNT 조회
+        int result = memberService.checkMember(member);
+        return ResponseEntity.ok(result);
+    }
 
     // 3. 비밀번호 재설정 (아이디 + 새 비밀번호)
     @PostMapping("/resetPw")
@@ -75,9 +82,10 @@ public class MemberController {
         int result = memberService.resetPw(member);
         
         if (result > 0) {
-            return ResponseEntity.ok("비밀번호 변경 성공");
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("변경 실패");
         }
     }
+    
 }

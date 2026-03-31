@@ -85,6 +85,7 @@ const Account = () => {
   const handleVerifySubmit = (e) => {
     e.preventDefault();
 
+    // 1. 공통: 인증번호 검사
     if (inputCode !== "111111") {
       Swal.fire({
         icon: "error",
@@ -95,7 +96,7 @@ const Account = () => {
     }
 
     if (activeTab === "findId") {
-      // 🚀 아이디 찾기 API 호출
+      // 🚀 아이디 찾기 로직 (기존과 동일)
       api
         .post("/api/member/findId", {
           memberName: formData.memberName,
@@ -108,16 +109,40 @@ const Account = () => {
             html: `고객님의 아이디는 <b>${res.data}</b> 입니다.`,
           });
         })
-        .catch((err) => {
+        .catch(() => {
           Swal.fire({
             icon: "error",
             title: "조회 실패",
-            text: "일치하는 회원 정보가 없습니다.",
+            text: "일치하는 정보가 없습니다.",
           });
         });
     } else {
-      // 비밀번호 재설정은 인증 성공 시 다음 단계로 진행
-      setIsVerified(true);
+      // 🚀 비밀번호 재설정 1차 검증 (아이디 + 이메일 존재 여부 확인)
+      // 🌟 이 부분을 추가하여 DB에 실제 사용자가 있는지 확인합니다.
+      api
+        .post("/api/member/checkMember", {
+          memberId: formData.memberId,
+          memberEmail: formData.memberEmail,
+        })
+        .then((res) => {
+          if (res.data === 1) {
+            // DB에 사용자가 확인됨 -> 비밀번호 변경 창으로 전환
+            setIsVerified(true);
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "인증 실패",
+              text: "정보가 일치하는 회원이 없습니다.",
+            });
+          }
+        })
+        .catch(() => {
+          Swal.fire({
+            icon: "error",
+            title: "인증 실패",
+            text: "정보가 일치하는 회원이 없습니다.",
+          });
+        });
     }
   };
 
@@ -277,21 +302,12 @@ const Account = () => {
                 onChange={handleInputChange}
                 required
               />
-              <input
-                type="text"
-                name="memberName"
-                className="full-input"
-                placeholder="이름"
-                value={formData.memberName}
-                onChange={handleInputChange}
-                required
-              />
               <div className="input-with-btn">
                 <input
                   type="email"
                   name="memberEmail"
                   className="flex-input"
-                  placeholder="가입한 이메일"
+                  placeholder="이메일"
                   value={formData.memberEmail}
                   onChange={handleInputChange}
                   required

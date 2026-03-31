@@ -8,9 +8,9 @@
 		WHERE MEMBER_ID = #{memberId}
 
 		<if test='!memberId.equals("admin1111")'>
-        AND MEMBER_GRADE = #{memberGrade}
-    </if>
-    
+			AND MEMBER_GRADE = #{memberGrade}
+		</if>
+
 
 	</select>
 
@@ -27,6 +27,13 @@
 		WHERE
 		MEMBER_ID = #{memberId}
 	</update>
+
+	<select id="checkMember" resultType="int">
+		SELECT COUNT(*)
+		FROM MEMBER_TBL
+		WHERE MEMBER_ID = #{memberId}
+		AND MEMBER_EMAIL = #{memberEmail}
+	</select>
 
 
 

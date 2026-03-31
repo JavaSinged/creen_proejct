@@ -14,4 +14,6 @@ public interface MemberDao {
 
 	int resetPassword(Member member);
 
+	int checkMember(Member member);
+
 }

@@ -55,6 +55,11 @@ public class MemberService {
         
         return memberDao.resetPassword(member);
     }
+	public int checkMember(Member member) {
+		int result = memberDao.checkMember(member);
+		return result;
+	}
+
 }
 
 
