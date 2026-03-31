@@ -191,14 +191,14 @@ const Login = () => {
             <input
               type="text"
               name="memberId"
-              placeholder="아이디 (영문+숫자 8자 이상)"
+              placeholder="아이디를 입력해주세요."
               value={member.memberId}
               onChange={inputMember}
             />
             <input
               type="password"
               name="memberPw"
-              placeholder="비밀번호 (대소문자+숫자+특수문자 10자 이상)"
+              placeholder="비밀번호를 입력해주세요."
               value={member.memberPw}
               onChange={inputMember}
             />
