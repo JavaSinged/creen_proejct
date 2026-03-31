@@ -26,7 +26,8 @@ const UserSignup = () => {
 
   //아이디 중복검사용(0:중복검사전, 1:아이디 중복, 2: 사용가능한 아이디)
   const [checkId, setCheckId] = useState(0);
-
+  //이메일 중복검사용(0:중복검사전, 1:이메일 중복, 2: 사용 가능한 이메일)
+  const [checkEmail, setCheckEmail] = useState(0);
   //비번확인용
   const [memberPwRe, setMemberPwRe] = useState("");
   //이메일 인증 상태관리용
@@ -85,6 +86,12 @@ const UserSignup = () => {
     if (!emailRegex.test(member.memberEmail)) {
       alert("올바른 이메일 형식을 먼저 입력해주세요.");
       return;
+    }
+    if (checkEmail === 0) {
+      axios.get(
+        `${import.meta.env.VITE_BACKSERVER}/api/member/checkEmail`,
+        member.memberEmail,
+      );
     }
 
     setTime(180); // 180초 초기화
