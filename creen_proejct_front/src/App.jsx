@@ -13,6 +13,9 @@ import Login from "./pages/login/login";
 import Account from "./pages/login/FindAccount";
 
 import { AuthProvider } from "./context/AuthContext";
+import UserSignup from "./pages/signup/UserSignup";
+import ManagerSignup from "./pages/signup/ManagerSignup";
+import Signup from "./pages/signup/Signup";
 
 const BasicLayout = () => {
   return (
@@ -34,6 +37,9 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/userSignup" element={<UserSignup />} />
+          <Route path="/managerSignup" element={<ManagerSignup />} />
 
           <Route element={<BasicLayout />}>
             <Route path="/" element={<Home />} />
