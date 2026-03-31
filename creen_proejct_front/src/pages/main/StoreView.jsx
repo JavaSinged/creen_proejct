@@ -4,6 +4,7 @@ import styles from "./StoreView.module.css";
 import SearchIcon from "@mui/icons-material/Search";
 import MenuModal from "../../components/layout/MenuModal";
 import CartBar from "../../components/layout/ui/CartBar";
+import useCartStore from "../../store/useCartStore";
 
 // ✅ basePrice, description, carbonPer100g 등 상세 정보를 여기서 관리
 const MENU_DATA = [
@@ -66,7 +67,8 @@ export default function StoreView() {
     setSelectedMenu(menu);
     setIsModalOpen(true);
   };
-
+  const { cart } = useCartStore();
+  console.log(cart);
   return (
     <div className={styles.page_container}>
       {/* 상점 정보 영역 */}
@@ -101,8 +103,9 @@ export default function StoreView() {
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
-                className={`${styles.filter_btn} ${selectedCategory === cat ? styles.active : ""
-                  }`}
+                className={`${styles.filter_btn} ${
+                  selectedCategory === cat ? styles.active : ""
+                }`}
                 onClick={() => setSelectedCategory(cat)}
               >
                 {cat}

@@ -51,7 +51,6 @@ export default function MenuModal({ isOpen, onClose, menuData }) {
     ? Math.max(0, baseCarbonG - 15) * quantity
     : baseCarbonG * quantity;
 
-
   const handleAddToCart = () => {
     const cartItem = {
       id: Date.now(),
@@ -63,13 +62,12 @@ export default function MenuModal({ isOpen, onClose, menuData }) {
       reusable,
       quantity,
       totalPrice,
+      unitPrice,
       carbonSaved: reusable ? 15 * quantity : 0,
     };
     addToCart(cartItem);
 
     onClose();
-
-
   };
 
   return (
@@ -111,8 +109,9 @@ export default function MenuModal({ isOpen, onClose, menuData }) {
             ].map(({ value, label, diff }) => (
               <label
                 key={value}
-                className={`${styles.option_row} ${size === value ? styles.selected : ""
-                  }`}
+                className={`${styles.option_row} ${
+                  size === value ? styles.selected : ""
+                }`}
               >
                 <input
                   type="radio"
@@ -130,8 +129,9 @@ export default function MenuModal({ isOpen, onClose, menuData }) {
           <div className={styles.option_section}>
             <h4>오늘도 그린하게 🌱</h4>
             <label
-              className={`${styles.option_row} ${ecoSide ? styles.selected : ""
-                }`}
+              className={`${styles.option_row} ${
+                ecoSide ? styles.selected : ""
+              }`}
             >
               <input
                 type="checkbox"
@@ -142,8 +142,9 @@ export default function MenuModal({ isOpen, onClose, menuData }) {
               <span className={styles.eco_point}>+20P</span>
             </label>
             <label
-              className={`${styles.option_row} ${ecoDisposable ? styles.selected : ""
-                }`}
+              className={`${styles.option_row} ${
+                ecoDisposable ? styles.selected : ""
+              }`}
             >
               <input
                 type="checkbox"
@@ -157,8 +158,9 @@ export default function MenuModal({ isOpen, onClose, menuData }) {
 
           {/* 다회용 용기 */}
           <div
-            className={`${styles.reusable_card} ${reusable ? styles.reusable_active : ""
-              }`}
+            className={`${styles.reusable_card} ${
+              reusable ? styles.reusable_active : ""
+            }`}
           >
             <div className={styles.reusable_info}>
               <div className={styles.reusable_title}>
@@ -199,8 +201,7 @@ export default function MenuModal({ isOpen, onClose, menuData }) {
             {/* ✅ 동적으로 계산된 탄소량 표시 */}
             <span className={styles.carbon_total}>{carbonTotal}g CO2e</span>
           </div>
-          <button className={styles.submit_btn} onClick={handleAddToCart
-          }>
+          <button className={styles.submit_btn} onClick={handleAddToCart}>
             {totalPrice.toLocaleString()}원 담기
           </button>
         </div>
