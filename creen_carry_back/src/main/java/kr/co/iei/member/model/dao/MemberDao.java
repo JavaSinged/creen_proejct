@@ -10,4 +10,8 @@ public interface MemberDao {
 
 	Member loginMember(Member member);
 
+	String findId(Member member);
+
+	int resetPassword(Member member);
+
 }

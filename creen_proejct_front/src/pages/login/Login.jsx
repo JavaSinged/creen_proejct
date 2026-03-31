@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useContext } from "react"; // 🌟 useContext 추가
+import React, { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 import "./Login.css";
-import { AuthContext } from "../../context/AuthContext"; // 🌟 경로 확인 필수!
+import { AuthContext } from "../../context/AuthContext";
 
 const Login = () => {
-  // 1. 상태 관리
   const [member, setMember] = useState({
     memberId: "",
     memberPw: "",
@@ -15,7 +14,6 @@ const Login = () => {
   const [activeTab, setActiveTab] = useState("personal");
   const [rememberId, setRememberId] = useState(false);
 
-  // 🌟 Context에서 전역 상태 변경 함수 가져오기
   const { setIsLogin, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -40,6 +38,7 @@ const Login = () => {
     }));
   };
 
+  // 🌟 함수가 하나만 있어야 합니다!
   const login = () => {
     const { memberId, memberPw } = member;
 
@@ -51,23 +50,13 @@ const Login = () => {
       return;
     }
 
-    // 유효성 검사 로직 (생략 - 기존과 동일)
+    // 아이디 형식 검사 (admin1111 예외 처리)
     const idRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
-    if (!idRegex.test(memberId)) {
+    if (!idRegex.test(memberId) && memberId !== "admin1111") {
       Swal.fire({
         icon: "error",
         title: "아이디 형식 오류",
         text: "아이디는 영문과 숫자를 포함하여 8자 이상이어야 합니다.",
-      });
-      return;
-    }
-    const pwRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/;
-    if (!pwRegex.test(memberPw)) {
-      Swal.fire({
-        icon: "error",
-        title: "비밀번호 형식 오류",
-        text: "비밀번호는 영문 대/소문자, 숫자, 특수문자를 모두 포함하여 10자 이상이어야 합니다.",
       });
       return;
     }
@@ -76,30 +65,36 @@ const Login = () => {
       .post(`http://localhost:10400/api/member/login`, member)
       .then((res) => {
         console.log("로그인 응답 데이터:", res.data);
-
-        // 🌟 백엔드 Map 구조 분해 할당
         const { member: loginUser, accessToken } = res.data;
 
         if (loginUser && accessToken) {
-          // 1. 브라우저 저장소 보관 (새로고침 대비)
           localStorage.setItem("accessToken", accessToken);
           localStorage.setItem("memberName", loginUser.memberName);
           localStorage.setItem("memberGrade", loginUser.memberGrade);
 
-          // 🌟 2. 전역 상태 업데이트 (이걸 해야 Header 등이 즉시 바뀜)
           setIsLogin(true);
           setUser({
             memberName: loginUser.memberName,
             memberGrade: loginUser.memberGrade,
           });
 
-          const gradeText =
-            loginUser.memberGrade === 1 ? "개인 이용자" : "사업자";
+          // 환영 메시지 분기
+          let welcomeTitle = "로그인 성공!";
+          let welcomeHtml = "";
+
+          if (loginUser.memberGrade === 3) {
+            welcomeTitle = "관리자 시스템 접속";
+            welcomeHtml = `<b style="color: #2e7d32;">관리자님</b> 환영합니다! <br/>그린캐리 관리자 모드로 로그인되었습니다.`;
+          } else {
+            const gradeText =
+              loginUser.memberGrade === 1 ? "개인 이용자" : "사업자";
+            welcomeHtml = `<b>${loginUser.memberName}</b>님 (${gradeText}) 환영합니다!`;
+          }
 
           Swal.fire({
             icon: "success",
-            title: "로그인 성공!",
-            html: `<b>${loginUser.memberName}</b>님 (${gradeText}) 환영합니다!`,
+            title: welcomeTitle,
+            html: welcomeHtml,
             showConfirmButton: false,
             timer: 2000,
           });
@@ -125,7 +120,6 @@ const Login = () => {
 
   return (
     <div className="screen-container">
-      {/* UI 코드는 기존과 동일 */}
       <h1
         className="logo"
         style={{
