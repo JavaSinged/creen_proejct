@@ -1,34 +1,39 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import "./FindAccount.css";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import api from "../../utils/accessToken";
+// 🌟 방금 만든 Store 불러오기
+import useAccountStore from "../../store/accountStore";
 
 const Account = () => {
   const navigate = useNavigate();
 
-  // 1. 상태 관리
-  const [activeTab, setActiveTab] = useState("findId");
-  const [isCodeSent, setIsCodeSent] = useState(false);
-  const [isVerified, setIsVerified] = useState(false);
-  const [inputCode, setInputCode] = useState("");
+  // 🌟 Store에서 필요한 상태와 함수들을 한 번에 꺼내옵니다! (수많은 useState가 한 줄로 압축됨)
+  const {
+    activeTab,
+    isCodeSent,
+    isVerified,
+    inputCode,
+    timeLeft,
+    isTimerActive,
+    formData,
+    newPassword,
+    confirmPassword,
+    pwError,
+    matchError,
+    setIsCodeSent,
+    setIsVerified,
+    setInputCode,
+    setTimeLeft,
+    setIsTimerActive,
+    handleInputChange,
+    handleTabChange,
+    handlePwChange,
+    handleConfirmPwChange,
+  } = useAccountStore();
 
-  const [timeLeft, setTimeLeft] = useState(180);
-  const [isTimerActive, setIsTimerActive] = useState(false);
-
-  const [formData, setFormData] = useState({
-    memberName: "",
-    memberEmail: "",
-    memberId: "",
-  });
-
-  // 2. 새 비밀번호 관련 상태
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [pwError, setPwError] = useState("");
-  const [matchError, setMatchError] = useState("");
-
-  // 타이머 카운트다운 로직
+  // 타이머 로직 (API 호출이나 Effect는 컴포넌트에 남겨두는 것이 좋습니다)
   useEffect(() => {
     let timer;
     if (isTimerActive && timeLeft > 0) {
@@ -40,31 +45,12 @@ const Account = () => {
       clearInterval(timer);
     }
     return () => clearInterval(timer);
-  }, [isTimerActive, timeLeft]);
+  }, [isTimerActive, timeLeft, setTimeLeft, setIsTimerActive]);
 
   const formatTime = (seconds) => {
     const min = Math.floor(seconds / 60);
     const sec = seconds % 60;
     return `${min}:${sec < 10 ? "0" : ""}${sec}`;
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    setIsCodeSent(false);
-    setIsVerified(false);
-    setIsTimerActive(false);
-    setTimeLeft(180);
-    setInputCode("");
-    setNewPassword("");
-    setConfirmPassword("");
-    setPwError("");
-    setMatchError("");
-    setFormData({ memberName: "", memberEmail: "", memberId: "" });
   };
 
   const sendCode = () => {
@@ -74,69 +60,38 @@ const Account = () => {
     }
 
     api
-      .post("/api/member/sendAuthCode", {
-        memberEmail: formData.memberEmail,
-      })
+      .post("/api/member/sendAuthCode", { memberEmail: formData.memberEmail })
       .then(() => {
         setTimeLeft(180);
         setIsTimerActive(true);
         setInputCode("");
-
         Swal.fire({
           icon: "success",
           title: isCodeSent ? "인증번호 재전송 완료" : "인증번호 발송 완료",
           text: "입력하신 이메일로 인증번호가 발송되었습니다. (3분 이내 입력)",
         });
-
         setIsCodeSent(true);
       })
       .catch(() => {
         Swal.fire({
           icon: "error",
           title: "발송 실패",
-          text: "이메일 주소를 확인하거나 잠시 후 다시 시도해주세요.",
+          text: "잠시 후 다시 시도해주세요.",
         });
       });
   };
 
-  const handlePwChange = (val) => {
-    setNewPassword(val);
-    const pwRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/;
-    if (val && !pwRegex.test(val)) {
-      setPwError("대/소문자, 숫자, 특수문자 포함 10자 이상이어야 합니다.");
-    } else {
-      setPwError("");
-    }
-    if (confirmPassword && val !== confirmPassword) {
-      setMatchError("비밀번호가 일치하지 않습니다.");
-    } else {
-      setMatchError("");
-    }
-  };
-
-  const handleConfirmPwChange = (val) => {
-    setConfirmPassword(val);
-    if (newPassword !== val) {
-      setMatchError("비밀번호가 일치하지 않습니다.");
-    } else {
-      setMatchError("");
-    }
-  };
-
   const handleVerifySubmit = (e) => {
     e.preventDefault();
-
     if (!inputCode) {
       Swal.fire({ icon: "warning", title: "인증번호를 입력해주세요." });
       return;
     }
-
     if (timeLeft <= 0) {
       Swal.fire({
         icon: "error",
-        title: "인증 시간 만료",
-        text: "인증 시간이 초과되었습니다. 인증번호를 다시 받아주세요.",
+        title: "시간 만료",
+        text: "인증 시간이 초과되었습니다.",
       });
       return;
     }
@@ -144,11 +99,11 @@ const Account = () => {
     api
       .post("/api/member/verifyCode", {
         memberEmail: formData.memberEmail,
-        inputCode: inputCode,
+        inputCode,
       })
       .then((res) => {
         if (res.data === true || res.data === "true") {
-          setIsTimerActive(false); // 타이머 멈춤
+          setIsTimerActive(false);
 
           if (activeTab === "findId") {
             api
@@ -157,22 +112,19 @@ const Account = () => {
                 memberEmail: formData.memberEmail,
               })
               .then((resId) => {
-                // 🌟 [수정됨] Swal 확인을 누르면 로그인 화면으로 자동 이동
                 Swal.fire({
                   icon: "success",
                   title: "아이디 찾기 성공",
                   html: `고객님의 아이디는 <b>${resId.data}</b> 입니다.`,
-                }).then(() => {
-                  navigate("/login");
-                });
+                }).then(() => navigate("/login"));
               })
-              .catch(() => {
+              .catch(() =>
                 Swal.fire({
                   icon: "error",
                   title: "조회 실패",
                   text: "일치하는 정보가 없습니다.",
-                });
-              });
+                }),
+              );
           } else {
             api
               .post("/api/member/checkMember", {
@@ -180,23 +132,22 @@ const Account = () => {
                 memberEmail: formData.memberEmail,
               })
               .then((resCheck) => {
-                if (resCheck.data === true || resCheck.data === 1) {
+                if (resCheck.data === true || resCheck.data === 1)
                   setIsVerified(true);
-                } else {
+                else
                   Swal.fire({
                     icon: "error",
                     title: "인증 실패",
                     text: "정보가 일치하는 회원이 없습니다.",
                   });
-                }
               })
-              .catch(() => {
+              .catch(() =>
                 Swal.fire({
                   icon: "error",
                   title: "오류",
-                  text: "회원 정보 확인 중 문제가 발생했습니다.",
-                });
-              });
+                  text: "문제가 발생했습니다.",
+                }),
+              );
           }
         } else {
           Swal.fire({
@@ -206,13 +157,13 @@ const Account = () => {
           });
         }
       })
-      .catch(() => {
+      .catch(() =>
         Swal.fire({
           icon: "error",
           title: "오류",
-          text: "인증 확인 중 문제가 발생했습니다.",
-        });
-      });
+          text: "문제가 발생했습니다.",
+        }),
+      );
   };
 
   const handlePasswordChangeSubmit = (e) => {
@@ -229,17 +180,15 @@ const Account = () => {
           icon: "success",
           title: "변경 완료",
           text: "비밀번호가 성공적으로 변경되었습니다.",
-        }).then(() => {
-          navigate("/login");
-        });
+        }).then(() => navigate("/login"));
       })
-      .catch(() => {
+      .catch(() =>
         Swal.fire({
           icon: "error",
           title: "변경 실패",
-          text: "비밀번호 변경 중 오류가 발생했습니다.",
-        });
-      });
+          text: "오류가 발생했습니다.",
+        }),
+      );
   };
 
   return (
@@ -267,6 +216,7 @@ const Account = () => {
       </h1>
 
       <div className="main-content find-content">
+        {/* 좌측 정보 섹션 생략 없이 그대로 유지 */}
         <section className="info-section" style={{ width: "320px" }}>
           <div className="eco-brand">
             <span className="eco-icon">E</span>
@@ -479,6 +429,7 @@ const Account = () => {
           </div>
         </section>
 
+        {/* 우측 공백 맞춤 섹션 */}
         <section
           className="illustration-section"
           style={{ width: "320px", visibility: "hidden" }}
