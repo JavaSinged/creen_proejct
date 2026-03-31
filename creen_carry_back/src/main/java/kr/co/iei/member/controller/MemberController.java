@@ -87,6 +87,13 @@ public class MemberController {
 
        return ResponseEntity.ok(authCode); //React로 인증번호를 보내는 것
     }
+    
+    //user회원가입
+    @PostMapping(value="/userSignup")
+    public ResponseEntity<?> userSignup(@RequestBody Member member){
+    	int result = memberService.insertUser(member);
+    	return ResponseEntity.ok(result);
+    }
 
     
     

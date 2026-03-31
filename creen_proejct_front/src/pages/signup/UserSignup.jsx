@@ -12,6 +12,7 @@ const UserSignup = () => {
     memberPw: "",
     memberName: "",
     memberEmail: "",
+    memberPhone: "000-0000-0000",
     memberAddrCode: "",
     memberAddr: "",
     memberDetailAddr: "",
@@ -61,7 +62,7 @@ const UserSignup = () => {
         `${import.meta.env.VITE_BACKSERVER}/api/member/exists?memberId=${member.memberId}`,
       )
       .then((res) => {
-        console.log("중복 체크 결과:", res);
+        console.log("중복 체크 결과:", res.data);
 
         // res.data가 true면 중복(사용 불가), false면 사용 가능으로 가정
         if (res.data) {
@@ -107,7 +108,7 @@ const UserSignup = () => {
         // 타이머 시작
         const intervalId = window.setInterval(() => {
           setTime((prev) => prev - 1);
-        }, 100);
+        }, 1000);
         setTimeout(intervalId); // 타이머 멈추기 위해 ID 저장
       })
       .catch((err) => {
@@ -290,10 +291,16 @@ const UserSignup = () => {
       alert("입력하신 정보를 다시 확인해주세요.");
       return;
     }
-
-    console.log("가입 진행 데이터:", member);
-    alert("모든 절차를 통과했습니다! 회원가입 완료! (UI 테스트)");
-    navigate("/member/login");
+    axios
+      .post(`${import.meta.env.VITE_BACKSERVER}/api/member/userSignup`, member)
+      .then((res) => {
+        console.log("가입 진행 데이터:", res.data);
+        alert("회원가입이 완료됐습니다. 로그인페이지로 이동합니다.");
+        navigate("/login");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   return (

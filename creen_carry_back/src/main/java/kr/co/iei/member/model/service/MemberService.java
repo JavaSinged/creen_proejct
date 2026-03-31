@@ -46,6 +46,11 @@ public class MemberService {
 		Member member = memberDao.selectOneMember(memberId);
 		return member;
 	}
+
+	public int insertUser(Member member) {
+		int result = memberDao.insertUser(member);
+		return result;
+	}
 }
 
 
