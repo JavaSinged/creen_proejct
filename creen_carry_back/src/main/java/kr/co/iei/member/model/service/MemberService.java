@@ -41,20 +41,9 @@ public class MemberService {
         return null;
     }
 
-	public int insertManager(Member member) {
-		String memberPw = member.getMemberPw();
-		System.out.println(memberPw);
-		String encPw=passwordEncoder.encode(memberPw);
-		System.out.println(encPw);
-		member.setMemberPw(encPw);
-		int result = memberDao.insertManager(member);
-		System.out.println(member);
-		
-		return 0;
-	}
-
-	public Member storeDupCheck(int storeOwnerNo) {
-		Member member = memberDao.storeDupCheck(storeOwnerNo);
+    //user 아이디 중복체크
+	public Member selectOneMember(String memberId) {
+		Member member = memberDao.selectOneMember(memberId);
 		return member;
 	}
 }
