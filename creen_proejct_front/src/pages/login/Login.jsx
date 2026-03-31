@@ -82,7 +82,7 @@ const Login = () => {
           let welcomeTitle = "로그인 성공!";
           let welcomeHtml = "";
 
-          if (loginUser.memberGrade === 3) {
+          if (loginUser.memberGrade === 0) {
             welcomeTitle = "관리자 시스템 접속";
             welcomeHtml = `<b style="color: #2e7d32;">관리자님</b> 환영합니다! <br/>그린캐리 관리자 모드로 로그인되었습니다.`;
           } else {

@@ -45,7 +45,7 @@ export default function Header() {
         {isLogin && (
           <span className={styles.user_info}>
             <b>{user.memberName}</b>님 (
-            {user.memberGrade === 3
+            {user.memberGrade === 0
               ? "관리자"
               : user.memberGrade === 1
                 ? "개인"

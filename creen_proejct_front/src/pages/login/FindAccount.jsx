@@ -309,7 +309,7 @@ const Account = () => {
                   <input
                     type="text"
                     className="full-input"
-                    placeholder="인증번호 입력 (111111)"
+                    placeholder="테스트용 인증번호 (111111)"
                     value={inputCode}
                     onChange={(e) => setInputCode(e.target.value)}
                     required
