@@ -167,6 +167,8 @@ export default function UserInfoEdit() {
                         name="zipCode"
                         value={addressData.zipCode}
                         onChange={handleAddressChange}
+                        readOnly
+                        placeholder="우편주소"
                       />
                     </div>
                     <button className={styles.find_address_btn}>주소 찾기</button>
@@ -182,6 +184,8 @@ export default function UserInfoEdit() {
                       name="address"
                       value={addressData.address}
                       onChange={handleAddressChange}
+                      readOnly
+                      placeholder="주소"
                     />
                   </div>
                 </div>
