@@ -321,3 +321,27 @@ button {
 .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
   border-color: var(--color-brand) !important;
 }
+
+.greencarry-swal-popup {
+  border-radius: 20px !important; /* 둥글게 둥글게 */
+  padding: 2rem !important;
+  font-family: "Pretendard", sans-serif; /* 사이트 폰트와 맞추기 */
+}
+
+.greencarry-swal-title {
+  color: var(--color-brand) !important; /* 초록색 포인트 */
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+}
+
+.greencarry-swal-confirm-button {
+  background-color: var(--color-brand) !important; /* 확인 버튼 배경색 */
+  border-radius: 10px !important;
+  padding: 10px 25px !important;
+  font-size: 1rem !important;
+}
+
+.greencarry-swal-cancel-button {
+  border-radius: 10px !important;
+  padding: 10px 25px !important;
+}

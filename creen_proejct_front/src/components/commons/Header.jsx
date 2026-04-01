@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import styles from "./Header.module.css";
-import Swal from "sweetalert2"; // 🌟 Swal 추가
+import Swal from "sweetalert2";
 
 // Icons
 import ParkIcon from "@mui/icons-material/Park";
@@ -18,6 +18,24 @@ export default function Header() {
   // isLoading 상태 꺼내오기
   const { isLogin, user, logout, isLoading } = useContext(AuthContext);
 
+  // 🎨 GreenCarry 전용 Swal 출력 함수 (내부 전용)
+  const fireStyledSwal = (icon, title, text) => {
+    return Swal.fire({
+      icon: icon,
+      title: title,
+      text: text,
+      customClass: {
+        popup: "greencarry-swal-popup",
+        title: "greencarry-swal-title",
+        confirmButton: "greencarry-swal-confirm-button",
+      },
+      buttonsStyling: false,
+      confirmButtonText: "확인",
+      showConfirmButton: icon === "warning", // 경고일 때만 확인 버튼 보여줌
+      timer: icon === "success" ? 1500 : undefined, // 성공 시에는 1.5초 뒤 자동 닫힘
+    });
+  };
+
   // 🌟 마이페이지 클릭 시 실행될 함수
   const handleMyPageClick = () => {
     if (isLogin) {
@@ -25,32 +43,34 @@ export default function Header() {
       let targetPath = "/mypage/user"; // 기본값 (개인)
       let roleText = "에코 히어로";
 
-      if (user?.memberGrade === 0) {
+      // 등급을 숫자로 확실하게 변환해서 비교
+      const grade = Number(user?.memberGrade);
+
+      if (grade === 0) {
         targetPath = "/mypage/admin";
         roleText = "관리자";
-      } else if (user?.memberGrade === 2) {
+      } else if (grade === 2) {
         targetPath = "/mypage/manager";
         roleText = "파트너";
       }
 
-      Swal.fire({
-        icon: "success",
-        title: "마이페이지",
-        text: `${roleText}님의 공간으로 이동합니다.`,
-        showConfirmButton: false,
-        timer: 1500, // 1.5초 뒤 자동 이동
-      }).then(() => {
+      fireStyledSwal(
+        "success",
+        "마이페이지 이동",
+        `${roleText}님의 공간으로 이동합니다.`,
+      ).then(() => {
         navigate(targetPath);
       });
     } else {
-      Swal.fire({
-        icon: "warning",
-        title: "로그인 필요",
-        text: "로그인 페이지로 이동합니다.",
-        showConfirmButton: false,
-        timer: 1500,
-      }).then(() => {
-        navigate("/login");
+      // 로그인이 필요한 경우
+      fireStyledSwal(
+        "warning",
+        "로그인 필요",
+        "로그인 후 이용할 수 있습니다. 로그인 페이지로 이동할까요?",
+      ).then((result) => {
+        if (result.isConfirmed) {
+          navigate("/login");
+        }
       });
     }
   };
@@ -80,15 +100,14 @@ export default function Header() {
 
       {/* 3. 버튼 및 유저 상태 영역 */}
       <div className={styles.button_wrap}>
-        {/* 로딩 중일 때는 깜빡임을 막기 위해 빈 공간 처리 */}
         {isLoading ? null : (
           <>
             {isLogin && user && (
               <span className={styles.user_info}>
                 <b>{user.memberName}</b>님 (
-                {user.memberGrade === 0
+                {Number(user.memberGrade) === 0
                   ? "관리자"
-                  : user.memberGrade === 1
+                  : Number(user.memberGrade) === 1
                     ? "개인"
                     : "사업자"}
                 )
@@ -97,7 +116,7 @@ export default function Header() {
 
             <NotificationsNoneIcon style={{ cursor: "pointer" }} />
 
-            {/* 🌟 마이페이지 아이콘: Link 대신 onClick 이벤트 연결 */}
+            {/* 🌟 마이페이지 아이콘: 클릭 시 커스텀 Swal 실행 */}
             <div
               onClick={handleMyPageClick}
               style={{ cursor: "pointer", display: "flex" }}
@@ -108,7 +127,7 @@ export default function Header() {
             {/* 로그인/로그아웃 토글 버튼 */}
             {isLogin ? (
               <div
-                onClick={logout}
+                onClick={() => logout()} // 수동 로그아웃 실행
                 style={{
                   cursor: "pointer",
                   display: "flex",

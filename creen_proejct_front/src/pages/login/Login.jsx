@@ -89,7 +89,7 @@ const Login = () => {
           if (grade === 0) {
             // 관리자
             welcomeTitle = "관리자 시스템 접속";
-            welcomeHtml = `<b style="color: #2e7d32;">관리자님</b> 환영합니다! <br/>그린캐리 관리자 모드로 로그인되었습니다.`;
+            welcomeHtml = `<b style="color: var(--color-brand);">관리자님</b> 환영합니다! <br/>그린캐리 관리자 모드로 로그인되었습니다.`;
             targetPath = "/mypage/admin";
           } else if (grade === 2) {
             // 사업자
@@ -115,6 +115,14 @@ const Login = () => {
             icon: "success",
             title: welcomeTitle,
             html: welcomeHtml,
+            customClass: {
+              popup: "greencarry-swal-popup",
+              title: "greencarry-swal-title",
+              confirmButton: "greencarry-swal-confirm-button",
+              cancelButton: "greencarry-swal-cancel-button",
+            },
+
+            buttonsStyling: false, // ⚠️ 중요: Swal 기본 버튼 스타일을 꺼야 커스텀 CSS가 잘 먹습니다.
             showConfirmButton: false,
             timer: 2000,
           }).then(() => {
