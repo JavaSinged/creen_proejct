@@ -226,15 +226,6 @@ const Account = () => {
       <div className="main-content find-content">
         {/* 좌측 정보 섹션 생략 없이 그대로 유지 */}
         <section className="info-section" style={{ width: "320px" }}>
-          <div className="eco-brand">
-            <span className="eco-icon">E</span>
-            <span
-              className="eco-text"
-              style={{ fontFamily: "var(--font-sub)" }}
-            >
-              Eco-Delivery
-            </span>
-          </div>
           <h2
             className="main-title"
             style={{ fontFamily: "var(--font-title)" }}
@@ -433,7 +424,6 @@ const Account = () => {
             <Link to="/login" className="back-to-login">
               ← 로그인 화면으로 돌아가기
             </Link>
-            <div className="footer-logo">GreenCarry</div>
           </div>
         </section>
 

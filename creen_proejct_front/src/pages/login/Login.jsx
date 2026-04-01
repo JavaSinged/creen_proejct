@@ -155,10 +155,7 @@ const Login = () => {
 
       <div className="main-content">
         <section className="info-section">
-          <div className="eco-brand">
-            <span className="eco-icon">E</span>
-            <span className="eco-text">Eco-Delivery</span>
-          </div>
+          <div className="eco-brand"></div>
           <h2 className="main-title">
             탄소 발자국을 줄이는
             <br />
