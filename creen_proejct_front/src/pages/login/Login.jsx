@@ -92,12 +92,12 @@ const Login = () => {
             welcomeTitle = "관리자 시스템 접속";
             welcomeHtml = `<b style="color: #2e7d32;">관리자님</b> 환영합니다! <br/>그린캐리 관리자 모드로 로그인되었습니다.
             <br/>관리자 페이지로 이동합니다.`;
-            targetPath = "/"; // 🚩 실제 구현 시: targetPath = "/admin/dashboard";
+            targetPath = "/mypage/admin"; // 🚩 실제 구현 시: targetPath = "/admin/dashboard";
           } else if (loginUser.memberGrade === 2) {
             // 사업자
             welcomeTitle = "파트너 센터 접속";
             welcomeHtml = `<b>${loginUser.memberName}</b> 사장님! <br/>매장 관리 화면으로 이동합니다.`;
-            targetPath = "/"; // 🚩 실제 구현 시: targetPath = "/seller/store-manage";
+            targetPath = "/mypage/manager"; // 🚩 실제 구현 시: targetPath = "/seller/store-manage";
           } else {
             // 개인 사용자 (Grade 1 등)
             welcomeTitle = "로그인 성공!";
@@ -155,10 +155,7 @@ const Login = () => {
 
       <div className="main-content">
         <section className="info-section">
-          <div className="eco-brand">
-            <span className="eco-icon">E</span>
-            <span className="eco-text">Eco-Delivery</span>
-          </div>
+          <div className="eco-brand"></div>
           <h2 className="main-title">
             탄소 발자국을 줄이는
             <br />

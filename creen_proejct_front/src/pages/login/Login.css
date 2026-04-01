@@ -18,7 +18,6 @@
 }
 
 /* 4. 서브 타이틀 및 강조 텍스트 (여기어때 고딕) */
-.eco-text,
 .card-title,
 .find-tab-btn {
   font-family: var(--font-sub); /* ✨ 부제목/탭 버튼 등에 적용 */
@@ -104,23 +103,6 @@ button {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.eco-icon {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  width: 24px;
-  height: 24px;
-  background-color: var(--color-bg);
-  color: var(--color-brand);
-  border-radius: 5px;
-  font-weight: 900;
-}
-
-.eco-text {
-  font-size: 1.1rem;
-  font-weight: 700;
 }
 
 .main-title {
