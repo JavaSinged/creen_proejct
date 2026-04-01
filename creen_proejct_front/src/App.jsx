@@ -8,6 +8,8 @@ import StoreDetail from "./pages/main/StoreDetail";
 import NotFound from "./pages/error/NotFound";
 
 import OrderPage from "./pages/order/OrderPage";
+import PaymentPage from "./pages/order/PaymentPage";
+import CheckoutPage from "./pages/order/CheckoutPage";
 
 import Login from "./pages/login/login";
 import Account from "./pages/login/FindAccount";
@@ -52,6 +54,13 @@ function App() {
             <Route path="/storeView" element={<StoreView />} />
             <Route path="/storeDetail" element={<StoreDetail />} />
 
+            {/* store */}
+            <Route path="/storeView" element={<StoreView />}></Route>
+            <Route path="/storeDetail" element={<StoreDetail />}></Route>
+            <Route path="/orderPage" element={<OrderPage />}></Route>
+            <Route path="/paymentPage" element={<PaymentPage />}></Route>
+            <Route path="/checkoutPage" element={<CheckoutPage />}></Route>
+
             {/* 🧑 일반 유저 마이페이지 */}
             <Route path="/mypage/user" element={<UserLayout />}>
               <Route index element={<UserProfile />} />
@@ -78,6 +87,9 @@ function App() {
               <Route path="*" element={<NotFound />} />
             </Route>
           </Route>
+
+          {/* 없는 페이지 라우트 */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
     </AuthProvider>
