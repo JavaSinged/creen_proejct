@@ -9,62 +9,64 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const logoutTimerRef = useRef(null);
-  // 🌟 수동 로그아웃 중인지 확인하는 깃발 (이중 방어)
   const isLoggingOut = useRef(false);
 
-  // 🎨 [CSS 직접 주입] 별도 CSS 파일 없이 스타일 적용
+  // 🎨 [CSS 직접 주입] 아이콘 색상 및 버튼 테두리(outline) 완벽 제거
   useEffect(() => {
     const style = document.createElement("style");
     style.innerHTML = `
-    /* 팝업 전체 창 */
-    .greencarry-swal-popup {
-      border-radius: 20px !important;
-      padding: 2rem !important;
-      font-family: 'Pretendard', sans-serif;
-    }
+      .greencarry-swal-popup {
+        border-radius: 20px !important;
+        padding: 2rem !important;
+        font-family: 'Pretendard', sans-serif;
+      }
+      .greencarry-swal-title {
+        color: var(--color-brand, #2e7d32) !important;
+        font-size: 1.5rem !important;
+        font-weight: 700 !important;
+      }
 
-    /* 제목 색상 */
-    .greencarry-swal-title {
-      color: var(--color-brand) !important;
-      font-size: 1.5rem !important;
-      font-weight: 700 !important;
-    }
+      /* ⚠️ 경고(Warning) 아이콘 색상 변경 */
+      .swal2-icon.swal2-warning {
+        border-color: var(--color-brand, #2e7d32) !important;
+        color: var(--color-brand, #2e7d32) !important;
+      }
 
-    /* [핵심] 느낌표(warning) 아이콘 색상 변경 */
-    .swal2-icon.swal2-warning {
-      border-color: var(--color-brand) !important; /* 동그란 테두리를 초록색으로 */
-      color: var(--color-brand) !important;        /* 느낌표(!)를 초록색으로 */
-    }
+      /* ✅ 성공(Success) 아이콘 색상 변경 */
+      .swal2-icon.swal2-success {
+        border-color: var(--color-brand, #2e7d32) !important;
+      }
+      .swal2-icon.swal2-success [class^='swal2-success-line'] {
+        background-color: var(--color-brand, #2e7d32) !important;
+      }
+      .swal2-icon.swal2-success .swal2-success-ring {
+        border: 4px solid var(--color-brand, #2e7d32) !important;
+        opacity: 0.3;
+      }
 
-    /* [핵심] 체크(success) 아이콘 색상 변경 (필요 시) */
-    .swal2-icon.swal2-success {
-      border-color: var(--color-brand) !important;
-    }
-    .swal2-icon.swal2-success [class^='swal2-success-line'] {
-      background-color: var(--color-brand) !important; /* 체크 표시 선을 초록색으로 */
-    }
-    .swal2-icon.swal2-success .swal2-success-ring {
-      border: 4px solid rgba(46, 125, 50, 0.3) !important; /* 바깥 원 연하게 */
-    }
-
-    /* 확인 버튼 */
-    .greencarry-swal-confirm-button {
-      background-color: var(--color-brand) !important;
-      color: white !important;
-      border-radius: 12px !important;
-      padding: 12px 35px !important;
-      font-size: 1rem !important;
-      font-weight: 600 !important;
-      margin-top: 1rem !important;
-      cursor: pointer;
-      border: none !important;
-      outline: none !important;       /* 포커스 시 생기는 외곽선 제거 */
-      box-shadow: none !important;    /* 그림자(보통 푸르스름한 선) 제거 */
-    }
-    .greencarry-swal-confirm-button:hover {
-      background-color: #1b5e20 !important;
-    }
-  `;
+      /* 🔘 확인 버튼 스타일 (경계선 완벽 제거) */
+      .greencarry-swal-confirm-button {
+        background-color: var(--color-brand, #2e7d32) !important;
+        color: white !important;
+        border-radius: 12px !important;
+        padding: 12px 35px !important;
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+        margin-top: 1rem !important;
+        cursor: pointer;
+        border: none !important;
+        outline: none !important;      /* 🚨 포커스 외곽선 제거 */
+        box-shadow: none !important;   /* 🚨 그림자 선 제거 */
+      }
+      .greencarry-swal-confirm-button:hover {
+        filter: brightness(0.9);
+      }
+      .greencarry-swal-confirm-button:focus,
+      .greencarry-swal-confirm-button:active {
+        outline: none !important;
+        box-shadow: none !important;
+      }
+    `;
     document.head.appendChild(style);
   }, []);
 
@@ -84,44 +86,41 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
+  // 🧹 [핵심 로직] 아이디 저장(savedUserId)을 살리기 위한 핀셋 삭제 함수
+  const clearAuthData = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("memberId");
+    localStorage.removeItem("memberName");
+    localStorage.removeItem("memberGrade");
+    setIsLogin(false);
+    setUser(null);
+  };
+
   // 🌟 로그아웃 함수
   const logout = (isExpired = false) => {
-    // 1. 수동 로그아웃이라면 즉시 깃발을 올림
-    if (!isExpired) {
-      isLoggingOut.current = true;
-    }
+    if (!isExpired) isLoggingOut.current = true;
 
-    // 2. 타이머 즉시 제거
     if (logoutTimerRef.current) {
       clearTimeout(logoutTimerRef.current);
       logoutTimerRef.current = null;
     }
 
-    // 3. 만료로 인한 로그아웃일 때
     if (isExpired) {
+      // 자동 로그아웃일 때 (수동 로그아웃 중이 아닐 때만 팝업 띄움)
       if (!isLoggingOut.current && localStorage.getItem("accessToken")) {
-        // 🚨 [핵심 보안 패치] 팝업이 뜨기 직전, 가장 중요한 '토큰'만 즉시 파기합니다!
-        // 이렇게 하면 화면(isLogin)은 유지되어 팝업이 예쁘게 뜨지만,
-        // 사용자가 확인을 안 누르고 도망가도(새로고침) 다음 접속 시 무조건 비회원이 됩니다.
-        localStorage.removeItem("accessToken");
+        clearAuthData(); // 핀셋 삭제 실행
 
         fireStyledSwal(
           "warning",
           "세션 만료",
           "로그인 유지 시간이 만료되어 자동 로그아웃 되었습니다.",
         ).then(() => {
-          // 🌟 확인을 누르면 나머지 찌꺼기 정보도 모두 지우고 완벽하게 메인으로 이동
-          localStorage.clear();
-          setIsLogin(false);
-          setUser(null);
           window.location.replace("/");
         });
       }
     } else {
-      // 4. 수동 로그아웃일 때 (즉시 비우고 이동)
-      localStorage.clear();
-      setIsLogin(false);
-      setUser(null);
+      // 수동 로그아웃일 때 즉시 비우고 이동
+      clearAuthData(); // 핀셋 삭제 실행
       window.location.replace("/");
     }
   };
@@ -149,15 +148,13 @@ export const AuthProvider = ({ children }) => {
           });
 
           // 🌟 남은 시간 계산 (24일 초과 시 타이머 오버플로 방지)
-          const remainingTimeInMs = 5000; //테스트용 시간 5초
-          //const remainingTimeInMs = (decodedPayload.exp - currentTime) * 1000;
+          const remainingTimeInMs = (decodedPayload.exp - currentTime) * 1000;
 
           if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
 
-          // 자바스크립트 setTimeout 한계(약 24.8일) 체크
+          // 자바스크립트 setTimeout 한계(약 24.8일) 체크하여 안전할 때만 타이머 실행
           if (remainingTimeInMs > 0 && remainingTimeInMs < 2147483647) {
             logoutTimerRef.current = setTimeout(() => {
-              // 실행 직전 수동 로그아웃 중인지 최종 확인
               if (!isLoggingOut.current) {
                 logout(true);
               }
@@ -166,7 +163,11 @@ export const AuthProvider = ({ children }) => {
         }
       } catch (error) {
         console.error("토큰 검증 에러:", error);
-        localStorage.clear();
+        // ❌ 에러 났을 때도 clear() 대신 핀셋 삭제 사용!
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("memberId");
+        localStorage.removeItem("memberName");
+        localStorage.removeItem("memberGrade");
       }
     }
 
