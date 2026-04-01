@@ -14,11 +14,9 @@ import { AuthContext } from "../../context/AuthContext";
 
 export default function Header() {
   const navigate = useNavigate();
-
-  // isLoading 상태 꺼내오기
   const { isLogin, user, logout, isLoading } = useContext(AuthContext);
 
-  // 🎨 GreenCarry 전용 Swal 출력 함수 (내부 전용)
+  // 🎨 GreenCarry 전용 Swal 스타일 함수
   const fireStyledSwal = (icon, title, text) => {
     return Swal.fire({
       icon: icon,
@@ -31,19 +29,28 @@ export default function Header() {
       },
       buttonsStyling: false,
       confirmButtonText: "확인",
-      showConfirmButton: icon === "warning", // 경고일 때만 확인 버튼 보여줌
-      timer: icon === "success" ? 1500 : undefined, // 성공 시에는 1.5초 뒤 자동 닫힘
+      timer: 1500, // 1.5초 후 자동 닫힘
+      showConfirmButton: false, // 버튼 없이 깔끔하게 문구만 노출
     });
   };
 
-  // 🌟 마이페이지 클릭 시 실행될 함수
+  // 🌟 [수정] 클릭 시 즉시 안내 문구 노출 후 로그아웃
+  const handleLogoutClick = () => {
+    fireStyledSwal(
+      "success",
+      "로그아웃 완료",
+      "안전하게 로그아웃 되었습니다. 메인으로 이동합니다.",
+    ).then(() => {
+      // 팝업이 닫히거나 시간이 다 되면 즉시 로그아웃 실행
+      logout();
+    });
+  };
+
+  // 마이페이지 클릭 함수
   const handleMyPageClick = () => {
     if (isLogin) {
-      // 권한별 목적지 설정
-      let targetPath = "/mypage/user"; // 기본값 (개인)
+      let targetPath = "/mypage/user";
       let roleText = "에코 히어로";
-
-      // 등급을 숫자로 확실하게 변환해서 비교
       const grade = Number(user?.memberGrade);
 
       if (grade === 0) {
@@ -56,40 +63,29 @@ export default function Header() {
 
       fireStyledSwal(
         "success",
-        "마이페이지 이동",
+        "이동 중",
         `${roleText}님의 공간으로 이동합니다.`,
-      ).then(() => {
-        navigate(targetPath);
-      });
+      ).then(() => navigate(targetPath));
     } else {
-      // 로그인이 필요한 경우
       fireStyledSwal(
         "warning",
         "로그인 필요",
-        "로그인 후 이용할 수 있습니다. 로그인 페이지로 이동할까요?",
-      ).then((result) => {
-        if (result.isConfirmed) {
-          navigate("/login");
-        }
-      });
+        "로그인 페이지로 이동합니다.",
+      ).then(() => navigate("/login"));
     }
   };
 
   return (
     <header className={styles.header}>
-      {/* 1. 로고 영역 */}
       <div
         className={styles.logo_wrap}
-        onClick={() => {
-          navigate("/");
-        }}
+        onClick={() => navigate("/")}
         style={{ cursor: "pointer" }}
       >
         <img src="/image/logo.png" alt="GreenCarry Logo" />
         <h5 className={styles.logo_text}>GreenCarry</h5>
       </div>
 
-      {/* 2. 중앙 나무 통계 영역 */}
       <div className={styles.center_wrap}>
         <ParkIcon />
         <h5>
@@ -98,7 +94,6 @@ export default function Header() {
         </h5>
       </div>
 
-      {/* 3. 버튼 및 유저 상태 영역 */}
       <div className={styles.button_wrap}>
         {isLoading ? null : (
           <>
@@ -116,7 +111,6 @@ export default function Header() {
 
             <NotificationsNoneIcon style={{ cursor: "pointer" }} />
 
-            {/* 🌟 마이페이지 아이콘: 클릭 시 커스텀 Swal 실행 */}
             <div
               onClick={handleMyPageClick}
               style={{ cursor: "pointer", display: "flex" }}
@@ -124,10 +118,10 @@ export default function Header() {
               <PersonIcon titleAccess="마이페이지" />
             </div>
 
-            {/* 로그인/로그아웃 토글 버튼 */}
+            {/* 🌟 로그아웃 버튼: 클릭 시 바로 문구 -> 로그아웃 */}
             {isLogin ? (
               <div
-                onClick={() => logout()} // 수동 로그아웃 실행
+                onClick={handleLogoutClick}
                 style={{
                   cursor: "pointer",
                   display: "flex",
