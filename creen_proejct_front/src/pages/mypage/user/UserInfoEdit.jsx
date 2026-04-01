@@ -1,14 +1,14 @@
 import styles from "./UserInfoEdit.module.css";
-import AccountCircleSharpIcon from '@mui/icons-material/AccountCircleSharp';
-import BorderColorIcon from '@mui/icons-material/BorderColor';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import Collapse from '@mui/material/Collapse';
-import HomeIcon from '@mui/icons-material/Home';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import AccountCircleSharpIcon from "@mui/icons-material/AccountCircleSharp";
+import BorderColorIcon from "@mui/icons-material/BorderColor";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import Collapse from "@mui/material/Collapse";
+import HomeIcon from "@mui/icons-material/Home";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function UserInfoEdit() {
   const navigate = useNavigate();
@@ -24,28 +24,30 @@ export default function UserInfoEdit() {
   const [pwData, setPwData] = useState({
     currentPw: "",
     newPw: "",
-    confirmPw: ""
+    confirmPw: "",
   });
   const [addressData, setAddressDate] = useState({
     zipCode: "",
     address: "",
-    detailAddress: ""
+    detailAddress: "",
   });
   const userInfo = {
     email: "aaa@gmail.com",
     name: "김이름",
-    phoneNumber: "010-0000-0000"
+    phoneNumber: "010-0000-0000",
   };
   const handleAddressChange = (e) => {
     const { name, value } = e.target;
     setAddressDate({ ...addressData, [name]: value });
-  }
+  };
   const handlePwChange = (e) => {
     const { name, value } = e.target;
     setPwData({ ...pwData, [name]: value });
-  }
+  };
   const handleDeleteClick = () => {
-    const isConfirmed = window.confirm("정말로 탈퇴하시겠습니까? 데이터는 복구할 수 없습니다 ㅜㅜ");
+    const isConfirmed = window.confirm(
+      "정말로 탈퇴하시겠습니까? 데이터는 복구할 수 없습니다 ㅜㅜ",
+    );
     if (isConfirmed) {
       navigate("/nooo");
     }
@@ -61,10 +63,14 @@ export default function UserInfoEdit() {
           <div className={styles.dashboard}>
             <p className={styles.dashboard_email}>{userInfo.email}</p>
             <p className={styles.dashboard_name}>{userInfo.name}</p>
-            <p className={styles.dashboard_phoneNumber}>{userInfo.phoneNumber}</p>
+            <p className={styles.dashboard_phoneNumber}>
+              {userInfo.phoneNumber}
+            </p>
           </div>
         </div>
-        <div className={styles.set_icon}><BorderColorIcon /></div>
+        <div className={styles.set_icon}>
+          <BorderColorIcon />
+        </div>
       </section>
 
       <section className={styles.mini_box}>
@@ -91,7 +97,8 @@ export default function UserInfoEdit() {
                       onChange={handlePwChange}
                       placeholder="현재 비밀번호 입력"
                     />
-                    <div className={styles.eye_icon}
+                    <div
+                      className={styles.eye_icon}
                       //아이콘
                       onClick={() => setShowCurrentPw(!showCurrentPw)}
                     >
@@ -111,7 +118,10 @@ export default function UserInfoEdit() {
                       onChange={handlePwChange}
                       placeholder="새 비밀번호 입력"
                     />
-                    <div className={styles.eye_icon} onClick={() => setShowNewPw(!showNewPw)}>
+                    <div
+                      className={styles.eye_icon}
+                      onClick={() => setShowNewPw(!showNewPw)}
+                    >
                       {showNewPw ? <Visibility /> : <VisibilityOff />}
                     </div>
                   </div>
@@ -128,16 +138,17 @@ export default function UserInfoEdit() {
                       onChange={handlePwChange}
                       placeholder="새 비밀번호 재입력"
                     />
-                    <div className={styles.eye_icon} onClick={() => setShowConfirmPw(!showConfirmPw)}>
+                    <div
+                      className={styles.eye_icon}
+                      onClick={() => setShowConfirmPw(!showConfirmPw)}
+                    >
                       {showConfirmPw ? <Visibility /> : <VisibilityOff />}
                     </div>
                   </div>
                 </div>
                 <div className={styles.pw_input_row}>
                   <label></label>
-                  <button className={styles.submit_btn}>
-                    변경하기
-                  </button>
+                  <button className={styles.submit_btn}>변경하기</button>
                 </div>
               </div>
             </div>
@@ -154,8 +165,9 @@ export default function UserInfoEdit() {
           </div>
           <Collapse in={openAddSet} timeout="auto" unmountOnExit>
             <div className={styles.add_content_box}>
-              <div className={styles.pw_form_container}> {/* 클래스 재활용! */}
-
+              <div className={styles.pw_form_container}>
+                {" "}
+                {/* 클래스 재활용! */}
                 {/* 1. 우편번호 & 주소 찾기 버튼 */}
                 <div className={styles.pw_input_row}>
                   <label>우편번호</label>
@@ -169,10 +181,11 @@ export default function UserInfoEdit() {
                         onChange={handleAddressChange}
                       />
                     </div>
-                    <button className={styles.find_address_btn}>주소 찾기</button>
+                    <button className={styles.find_address_btn}>
+                      주소 찾기
+                    </button>
                   </div>
                 </div>
-
                 {/* 2. 주소 */}
                 <div className={styles.pw_input_row}>
                   <label>주소</label>
@@ -185,7 +198,6 @@ export default function UserInfoEdit() {
                     />
                   </div>
                 </div>
-
                 {/* 3. 상세 주소 */}
                 <div className={styles.pw_input_row}>
                   <label>상세 주소</label>
@@ -198,13 +210,11 @@ export default function UserInfoEdit() {
                     />
                   </div>
                 </div>
-
                 {/* 4. 주소 추가 버튼 */}
                 <div className={styles.pw_input_row}>
                   <label></label>
                   <button className={styles.submit_btn}>주소 추가</button>
                 </div>
-
               </div>
 
               {/* 5. 현재 주소지 표시 영역 */}
@@ -217,7 +227,9 @@ export default function UserInfoEdit() {
                       <span className={styles.address_name}>집</span>
                       <span className={styles.address_tag}>현재 주소</span>
                     </div>
-                    <p className={styles.address_detail}>서울시 종로구 대왕빌딩 301</p>
+                    <p className={styles.address_detail}>
+                      서울시 종로구 대왕빌딩 301
+                    </p>
                   </div>
                 </div>
               </div>

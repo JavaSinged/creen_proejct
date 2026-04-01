@@ -18,7 +18,6 @@
 }
 
 /* 4. 서브 타이틀 및 강조 텍스트 (여기어때 고딕) */
-.eco-text,
 .card-title,
 .find-tab-btn {
   font-family: var(--font-sub); /* ✨ 부제목/탭 버튼 등에 적용 */
@@ -104,23 +103,6 @@ button {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.eco-icon {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  width: 24px;
-  height: 24px;
-  background-color: var(--color-bg);
-  color: var(--color-brand);
-  border-radius: 5px;
-  font-weight: 900;
-}
-
-.eco-text {
-  font-size: 1.1rem;
-  font-weight: 700;
 }
 
 .main-title {
@@ -338,4 +320,28 @@ button {
 /* 3. 포커스(클릭) 시에는 다시 브랜드 컬러로! */
 .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
   border-color: var(--color-brand) !important;
+}
+
+.greencarry-swal-popup {
+  border-radius: 20px !important; /* 둥글게 둥글게 */
+  padding: 2rem !important;
+  font-family: "Pretendard", sans-serif; /* 사이트 폰트와 맞추기 */
+}
+
+.greencarry-swal-title {
+  color: var(--color-brand) !important; /* 초록색 포인트 */
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+}
+
+.greencarry-swal-confirm-button {
+  background-color: var(--color-brand) !important; /* 확인 버튼 배경색 */
+  border-radius: 10px !important;
+  padding: 10px 25px !important;
+  font-size: 1rem !important;
+}
+
+.greencarry-swal-cancel-button {
+  border-radius: 10px !important;
+  padding: 10px 25px !important;
 }

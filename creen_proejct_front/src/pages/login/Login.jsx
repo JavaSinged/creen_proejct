@@ -1,31 +1,39 @@
-import React, { useState, useEffect, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 import "./Login.css";
-import { AuthContext } from "../../context/AuthContext";
-import PersonIcon from "@mui/icons-material/Person"; // 사람 모양
-import LockIcon from "@mui/icons-material/Lock"; // 자물쇠 모양
-import InputAdornment from "@mui/material/InputAdornment"; // 아이콘 배치를 위한 컴포넌트
-import TextField from "@mui/material/TextField"; // MUI 입력창 (기존 input 대신 사용 권장)
+
+// MUI Icons & Components
+import PersonIcon from "@mui/icons-material/Person";
+import LockIcon from "@mui/icons-material/Lock";
+import InputAdornment from "@mui/material/InputAdornment";
+import TextField from "@mui/material/TextField";
 
 const Login = () => {
   const [member, setMember] = useState({
     memberId: "",
     memberPw: "",
-    memberGrade: 1,
+    memberGrade: 1, // 1: 개인, 2: 사업자, 0: 관리자
   });
   const [activeTab, setActiveTab] = useState("personal");
+
+  // 🌟 1. 아이디 저장 체크박스 상태
   const [rememberId, setRememberId] = useState(false);
 
-  const { setIsLogin, setUser } = useContext(AuthContext);
-  const navigate = useNavigate();
+  // 🎨 GreenCarry 전용 Swal 스타일 공통 객체
+  const swalCustomClass = {
+    popup: "greencarry-swal-popup",
+    title: "greencarry-swal-title",
+    confirmButton: "greencarry-swal-confirm-button",
+  };
 
+  // 🌟 2. 화면이 켜질 때(초기 렌더링) 로컬스토리지에서 아이디 꺼내오기
   useEffect(() => {
     const savedId = localStorage.getItem("savedUserId");
     if (savedId) {
       setMember((prev) => ({ ...prev, memberId: savedId }));
-      setRememberId(true);
+      setRememberId(true); // 체크박스도 켬
     }
   }, []);
 
@@ -42,14 +50,18 @@ const Login = () => {
     }));
   };
 
-  // 🌟 함수가 하나만 있어야 합니다!
+  // 🌟 핵심 로그인 함수
   const login = () => {
     const { memberId, memberPw } = member;
 
     if (!memberId || !memberPw) {
       Swal.fire({
         icon: "warning",
-        title: "아이디와 비밀번호를 입력해주세요.",
+        title: "입력 오류",
+        text: "아이디와 비밀번호를 모두 입력해주세요.",
+        customClass: swalCustomClass,
+        buttonsStyling: false,
+        confirmButtonText: "확인",
       });
       return;
     }
@@ -61,6 +73,9 @@ const Login = () => {
         icon: "error",
         title: "아이디 형식 오류",
         text: "아이디는 영문과 숫자를 포함하여 8자 이상이어야 합니다.",
+        customClass: swalCustomClass,
+        buttonsStyling: false,
+        confirmButtonText: "확인",
       });
       return;
     }
@@ -68,70 +83,68 @@ const Login = () => {
     axios
       .post(`http://localhost:10400/api/member/login`, member)
       .then((res) => {
-        console.log("로그인 응답 데이터:", res.data);
         const { member: loginUser, accessToken } = res.data;
 
         if (loginUser && accessToken) {
+          // 1️⃣ 로컬스토리지에 정보 우선 저장 (이 시점엔 화면 변화 없음)
           localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("memberId", loginUser.memberId);
           localStorage.setItem("memberName", loginUser.memberName);
           localStorage.setItem("memberGrade", loginUser.memberGrade);
 
-          setIsLogin(true);
-          setUser({
-            memberName: loginUser.memberName,
-            memberGrade: loginUser.memberGrade,
-          });
-
-          // 🌟 [2] 권한별 메시지 및 이동 경로 설정
-          let welcomeTitle = "";
-          let welcomeHtml = "";
-          let targetPath = "/"; // 기본 메인 페이지
-
-          if (loginUser.memberGrade === 0) {
-            // 관리자
-            welcomeTitle = "관리자 시스템 접속";
-            welcomeHtml = `<b style="color: #2e7d32;">관리자님</b> 환영합니다! <br/>그린캐리 관리자 모드로 로그인되었습니다.
-            <br/>관리자 페이지로 이동합니다.`;
-            targetPath = "/"; // 🚩 실제 구현 시: targetPath = "/admin/dashboard";
-          } else if (loginUser.memberGrade === 2) {
-            // 사업자
-            welcomeTitle = "파트너 센터 접속";
-            welcomeHtml = `<b>${loginUser.memberName}</b> 사장님! <br/>매장 관리 화면으로 이동합니다.`;
-            targetPath = "/"; // 🚩 실제 구현 시: targetPath = "/seller/store-manage";
+          // 🌟 2️⃣ [아이디 저장 로직 실행]
+          if (rememberId) {
+            // 체크박스 O -> 서랍에 아이디 저장
+            localStorage.setItem("savedUserId", member.memberId);
           } else {
-            // 개인 사용자 (Grade 1 등)
-            welcomeTitle = "로그인 성공!";
-            welcomeHtml = `<b>${loginUser.memberName}</b> 에코 히어로님! 환영합니다!<br/>메인 페이지로 이동합니다.`;
-            targetPath = "/"; // 🚩 실제 구현 시: targetPath = "/";
+            // 체크박스 X -> 서랍에서 아이디 삭제 (이전에 저장했더라도 날림)
+            localStorage.removeItem("savedUserId");
           }
 
-          // [3] 환영 알림창 띄우기
+          // 3️⃣ 권한별 메시지 및 이동 경로 세팅
+          let welcomeTitle = "";
+          let welcomeHtml = "";
+          let targetPath = "/";
+
+          const grade = Number(loginUser.memberGrade);
+
+          if (grade === 0) {
+            welcomeTitle = "관리자 시스템 접속";
+            welcomeHtml = `<b style="color: var(--color-brand, #2e7d32);">관리자님</b> 환영합니다! <br/>그린캐리 관리자 모드로 로그인되었습니다.`;
+            targetPath = "/mypage/admin";
+          } else if (grade === 2) {
+            welcomeTitle = "파트너 센터 접속";
+            welcomeHtml = `<b>${loginUser.memberName}</b> 사장님! <br/>매장 관리 화면으로 이동합니다.`;
+            targetPath = "/mypage/manager";
+          } else {
+            welcomeTitle = "로그인 성공!";
+            welcomeHtml = `<b>${loginUser.memberName}</b> 에코 히어로님! 환영합니다!<br/>메인 페이지로 이동합니다.`;
+            targetPath = "/";
+          }
+
+          // 4️⃣ [핵심] 커스텀 디자인 팝업을 띄우고, 닫히면 새로고침하며 강제 이동!
           Swal.fire({
             icon: "success",
             title: welcomeTitle,
             html: welcomeHtml,
-            showConfirmButton: false,
-            timer: 2000,
+            showConfirmButton: false, // 성공 시에는 깔끔하게 버튼 숨김
+            timer: 1500, // 1.5초 뒤 자동 이동
+            customClass: swalCustomClass, // 🎨 둥글고 초록초록한 스타일 적용!
+          }).then(() => {
+            // AuthContext의 타이머나 문지기(ProtectedRoute)가 꼬이지 않도록 아예 새로고침
+            window.location.replace(targetPath);
           });
-
-          // [4] 아이디 저장 로직 (생략 - 기존과 동일)
-          if (rememberId) {
-            localStorage.setItem("savedUserId", member.memberId);
-          } else {
-            localStorage.removeItem("savedUserId");
-          }
-
-          // 🌟 [5] 설정된 경로로 이동
-          navigate(targetPath);
         }
       })
       .catch((err) => {
-        // 에러 처리 (생략 - 기존과 동일)
         console.error("로그인 에러:", err);
         Swal.fire({
-          title: "로그인 실패",
-          text: "정보를 확인해주세요.",
           icon: "error",
+          title: "로그인 실패",
+          text: "가입하지 않은 아이디이거나, 잘못된 비밀번호입니다.",
+          customClass: swalCustomClass,
+          buttonsStyling: false,
+          confirmButtonText: "확인",
         });
       });
   };
@@ -155,10 +168,7 @@ const Login = () => {
 
       <div className="main-content">
         <section className="info-section">
-          <div className="eco-brand">
-            <span className="eco-icon">E</span>
-            <span className="eco-text">Eco-Delivery</span>
-          </div>
+          <div className="eco-brand"></div>
           <h2 className="main-title">
             탄소 발자국을 줄이는
             <br />
@@ -213,17 +223,19 @@ const Login = () => {
               value={member.memberId}
               onChange={inputMember}
               margin="normal"
+              autoComplete="off"
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <PersonIcon style={{ color: "#2e7d32" }} />{" "}
-                    {/* 사람 아이콘 */}
+                    <PersonIcon
+                      style={{ color: "var(--color-brand, #2e7d32)" }}
+                    />
                   </InputAdornment>
                 ),
               }}
               sx={{
                 "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px", // 기존 디자인과 맞추기 위해 조정
+                  borderRadius: "12px", // 둥근 입력창
                 },
               }}
             />
@@ -241,8 +253,9 @@ const Login = () => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <LockIcon style={{ color: "#2e7d32" }} />{" "}
-                    {/* 자물쇠 아이콘 */}
+                    <LockIcon
+                      style={{ color: "var(--color-brand, #2e7d32)" }}
+                    />
                   </InputAdornment>
                 ),
               }}

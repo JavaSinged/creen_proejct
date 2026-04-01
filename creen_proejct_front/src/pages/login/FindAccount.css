@@ -43,23 +43,6 @@
   gap: 10px;
 }
 
-.eco-icon {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  width: 24px;
-  height: 24px;
-  background-color: var(--color-bg);
-  color: var(--color-brand);
-  border-radius: 5px;
-  font-weight: 900;
-}
-
-.eco-text {
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
 .main-title {
   font-size: 2.4rem;
   font-weight: 700;
