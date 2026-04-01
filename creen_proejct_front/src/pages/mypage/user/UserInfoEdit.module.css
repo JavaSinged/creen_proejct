@@ -41,8 +41,9 @@
   cursor: pointer;
   font-family: var(--font-sub);
   font-size: 17px;
-  font-weight: bold;
+  font-weight: 500;
   color: var(--text-main);
+  letter-spacing: 0.07em;
 }
 .addSet {
   padding: 22px 25px;

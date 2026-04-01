@@ -85,7 +85,6 @@
 .gauge_info {
   font-family: var(--font-sub);
   font-size: 13px;
-  font-weight: bold;
   color: var(--color-bg);
 }
 
@@ -134,7 +133,6 @@
   cursor: pointer;
   font-family: var(--font-sub);
   font-size: 17px;
-  font-weight: bold;
   color: var(--text-main);
 }
 
