@@ -83,6 +83,14 @@
   white-space: nowrap;
 }
 
+.table_row {
+  cursor: pointer;
+}
+
+.table_row:hover {
+  background-color: #f9f9f9;
+}
+
 .col_check {
   width: 40px;
 }

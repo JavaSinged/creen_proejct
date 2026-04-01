@@ -1,10 +1,10 @@
-import React from 'react';
-import styles from './AdminStoreManagement.module.css';
-import SearchIcon from '@mui/icons-material/Search';
-import StarIcon from '@mui/icons-material/Star';
-import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore'; // 테이블 헤더 정렬 아이콘용
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import React from "react";
+import styles from "./AdminStoreManagement.module.css";
+import SearchIcon from "@mui/icons-material/Search";
+import StarIcon from "@mui/icons-material/Star";
+import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore"; // 테이블 헤더 정렬 아이콘용
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
 export default function AdminStoreManagement() {
   return (
@@ -44,7 +44,7 @@ export default function AdminStoreManagement() {
             </tr>
           </thead>
           <tbody>
-            <tr>
+            <tr className={styles.table_row}>
               <td className={styles.col_left}>
                 <div className={styles.store_info}>
                   <div className={styles.store_text}>
@@ -72,7 +72,7 @@ export default function AdminStoreManagement() {
               </td>
             </tr>
             {/* 데이터 행 반복 예시 (동일한 구조) */}
-            <tr>
+            <tr className={styles.table_row}>
               <td className={styles.col_left}>
                 <div className={styles.store_info}>
                   <div className={styles.store_text}>
@@ -93,7 +93,7 @@ export default function AdminStoreManagement() {
                     <StarIcon />
                     <StarIcon />
                     <StarIcon />
-                    <StarIcon style={{ color: '#ccc' }} />{' '}
+                    <StarIcon style={{ color: "#ccc" }} />{" "}
                     {/* 빈 별 처리 예시 */}
                   </div>
                   <span className={styles.rating_score}>4.0</span>
@@ -107,19 +107,17 @@ export default function AdminStoreManagement() {
       {/* 3. 페이지네이션 영역 */}
       <div className={styles.pagination}>
         <button className={styles.page_btn_nav}>
-          <ChevronLeftIcon fontSize="small" /> Previous
+          <ChevronLeftIcon fontSize="small" /> 이전
         </button>
         <div className={styles.page_numbers}>
-          <button className={styles.page_num}>01</button>
+          <button className={`${styles.page_num} ${styles.active}`}>01</button>
           <button className={styles.page_num}>02</button>
           <button className={styles.page_num}>03</button>
           <button className={styles.page_num}>04</button>
-          <button className={`${styles.page_num} ${styles.active}`}>05</button>
-          <span className={styles.page_dots}>...</span>
-          <button className={styles.page_num}>40</button>
+          <button className={styles.page_num}>05</button>
         </div>
         <button className={styles.page_btn_nav}>
-          Next <ChevronRightIcon fontSize="small" />
+          다음 <ChevronRightIcon fontSize="small" />
         </button>
       </div>
     </div>
