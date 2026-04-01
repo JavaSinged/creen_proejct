@@ -69,13 +69,44 @@ export default function UserInfoEdit() {
   const handlePwSubmit = async () => {
     const { currentPw, newPw, confirmPw } = pwData;
 
+    // 1. 빈 칸 체크
     if (!currentPw || !newPw || !confirmPw) {
       return Swal.fire("알림", "모든 필드를 입력해주세요.", "warning");
     }
+
+    // 🌟 2. 강력한 비밀번호 정규표현식 (요청하신 조건 반영)
+    // 규칙: 대문자(?=.*[A-Z]), 소문자(?=.*[a-z]), 숫자(?=.*\d), 특수문자(?=.*[@$!%*#?&]) 포함, 10자 이상{10,}
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{10,}$/;
+
+    if (!passwordRegex.test(newPw)) {
+      return Swal.fire({
+        icon: "warning",
+        title: "비밀번호 보안 수준 미달",
+        html: `비밀번호는 다음 조건을 모두 만족해야 합니다:<br/>
+               <div style="text-align: left; margin-top: 10px; padding-left: 20px;">
+                 - 최소 10자 이상<br/>
+                 - 영어 대문자 및 소문자 포함<br/>
+                 - 숫자 및 특수문자 포함
+               </div>`,
+      });
+    }
+
+    // 3. 이전 비밀번호와 동일 여부 체크
+    if (currentPw === newPw) {
+      return Swal.fire(
+        "알림",
+        "현재 비밀번호와 다른 새 비밀번호를 사용해주세요.",
+        "info",
+      );
+    }
+
+    // 4. 일치 여부 체크
     if (newPw !== confirmPw) {
       return Swal.fire("오류", "새 비밀번호가 일치하지 않습니다.", "error");
     }
 
+    // --- 통과 시 API 호출 ---
     try {
       const response = await api.post("/api/member/updatePassword", {
         memberId: user.memberId,
@@ -84,14 +115,18 @@ export default function UserInfoEdit() {
       });
 
       if (response.data === "SUCCESS") {
-        Swal.fire("성공", "비밀번호가 변경되었습니다.", "success");
+        await Swal.fire(
+          "성공",
+          "비밀번호가 안전하게 변경되었습니다.",
+          "success",
+        );
         setPwData({ currentPw: "", newPw: "", confirmPw: "" });
         setopenPwSet(false);
       }
     } catch (error) {
       const msg =
         error.response?.data === "CURRENT_PASSWORD_MISMATCH"
-          ? "현재 비밀번호가 일치하지 않습니다."
+          ? "현재 비밀번호가 올바르지 않습니다."
           : "서버 오류가 발생했습니다.";
       Swal.fire("에러", msg, "error");
     }
