@@ -88,7 +88,7 @@ const ManagerSignup = () => {
     }
     axios
       .get(
-        `${import.meta.env.VITE_BACKSERVER}/api/member/exists?memberId=${member.memberId}`,
+        `${import.meta.env.VITE_BACKSERVER}/member/exists?memberId=${member.memberId}`,
       )
       .then((res) => {
         if (res.data) {
