@@ -12,6 +12,8 @@ target/
 .settings
 .springBeans
 .sts4-cache
+bin/      <-- 보통 이 폴더 안에 .class 파일들이 생깁니다.
+*.class   <-- 모든 .class 파일 무시
 
 ### IntelliJ IDEA ###
 .idea
