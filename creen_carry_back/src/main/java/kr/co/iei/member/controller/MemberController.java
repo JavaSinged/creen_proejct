@@ -106,6 +106,11 @@ public class MemberController {
         // 리액트 조건문 (res.data === "" 일 때 성공)에 맞게 처리
         return ResponseEntity.ok(member == null ? "" : member);
     }
+    @GetMapping("/emailDupCheck")
+    public ResponseEntity<?> emailDupCheck(@RequestParam String memberEmail){
+    	Member member = memberService.emailDupCheck(memberEmail);
+    	return ResponseEntity.ok(member==null);
+    }
 
     // 2. 사업자 회원가입 (Service의 메서드 명 insertManager에 맞춤)
     @PostMapping("/signupManager")
@@ -120,5 +125,6 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    
     
 }

@@ -17,6 +17,8 @@ public interface MemberDao {
 
 	int insertUser(Member member);
 
+	Member emailDupCheck(String memberEmail);
+
 	
 
 }

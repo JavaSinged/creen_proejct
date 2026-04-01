@@ -43,11 +43,27 @@ const UserSignup = () => {
 
   const inputMember = (e) => {
     const { name, value } = e.target;
+    // 1. 연락처(11자) 특수 처리
+    if (name === "memberPhone") {
+      // 숫자가 아닌 모든 문자(하이픈 포함) 제거
+      const onlyNums = value.replace(/[^0-9]/g, "");
+
+      // 길이에 맞춰 자르기 (11자)
+      const maxLength = 11;
+      const slicedValue = onlyNums.slice(0, maxLength);
+
+      setMember({ ...member, [name]: slicedValue });
+
+      return;
+    }
     setMember({ ...member, [name]: value });
 
     // 입력값이 바뀌면 중복확인 및 이메일 인증 상태 초기화
     if (name === "memberId") setCheckId(0);
-    if (name === "memberEmail") setMailAuth(0);
+    if (name === "memberEmail") {
+      setMailAuth(0);
+      setCheckEmail(0);
+    }
   };
 
   // 아이디 중복체크
@@ -81,17 +97,30 @@ const UserSignup = () => {
   };
 
   // 1. 이메일 발송 함수
-  const handleSendMail = () => {
+  const handleSendMail = async () => {
     // 형식 검사
     if (!emailRegex.test(member.memberEmail)) {
       alert("올바른 이메일 형식을 먼저 입력해주세요.");
       return;
     }
+
     if (checkEmail === 0) {
-      axios.get(
-        `${import.meta.env.VITE_BACKSERVER}/api/member/checkEmail`,
-        member.memberEmail,
-      );
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKSERVER}/api/member/emailDupCheck?memberEmail=${member.memberEmail}`,
+        );
+
+        if (res.data) {
+          setCheckEmail(2);
+        } else {
+          alert("이미 사용중인 이메일입니다.");
+          setCheckEmail(1);
+          return;
+        }
+      } catch (err) {
+        console.log(err);
+        return;
+      }
     }
 
     setTime(180); // 180초 초기화
@@ -262,6 +291,8 @@ const UserSignup = () => {
         text: isSubmitted ? "휴대폰 번호를 입력하세요." : "\u00A0",
         isError: isSubmitted,
       };
+    if (member.memberPhone.length < 11)
+      return { text: "연락처 11자리를 모두 입력해주세요.", isError: true };
     return { text: "\u00A0", isError: false };
   };
 

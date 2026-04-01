@@ -37,5 +37,9 @@
 	        #{memberEmail}, #{storeOwnerNo}, #{storeName}, #{openingDate}, #{memberGrade}
     	)
 	</insert>
+	<select id="emailDupCheck" resultType="member">
+		select * from member_tbl where member_email=#{memberEmail}
+	</select>
+	
 
 </mapper>

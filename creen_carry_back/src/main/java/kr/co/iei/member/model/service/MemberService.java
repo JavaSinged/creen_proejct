@@ -70,6 +70,11 @@ public class MemberService {
 		int result = memberDao.insertUser(member);
 		return result;
 	}
+
+	public Member emailDupCheck(String memberEmail) {
+		Member member = memberDao.emailDupCheck(memberEmail);
+		return member;
+	}
 }
 
 

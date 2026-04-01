@@ -30,7 +30,7 @@ const ManagerSignup = () => {
   const [mailAuthInput, setMailAuthInput] = useState("");
   const [time, setTime] = useState(180);
   const [timeout, setTimeout] = useState(null);
-
+  const [checkEmail, setCheckEmail] = useState(0);
   const idRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
   const pwRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/;
@@ -39,6 +39,21 @@ const ManagerSignup = () => {
 
   const inputMember = (e) => {
     const { name, value } = e.target;
+    // 1. 연락처(11자)와 사업자 번호(10자) 특수 처리
+    if (name === "memberPhone" || name === "storeOwnerNo") {
+      // 숫자가 아닌 모든 문자(하이픈 포함) 제거
+      const onlyNums = value.replace(/[^0-9]/g, "");
+
+      // 길이에 맞춰 자르기 (연락처는 11자, 사업자 번호는 10자)
+      const maxLength = name === "memberPhone" ? 11 : 10;
+      const slicedValue = onlyNums.slice(0, maxLength);
+
+      setMember({ ...member, [name]: slicedValue });
+
+      // 상태 초기화 로직 유지
+      if (name === "storeOwnerNo") setCheckStoreOwnerNo(0);
+      return; // 여기서 함수 종료
+    }
     setMember({ ...member, [name]: value });
 
     if (name === "memberId") setCheckId(0);
@@ -73,11 +88,32 @@ const ManagerSignup = () => {
       });
   };
 
-  const handleSendMail = () => {
+  const handleSendMail = async () => {
+    // 형식 검사
     if (!emailRegex.test(member.memberEmail)) {
       alert("올바른 이메일 형식을 먼저 입력해주세요.");
       return;
     }
+
+    if (checkEmail === 0) {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKSERVER}/api/member/emailDupCheck?memberEmail=${member.memberEmail}`,
+        );
+
+        if (res.data) {
+          setCheckEmail(2);
+        } else {
+          alert("이미 사용중인 이메일입니다.");
+          setCheckEmail(1);
+          return;
+        }
+      } catch (err) {
+        console.log(err);
+        return;
+      }
+    }
+
     setTime(180); // 180초 초기화
     if (timeout) {
       window.clearInterval(timeout); // 기존 타이머가 있다면 초기화
