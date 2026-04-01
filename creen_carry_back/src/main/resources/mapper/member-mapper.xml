@@ -25,7 +25,7 @@
 		    1, 0, SYSDATE, 1
 		)
 	</insert>
-	<select id="storeDupCheck" parameterType="_int" resultType="member">
+	<select id="storeDupCheck" parameterType="string" resultType="member">
     	SELECT * FROM MEMBER_TBL WHERE STORE_OWNER_NO = #{storeOwnerNo}
 	</select>
 	<insert id="insertManager" parameterType="member">

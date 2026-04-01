@@ -53,7 +53,7 @@ public class MemberService {
 		return result;
 	}
 
-	public Member storeDupCheck(int storeOwnerNo) {
+	public Member storeDupCheck(String storeOwnerNo) {
 		Member member = memberDao.storeDupCheck(storeOwnerNo);
 		return member;
 	}

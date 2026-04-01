@@ -5,7 +5,7 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import axios from "axios";
-import Swal from "sweetalert2"; // SweetAlert2 추가
+import Swal from "sweetalert2";
 
 const ManagerSignup = () => {
   const navigate = useNavigate();
@@ -36,30 +36,49 @@ const ManagerSignup = () => {
   const pwRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/;
   const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-  // 💡 사업자번호 정규식 제거됨
 
   const inputMember = (e) => {
     const { name, value } = e.target;
-    // 1. 연락처(11자)와 사업자 번호(10자) 특수 처리
-    if (name === "memberPhone" || name === "storeOwnerNo") {
-      // 숫자가 아닌 모든 문자(하이픈 포함) 제거
-      const onlyNums = value.replace(/[^0-9]/g, "");
 
-      // 길이에 맞춰 자르기 (연락처는 11자, 사업자 번호는 10자)
-      const maxLength = name === "memberPhone" ? 11 : 10;
-      const slicedValue = onlyNums.slice(0, maxLength);
+    // 1. 휴대폰 번호 자동 하이픈 (010-1234-5678)
+    if (name === "memberPhone") {
+      const onlyNums = value.replace(/[^0-9]/g, ""); // 숫자만 추출
+      let formattedPhone = "";
 
-      setMember({ ...member, [name]: slicedValue });
+      if (onlyNums.length < 4) {
+        formattedPhone = onlyNums;
+      } else if (onlyNums.length < 8) {
+        formattedPhone = `${onlyNums.slice(0, 3)}-${onlyNums.slice(3)}`;
+      } else {
+        formattedPhone = `${onlyNums.slice(0, 3)}-${onlyNums.slice(3, 7)}-${onlyNums.slice(7, 11)}`;
+      }
 
-      // 상태 초기화 로직 유지
-      if (name === "storeOwnerNo") setCheckStoreOwnerNo(0);
-      return; // 여기서 함수 종료
+      setMember({ ...member, [name]: formattedPhone });
+      return;
     }
+
+    // 2. 사업자 번호 자동 하이픈 (123-45-67890)
+    if (name === "storeOwnerNo") {
+      const onlyNums = value.replace(/[^0-9]/g, ""); // 숫자만 추출
+      let formattedStoreNo = "";
+
+      if (onlyNums.length < 4) {
+        formattedStoreNo = onlyNums;
+      } else if (onlyNums.length < 6) {
+        formattedStoreNo = `${onlyNums.slice(0, 3)}-${onlyNums.slice(3)}`;
+      } else {
+        formattedStoreNo = `${onlyNums.slice(0, 3)}-${onlyNums.slice(3, 5)}-${onlyNums.slice(5, 10)}`;
+      }
+
+      setMember({ ...member, [name]: formattedStoreNo });
+      setCheckStoreOwnerNo(0); // 사업자번호가 수정되면 중복확인 초기화
+      return;
+    }
+
     setMember({ ...member, [name]: value });
 
     if (name === "memberId") setCheckId(0);
     if (name === "memberEmail") setMailAuth(0);
-    if (name === "storeOwnerNo") setCheckStoreOwnerNo(0);
   };
 
   const handleIdCheck = () => {
@@ -72,15 +91,12 @@ const ManagerSignup = () => {
         `${import.meta.env.VITE_BACKSERVER}/api/member/exists?memberId=${member.memberId}`,
       )
       .then((res) => {
-        console.log("중복 체크 결과:", res.data);
-
-        // res.data가 true면 중복(사용 불가), false면 사용 가능으로 가정
         if (res.data) {
           Swal.fire({ icon: "success", text: "사용 가능한 아이디입니다." });
-          setCheckId(2); // 사용가능
+          setCheckId(2);
         } else {
           Swal.fire({ icon: "error", text: "이미 사용중인 아이디입니다!" });
-          setCheckId(1); // 아이디 중복
+          setCheckId(1);
         }
       })
       .catch((err) => {
@@ -93,7 +109,6 @@ const ManagerSignup = () => {
   };
 
   const handleSendMail = async () => {
-    // 형식 검사
     if (!emailRegex.test(member.memberEmail)) {
       Swal.fire({
         icon: "warning",
@@ -121,12 +136,12 @@ const ManagerSignup = () => {
       }
     }
 
-    setTime(180); // 180초 초기화
+    setTime(180);
     if (timeout) {
-      window.clearInterval(timeout); // 기존 타이머가 있다면 초기화
+      window.clearInterval(timeout);
     }
 
-    setMailAuth(1); // 로딩 또는 전송 중 상태 (상황에 따라 2로 바로 넘어가도 됨)
+    setMailAuth(1);
 
     const obj = { memberEmail: member.memberEmail };
     axios
@@ -135,15 +150,14 @@ const ManagerSignup = () => {
         obj,
       )
       .then((res) => {
-        console.log("인증번호 발송 성공:", res.data);
-        setMailAuthCode(res.data); // 서버에서 보낸 인증번호 저장
-        setMailAuth(2); // 입력창 활성화 상태
+        setMailAuthCode(res.data);
+        setMailAuth(2);
+        console.log(res.data);
 
-        // 타이머 시작
         const intervalId = window.setInterval(() => {
           setTime((prev) => prev - 1);
         }, 1000);
-        setTimeout(intervalId); // 타이머 멈추기 위해 ID 저장
+        setTimeout(intervalId);
       })
       .catch((err) => {
         console.error("메일 발송 에러:", err);
@@ -160,11 +174,10 @@ const ManagerSignup = () => {
       return;
     }
 
-    // 서버에서 받은 번호와 사용자가 입력한 번호 비교
     if (String(mailAuthCode) === mailAuthInput) {
       Swal.fire({ icon: "success", text: "이메일 인증이 완료되었습니다!" });
-      setMailAuth(3); // 인증 완료 상태
-      window.clearInterval(timeout); // 타이머 멈춤
+      setMailAuth(3);
+      window.clearInterval(timeout);
       setTimeout(null);
     } else {
       Swal.fire({
@@ -177,40 +190,40 @@ const ManagerSignup = () => {
   useEffect(() => {
     if (time === 0) {
       window.clearInterval(timeout);
-      setMailAuthCode(null); // 인증번호 파기
+      setMailAuthCode(null);
       setTimeout(null);
       Swal.fire({
         icon: "error",
         text: "인증 시간이 만료되었습니다. 다시 시도해주세요.",
       });
-      setMailAuth(0); // 초기 상태로 되돌림
+      setMailAuth(0);
     }
   }, [time]);
 
-  // 4. 시간 표시 포맷 함수
   const showTime = () => {
     const min = Math.floor(time / 60);
     const sec = String(time % 60).padStart(2, "0");
     return `${min}:${sec}`;
   };
 
-  // 💡 사업자번호 중복확인 버튼 핸들러 (정규식 검사 제거, 빈칸만 체크)
   const handleStoreOwnerNoCheck = () => {
-    if (!member.storeOwnerNo.trim()) {
-      Swal.fire({ icon: "warning", text: "사업자번호를 먼저 입력해주세요." });
+    // 💡 길이가 12자(하이픈 포함)인지 검증
+    if (member.storeOwnerNo.length < 12) {
+      Swal.fire({
+        icon: "warning",
+        text: "사업자번호 10자리를 모두 입력해주세요.",
+      });
       return;
     }
     storeDupCheck();
   };
 
   const storeDupCheck = () => {
-    // 💡 하이픈 변환 과정 제거 (어차피 숫자만 입력받음)
     axios
       .get(
         `${import.meta.env.VITE_BACKSERVER}/api/member/storeDupCheck?storeOwnerNo=${member.storeOwnerNo}`,
       )
       .then((res) => {
-        console.log(res);
         if (res.data === null || res.data === "") {
           Swal.fire({ icon: "success", text: "가입 가능한 사업자번호입니다!" });
           setCheckStoreOwnerNo(2);
@@ -281,23 +294,34 @@ const ManagerSignup = () => {
         isError: true,
       };
     }
-
     if (mailAuth === 3)
       return { text: "이메일 인증이 완료되었습니다.", isError: false };
-
     return { text: "\u00A0", isError: false };
   };
 
-  // 💡 사업자번호 상태 메시지 (정규식 제거)
+  // 💡 길이 제한 메시지 추가 (하이픈 포함된 길이 검사)
   const getStoreOwnerNoMessage = () => {
     if (!member.storeOwnerNo.trim())
       return {
         text: isSubmitted ? "사업자번호를 입력하세요." : "\u00A0",
         isError: isSubmitted,
       };
+    if (member.storeOwnerNo.length < 12)
+      return { text: "사업자번호 10자리를 모두 입력해주세요.", isError: true };
     if (checkStoreOwnerNo !== 2)
       return { text: "사업자번호 중복 확인을 눌러주세요.", isError: true };
     return { text: "가입 가능한 사업자 번호입니다.", isError: false };
+  };
+
+  const getPhoneMessage = () => {
+    if (!member.memberPhone.trim())
+      return {
+        text: isSubmitted ? "휴대폰 번호를 입력하세요." : "\u00A0",
+        isError: isSubmitted,
+      };
+    if (member.memberPhone.length < 13)
+      return { text: "연락처 11자리를 모두 입력해주세요.", isError: true };
+    return { text: "\u00A0", isError: false };
   };
 
   const getStoreNameMessage = () => {
@@ -313,15 +337,6 @@ const ManagerSignup = () => {
     if (!member.memberName.trim())
       return {
         text: isSubmitted ? "대표자성명을 입력하세요." : "\u00A0",
-        isError: isSubmitted,
-      };
-    return { text: "\u00A0", isError: false };
-  };
-
-  const getPhoneMessage = () => {
-    if (!member.memberPhone.trim())
-      return {
-        text: isSubmitted ? "휴대폰 번호를 입력하세요." : "\u00A0",
         isError: isSubmitted,
       };
     return { text: "\u00A0", isError: false };
@@ -380,7 +395,7 @@ const ManagerSignup = () => {
       return;
     }
 
-    // 💡 백엔드 전송용 데이터 가공 (사업자번호 replace 제거)
+    // 상태에 이미 하이픈이 포함되어 있으므로 그대로 전송됩니다.
     const submitData = {
       ...member,
       memberGrade: 2,
@@ -392,7 +407,6 @@ const ManagerSignup = () => {
         submitData,
       )
       .then((res) => {
-        console.log(res);
         Swal.fire({
           icon: "success",
           text: "사업자 회원가입이 완료되었습니다!",
@@ -574,7 +588,7 @@ const ManagerSignup = () => {
                 value={member.memberPhone}
                 onChange={inputMember}
                 className={styles.inputUnderline}
-                placeholder="(-)을 제외한 숫자를 입력하세요"
+                placeholder="숫자만 입력하세요"
               />
               <p
                 className={`${styles.statusMessage} ${phoneStatus.isError ? styles.errorMessage : ""}`}
@@ -584,7 +598,7 @@ const ManagerSignup = () => {
             </div>
           </div>
 
-          {/* 💡 변경된 사업자번호 입력란 */}
+          {/* 사업자 번호 */}
           <div className={styles.fieldGroup}>
             <label className={styles.label}>사업자 번호</label>
             <div className={styles.inputArea}>
@@ -595,7 +609,7 @@ const ManagerSignup = () => {
                   value={member.storeOwnerNo}
                   onChange={inputMember}
                   className={styles.inputUnderline}
-                  placeholder="(-)을 제외한 숫자 10자리를 입력하세요"
+                  placeholder="숫자만 입력하세요"
                   readOnly={checkStoreOwnerNo === 2}
                 />
                 <button

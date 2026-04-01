@@ -44,19 +44,24 @@ const UserSignup = () => {
 
   const inputMember = (e) => {
     const { name, value } = e.target;
-    // 1. 연락처(11자) 특수 처리
+
+    // 💡 휴대폰 번호 자동 하이픈 (010-1234-5678)
     if (name === "memberPhone") {
-      // 숫자가 아닌 모든 문자(하이픈 포함) 제거
-      const onlyNums = value.replace(/[^0-9]/g, "");
+      const onlyNums = value.replace(/[^0-9]/g, ""); // 숫자만 추출
+      let formattedPhone = "";
 
-      // 길이에 맞춰 자르기 (11자)
-      const maxLength = 11;
-      const slicedValue = onlyNums.slice(0, maxLength);
+      if (onlyNums.length < 4) {
+        formattedPhone = onlyNums;
+      } else if (onlyNums.length < 8) {
+        formattedPhone = `${onlyNums.slice(0, 3)}-${onlyNums.slice(3)}`;
+      } else {
+        formattedPhone = `${onlyNums.slice(0, 3)}-${onlyNums.slice(3, 7)}-${onlyNums.slice(7, 11)}`;
+      }
 
-      setMember({ ...member, [name]: slicedValue });
-
+      setMember({ ...member, [name]: formattedPhone });
       return;
     }
+
     setMember({ ...member, [name]: value });
 
     // 입력값이 바뀌면 중복확인 및 이메일 인증 상태 초기화
@@ -301,13 +306,15 @@ const UserSignup = () => {
       };
     return { text: "\u00A0", isError: false };
   };
+
+  // 💡 길이 체크를 하이픈 포함 길이인 13으로 수정
   const getPhoneMessage = () => {
     if (!member.memberPhone.trim())
       return {
         text: isSubmitted ? "휴대폰 번호를 입력하세요." : "\u00A0",
         isError: isSubmitted,
       };
-    if (member.memberPhone.length < 11)
+    if (member.memberPhone.length < 13)
       return { text: "연락처 11자리를 모두 입력해주세요.", isError: true };
     return { text: "\u00A0", isError: false };
   };
@@ -359,6 +366,7 @@ const UserSignup = () => {
       });
       return;
     }
+
     axios
       .post(`${import.meta.env.VITE_BACKSERVER}/api/member/userSignup`, member)
       .then((res) => {
@@ -548,7 +556,7 @@ const UserSignup = () => {
                 value={member.memberPhone}
                 onChange={inputMember}
                 className={styles.inputUnderline}
-                placeholder="(-)을 제외한 숫자를 입력하세요"
+                placeholder="숫자만 입력하세요" // 💡 placeholder 문구 통일
               />
               <p
                 className={`${styles.statusMessage} ${phoneStatus.isError ? styles.errorMessage : ""}`}
@@ -563,7 +571,6 @@ const UserSignup = () => {
             <label className={styles.label}>주소</label>
             <div className={styles.inputArea}>
               <div className={styles.inputAreaInner}>
-                {/* 🚨 기존 textCenter 제거하여 기본 왼쪽 정렬 유지 */}
                 <input
                   type="text"
                   placeholder="우편번호"

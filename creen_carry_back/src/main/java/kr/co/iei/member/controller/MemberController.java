@@ -99,7 +99,7 @@ public class MemberController {
     }
  // 1. 사업자 번호 중복 체크 (Service의 파라미터 int 타입에 맞춤)
     @GetMapping("/storeDupCheck")
-    public ResponseEntity<?> storeDupCheck(@RequestParam int storeOwnerNo) {
+    public ResponseEntity<?> storeDupCheck(@RequestParam String storeOwnerNo) {
         // Service 메서드 명: storeDupCheck(int)
         Member member = memberService.storeDupCheck(storeOwnerNo);
         

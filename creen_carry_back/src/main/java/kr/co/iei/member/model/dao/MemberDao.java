@@ -12,7 +12,7 @@ public interface MemberDao {
 
 	int insertManager(Member member);
 
-	Member storeDupCheck(int storeOwnerNo);
+	Member storeDupCheck(String storeOwnerNo);
 	Member selectOneMember(String memberId);
 
 	int insertUser(Member member);
