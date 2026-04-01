@@ -42,12 +42,14 @@ function App() {
     <AuthProvider>
       <div>
         <Routes>
-          {/* 🔓 1. 퍼블릭 구역 (누구나 접근 가능) */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/userSignup" element={<UserSignup />} />
-          <Route path="/managerSignup" element={<ManagerSignup />} />
+          {/* 🔓 1. 퍼블릭 구역 (누구나 접근 가능), 그대신 로그인한 사용자 접근불가 */}
+          <Route element={<ProtectedRoute requireGuest={true} />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/account" element={<Account />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/userSignup" element={<UserSignup />} />
+            <Route path="/managerSignup" element={<ManagerSignup />} />
+          </Route>
 
           {/* 2. 헤더/푸터가 붙는 구역 */}
           <Route element={<BasicLayout />}>
