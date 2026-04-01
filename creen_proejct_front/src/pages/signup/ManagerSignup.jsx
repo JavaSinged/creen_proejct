@@ -5,6 +5,7 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import axios from "axios";
+import Swal from "sweetalert2"; // SweetAlert2 추가
 
 const ManagerSignup = () => {
   const navigate = useNavigate();
@@ -63,7 +64,7 @@ const ManagerSignup = () => {
 
   const handleIdCheck = () => {
     if (!idRegex.test(member.memberId)) {
-      alert("아이디 형식을 먼저 맞춰주세요.");
+      Swal.fire({ icon: "warning", text: "아이디 형식을 먼저 맞춰주세요." });
       return;
     }
     axios
@@ -75,23 +76,29 @@ const ManagerSignup = () => {
 
         // res.data가 true면 중복(사용 불가), false면 사용 가능으로 가정
         if (res.data) {
-          alert("사용 가능한 아이디입니다.");
+          Swal.fire({ icon: "success", text: "사용 가능한 아이디입니다." });
           setCheckId(2); // 사용가능
         } else {
-          alert("이미 사용중인 아이디입니다!");
+          Swal.fire({ icon: "error", text: "이미 사용중인 아이디입니다!" });
           setCheckId(1); // 아이디 중복
         }
       })
       .catch((err) => {
         console.error("통신 에러:", err);
-        alert("서버와 통신 중 오류가 발생했습니다.");
+        Swal.fire({
+          icon: "error",
+          text: "서버와 통신 중 오류가 발생했습니다.",
+        });
       });
   };
 
   const handleSendMail = async () => {
     // 형식 검사
     if (!emailRegex.test(member.memberEmail)) {
-      alert("올바른 이메일 형식을 먼저 입력해주세요.");
+      Swal.fire({
+        icon: "warning",
+        text: "올바른 이메일 형식을 먼저 입력해주세요.",
+      });
       return;
     }
 
@@ -104,7 +111,7 @@ const ManagerSignup = () => {
         if (res.data) {
           setCheckEmail(2);
         } else {
-          alert("이미 사용중인 이메일입니다.");
+          Swal.fire({ icon: "error", text: "이미 사용중인 이메일입니다." });
           setCheckEmail(1);
           return;
         }
@@ -140,32 +147,42 @@ const ManagerSignup = () => {
       })
       .catch((err) => {
         console.error("메일 발송 에러:", err);
-        alert("메일 발송 중 오류가 발생했습니다.");
+        Swal.fire({ icon: "error", text: "메일 발송 중 오류가 발생했습니다." });
       });
   };
 
   const handleVerifyMail = () => {
     if (mailAuth !== 2) {
-      alert("먼저 인증 이메일 전송 버튼을 눌러주세요.");
+      Swal.fire({
+        icon: "warning",
+        text: "먼저 인증 이메일 전송 버튼을 눌러주세요.",
+      });
       return;
     }
 
     // 서버에서 받은 번호와 사용자가 입력한 번호 비교
     if (String(mailAuthCode) === mailAuthInput) {
-      alert("이메일 인증이 완료되었습니다!");
+      Swal.fire({ icon: "success", text: "이메일 인증이 완료되었습니다!" });
       setMailAuth(3); // 인증 완료 상태
       window.clearInterval(timeout); // 타이머 멈춤
       setTimeout(null);
     } else {
-      alert("인증번호가 일치하지 않습니다. 다시 확인해주세요.");
+      Swal.fire({
+        icon: "error",
+        text: "인증번호가 일치하지 않습니다. 다시 확인해주세요.",
+      });
     }
   };
+
   useEffect(() => {
     if (time === 0) {
       window.clearInterval(timeout);
       setMailAuthCode(null); // 인증번호 파기
       setTimeout(null);
-      alert("인증 시간이 만료되었습니다. 다시 시도해주세요.");
+      Swal.fire({
+        icon: "error",
+        text: "인증 시간이 만료되었습니다. 다시 시도해주세요.",
+      });
       setMailAuth(0); // 초기 상태로 되돌림
     }
   }, [time]);
@@ -180,7 +197,7 @@ const ManagerSignup = () => {
   // 💡 사업자번호 중복확인 버튼 핸들러 (정규식 검사 제거, 빈칸만 체크)
   const handleStoreOwnerNoCheck = () => {
     if (!member.storeOwnerNo.trim()) {
-      alert("사업자번호를 먼저 입력해주세요.");
+      Swal.fire({ icon: "warning", text: "사업자번호를 먼저 입력해주세요." });
       return;
     }
     storeDupCheck();
@@ -195,15 +212,18 @@ const ManagerSignup = () => {
       .then((res) => {
         console.log(res);
         if (res.data === null || res.data === "") {
-          alert("가입 가능한 사업자번호입니다!");
+          Swal.fire({ icon: "success", text: "가입 가능한 사업자번호입니다!" });
           setCheckStoreOwnerNo(2);
         } else {
-          alert("중복된 사업자 번호 입니다.");
+          Swal.fire({ icon: "error", text: "중복된 사업자 번호 입니다." });
         }
       })
       .catch((err) => {
         console.log(err);
-        alert("사업자 번호 중복 확인 중 서버 오류가 발생했습니다.");
+        Swal.fire({
+          icon: "error",
+          text: "사업자 번호 중복 확인 중 서버 오류가 발생했습니다.",
+        });
       });
   };
 
@@ -353,7 +373,10 @@ const ManagerSignup = () => {
       memberNameStatus.isError ||
       openingDateStatus.isError
     ) {
-      alert("입력하신 정보를 다시 확인해주세요.");
+      Swal.fire({
+        icon: "warning",
+        text: "입력하신 정보를 다시 확인해주세요.",
+      });
       return;
     }
 
@@ -370,12 +393,19 @@ const ManagerSignup = () => {
       )
       .then((res) => {
         console.log(res);
-        alert("사업자 회원가입이 완료되었습니다!");
-        navigate("/login");
+        Swal.fire({
+          icon: "success",
+          text: "사업자 회원가입이 완료되었습니다!",
+        }).then(() => {
+          navigate("/login");
+        });
       })
       .catch((err) => {
         console.error("회원가입 에러:", err);
-        alert("회원가입 처리 중 오류가 발생했습니다.");
+        Swal.fire({
+          icon: "error",
+          text: "회원가입 처리 중 오류가 발생했습니다.",
+        });
       });
   };
 
