@@ -148,7 +148,8 @@ export const AuthProvider = ({ children }) => {
           });
 
           // 🌟 남은 시간 계산 (24일 초과 시 타이머 오버플로 방지)
-          const remainingTimeInMs = (decodedPayload.exp - currentTime) * 1000;
+          const remainingTimeInMs = 10000; //테스트용 10초
+          //const remainingTimeInMs = (decodedPayload.exp - currentTime) * 1000;
 
           if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
 
