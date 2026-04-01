@@ -25,23 +25,23 @@ export const AuthProvider = ({ children }) => {
 
     /* 제목 색상 */
     .greencarry-swal-title {
-      color: #2e7d32 !important;
+      color: var(--color-brand) !important;
       font-size: 1.5rem !important;
       font-weight: 700 !important;
     }
 
     /* [핵심] 느낌표(warning) 아이콘 색상 변경 */
     .swal2-icon.swal2-warning {
-      border-color: #2e7d32 !important; /* 동그란 테두리를 초록색으로 */
-      color: #2e7d32 !important;        /* 느낌표(!)를 초록색으로 */
+      border-color: var(--color-brand) !important; /* 동그란 테두리를 초록색으로 */
+      color: var(--color-brand) !important;        /* 느낌표(!)를 초록색으로 */
     }
 
     /* [핵심] 체크(success) 아이콘 색상 변경 (필요 시) */
     .swal2-icon.swal2-success {
-      border-color: #2e7d32 !important;
+      border-color: var(--color-brand) !important;
     }
     .swal2-icon.swal2-success [class^='swal2-success-line'] {
-      background-color: #2e7d32 !important; /* 체크 표시 선을 초록색으로 */
+      background-color: var(--color-brand) !important; /* 체크 표시 선을 초록색으로 */
     }
     .swal2-icon.swal2-success .swal2-success-ring {
       border: 4px solid rgba(46, 125, 50, 0.3) !important; /* 바깥 원 연하게 */
@@ -49,15 +49,17 @@ export const AuthProvider = ({ children }) => {
 
     /* 확인 버튼 */
     .greencarry-swal-confirm-button {
-      background-color: #2e7d32 !important;
+      background-color: var(--color-brand) !important;
       color: white !important;
       border-radius: 12px !important;
       padding: 12px 35px !important;
       font-size: 1rem !important;
       font-weight: 600 !important;
       margin-top: 1rem !important;
-      border: none !important;
       cursor: pointer;
+      border: none !important;
+      outline: none !important;       /* 포커스 시 생기는 외곽선 제거 */
+      box-shadow: none !important;    /* 그림자(보통 푸르스름한 선) 제거 */
     }
     .greencarry-swal-confirm-button:hover {
       background-color: #1b5e20 !important;
