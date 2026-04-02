@@ -85,24 +85,31 @@ const Login = () => {
       .then((res) => {
         const { member: loginUser, accessToken } = res.data;
 
+        if (loginUser && Number(loginUser.memberStatus) === 2) {
+          Swal.fire({
+            icon: "error",
+            title: "로그인 불가",
+            text: "탈퇴한 회원입니다. 다시 이용하시려면 고객센터에 문의해주세요.",
+            customClass: swalCustomClass,
+            buttonsStyling: false,
+            confirmButtonText: "확인",
+          });
+          return;
+        }
+
         if (loginUser && accessToken) {
-          // 1️⃣ 로컬스토리지에 정보 우선 저장 (이 시점엔 화면 변화 없음)
           localStorage.setItem("accessToken", accessToken);
           localStorage.setItem("memberId", loginUser.memberId);
           localStorage.setItem("memberName", loginUser.memberName);
           localStorage.setItem("memberGrade", loginUser.memberGrade);
           localStorage.setItem("memberThumb", loginUser.memberThumb);
 
-          // 🌟 2️⃣ [아이디 저장 로직 실행]
           if (rememberId) {
-            // 체크박스 O -> 서랍에 아이디 저장
             localStorage.setItem("savedUserId", member.memberId);
           } else {
-            // 체크박스 X -> 서랍에서 아이디 삭제 (이전에 저장했더라도 날림)
             localStorage.removeItem("savedUserId");
           }
 
-          // 3️⃣ 권한별 메시지 및 이동 경로 세팅
           let welcomeTitle = "";
           let welcomeHtml = "";
           let targetPath = "/";
@@ -123,16 +130,14 @@ const Login = () => {
             targetPath = "/";
           }
 
-          // 4️⃣ [핵심] 커스텀 디자인 팝업을 띄우고, 닫히면 새로고침하며 강제 이동!
           Swal.fire({
             icon: "success",
             title: welcomeTitle,
             html: welcomeHtml,
-            showConfirmButton: false, // 성공 시에는 깔끔하게 버튼 숨김
-            timer: 1500, // 1.5초 뒤 자동 이동
-            customClass: swalCustomClass, // 🎨 둥글고 초록초록한 스타일 적용!
+            showConfirmButton: false,
+            timer: 1500,
+            customClass: swalCustomClass,
           }).then(() => {
-            // AuthContext의 타이머나 문지기(ProtectedRoute)가 꼬이지 않도록 아예 새로고침
             window.location.replace(targetPath);
           });
         }

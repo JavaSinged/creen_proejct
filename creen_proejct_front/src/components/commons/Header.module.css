@@ -111,11 +111,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-bg);
 }
 
 .profile_img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+/* 아이콘 스타일 */
+.icon_inside_header_image {
+  color: #bfbfbf; /* 아이콘 색상: 회색 */
+  font-size: 50px; /* 아이콘 크기: 원 크기와 같게 설정 */
 }

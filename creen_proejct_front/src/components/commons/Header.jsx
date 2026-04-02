@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import styles from "./Header.module.css";
 import Swal from "sweetalert2";
+import AccountCircleSharpIcon from "@mui/icons-material/AccountCircleSharp";
 
 // Icons
 import ParkIcon from "@mui/icons-material/Park";
@@ -122,14 +123,22 @@ export default function Header() {
                 alignItems: "center",
               }}
             >
-              {/* 로그인 상태이고 사진이 있으면 img, 없으면 기본 아이콘 노출 */}
-              {isLogin && user?.memberThumb ? (
+              {isLogin ? (
                 <div className={styles.profile_circle}>
-                  <img
-                    src={`${backHost}${user.memberThumb}`}
-                    alt="profile"
-                    className={styles.profile_img}
-                  />
+                  {user?.memberThumb && user.memberThumb !== "null" ? (
+                    <img
+                      src={`${backHost}${user.memberThumb}`}
+                      alt="profile"
+                      className={styles.profile_img}
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                      }}
+                    />
+                  ) : (
+                    <AccountCircleSharpIcon
+                      className={styles.icon_inside_header_image}
+                    />
+                  )}
                 </div>
               ) : (
                 <PersonIcon titleAccess="마이페이지" />
