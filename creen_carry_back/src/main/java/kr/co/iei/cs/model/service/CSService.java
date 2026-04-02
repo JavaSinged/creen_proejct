@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import kr.co.iei.cs.model.dao.CSDao;
 import kr.co.iei.cs.model.vo.Faq;
+import kr.co.iei.cs.model.vo.Qna;
 
 @Service
 public class CSService {
@@ -14,10 +15,21 @@ public class CSService {
 	@Autowired
 	private CSDao csDao;
 	
-	public List<Faq> selectAllList(int faqCategory) {
-		List<Faq> list = csDao.selectAllList(faqCategory); 
+	public List<Faq> selectAllList(Faq faq) {
+		List<Faq> list = csDao.selectAllList(faq); 
 		return list;
 	}
+
+	public List<Qna> selectMyInquiry(String memberId) {
+		List<Qna> list = csDao.selectMyInquiry(memberId);
+		return list;
+	}
+
+	public int insertQna(Qna qna) {
+		int result = csDao.insertQna(qna);
+		return result;
+	}
+
 
 	
 }
