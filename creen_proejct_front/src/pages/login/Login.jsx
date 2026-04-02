@@ -18,22 +18,19 @@ const Login = () => {
   });
   const [activeTab, setActiveTab] = useState("personal");
 
-  // 🌟 1. 아이디 저장 체크박스 상태
   const [rememberId, setRememberId] = useState(false);
 
-  // 🎨 GreenCarry 전용 Swal 스타일 공통 객체
   const swalCustomClass = {
     popup: "greencarry-swal-popup",
     title: "greencarry-swal-title",
     confirmButton: "greencarry-swal-confirm-button",
   };
 
-  // 🌟 2. 화면이 켜질 때(초기 렌더링) 로컬스토리지에서 아이디 꺼내오기
   useEffect(() => {
     const savedId = localStorage.getItem("savedUserId");
     if (savedId) {
       setMember((prev) => ({ ...prev, memberId: savedId }));
-      setRememberId(true); // 체크박스도 켬
+      setRememberId(true);
     }
   }, []);
 
@@ -50,7 +47,6 @@ const Login = () => {
     }));
   };
 
-  // 🌟 핵심 로그인 함수
   const login = () => {
     const { memberId, memberPw } = member;
 
@@ -241,12 +237,11 @@ const Login = () => {
               }}
               sx={{
                 "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px", // 둥근 입력창
+                  borderRadius: "12px",
                 },
               }}
             />
 
-            {/* 비밀번호 입력창 */}
             <TextField
               fullWidth
               variant="outlined"

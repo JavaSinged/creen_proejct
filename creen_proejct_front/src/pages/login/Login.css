@@ -1,59 +1,41 @@
-/* 전체 화면 컨테이너 (여기에 배경 이미지를 넣어야 화면 전체에 깔립니다) */
-/* 1. 전체 기본 폰트 적용 (프리텐다드) */
 .screen-container {
-  font-family: var(--font-body); /* ✨ 본문 폰트 적용 */
-  /* 기존 설정들 (position: absolute... 등) 유지 */
+  font-family: var(--font-body);
 }
-
-/* 2. 상단 로고 폰트 적용 */
 .logo {
-  font-family: var(--font-logo); /* ✨ 로고 전용 폰트(Gaegu) 적용 */
-  /* 기존 설정들 (font-size: 2.2rem... 등) 유지 */
+  font-family: var(--font-logo);
 }
-
-/* 3. 메인 타이틀 폰트 적용 (탄소 발자국을 줄이는... / 계정을 잊으셨나요?) */
 .main-title {
-  font-family: var(--font-title); /* ✨ 제목 전용 폰트(Jalnan) 적용 */
-  /* 기존 설정 유지 */
+  font-family: var(--font-title);
 }
-
-/* 4. 서브 타이틀 및 강조 텍스트 (여기어때 고딕) */
 .card-title,
 .find-tab-btn {
-  font-family: var(--font-sub); /* ✨ 부제목/탭 버튼 등에 적용 */
+  font-family: var(--font-sub);
 }
 
-/* 5. 입력칸(Input)과 버튼(Button)에도 본문 폰트 덮어씌우기 */
 input,
 button {
-  font-family: var(
-    --font-body
-  ); /* 기본적으로 input/button은 전역 폰트를 무시하므로 강제 적용! */
+  font-family: var(--font-body);
 }
 
 .screen-container {
-  /* 기존 레이아웃 무시하고 화면 꽉 채우기 */
   position: absolute;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
 
-  /* 배경 이미지 */
   background-image: url("/image/login/loginsign.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-color: var(--color-brand);
 
-  /* 내부 정렬 */
   display: flex;
   flex-direction: column;
   color: var(--color-bg);
   overflow-y: auto;
 }
 
-/* 상단 헤더 로고 */
 .header {
   width: 100%;
   text-align: center;
@@ -67,7 +49,7 @@ button {
   color: var(--color-bg);
 }
 .leaf-point {
-  position: relative; /* 🌟 기준점 설정 */
+  position: relative;
   display: inline-block;
 }
 .card-info {
@@ -75,11 +57,11 @@ button {
   color: var(--text-sub);
 }
 .leaf-point::before {
-  content: "🌱"; /* 🌟 이모지를 쓰거나 이미지를 넣으려면 url() 사용 */
+  content: "🌱";
   position: absolute;
-  top: -19px; /* 글자 위로 올리기 */
-  left: 35%; /* 정중앙 정렬 시작 */
-  transform: translateX(-50%); /* 정확히 중앙 정렬 */
+  top: -19px;
+  left: 35%;
+  transform: translateX(-50%);
   font-size: 1rem;
 }
 .main-content {
@@ -88,12 +70,11 @@ button {
   justify-content: center;
   align-items: center;
   gap: 70px;
-  padding: 0 50px; /* 위아래 패딩을 똑같이 0으로 맞춰서 완벽한 세로 중앙으로! */
+  padding: 0 50px;
 }
 
-/* 2. 좌측 정보 섹션 (너비 고정) */
 .info-section {
-  width: 300px; /* max-width 대신 고정 너비로 변경 */
+  width: 300px;
   display: flex;
   height: 350px;
   flex-direction: column;
@@ -129,7 +110,6 @@ button {
   font-weight: 700;
 }
 
-/* 중앙 로그인 폼 카드 */
 .login-card {
   background-color: var(--color-bg);
   border-radius: 20px;
@@ -164,7 +144,6 @@ button {
   accent-color: var(--color-brand);
 }
 
-/* 탭 스타일 */
 .tabs {
   display: flex;
   gap: 10px;
@@ -192,7 +171,6 @@ button {
   color: var(--text-sub);
 }
 
-/* 로그인 폼 입력 필드 및 버튼 스타일 */
 .login-form {
   display: flex;
   flex-direction: column;
@@ -241,7 +219,6 @@ button {
   background-color: var(--color-brand);
 }
 
-/* 카드 하단 링크 */
 .card-footer {
   display: flex;
   justify-content: center;
@@ -260,17 +237,14 @@ button {
   color: var(--color-brand);
 }
 
-/* 3. 우측 일러스트 섹션 (좌측과 똑같은 너비로 변경) */
 .illustration-section {
-  width: 300px; /* 좌측과 똑같이 300px로 맞춰서 양팔 저울 균형 맞추기! */
+  width: 300px;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 15px;
-  /* margin-top: 50px; (이 부분은 세로 중앙 정렬을 방해하므로 지워주세요!) */
 }
 
-/* 말풍선 스타일 */
 .speech-bubble {
   background-color: var(--color-bg);
   color: var(--text-main);
@@ -283,7 +257,6 @@ button {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* 말풍선 꼬리 효과 */
 .speech-bubble::after {
   content: "";
   position: absolute;
@@ -302,40 +275,38 @@ button {
   height: auto;
 }
 .character-illustration img {
-  width: 70%; /* 부모 상자(320px)에 꽉 차게 비율 유지 */
+  width: 70%;
   height: auto;
 }
 .MuiOutlinedInput-root {
-  border-radius: 20px !important; /* 원하시는 수치로 조정 */
+  border-radius: 20px !important;
 }
 
-/* 필드 내부의 실제 테두리 선(notchedOutline) 조절 */
 .MuiOutlinedInput-notchedOutline {
   border-radius: 20px !important;
 }
 .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
-  border-color: #b0b0b0 !important; /* 마우스 올렸을 때 회색 */
+  border-color: #b0b0b0 !important;
 }
 
-/* 3. 포커스(클릭) 시에는 다시 브랜드 컬러로! */
 .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
   border-color: var(--color-brand) !important;
 }
 
 .greencarry-swal-popup {
-  border-radius: 20px !important; /* 둥글게 둥글게 */
+  border-radius: 20px !important;
   padding: 2rem !important;
-  font-family: "Pretendard", sans-serif; /* 사이트 폰트와 맞추기 */
+  font-family: "Pretendard", sans-serif;
 }
 
 .greencarry-swal-title {
-  color: var(--color-brand) !important; /* 초록색 포인트 */
+  color: var(--color-brand) !important;
   font-size: 1.5rem !important;
   font-weight: 700 !important;
 }
 
 .greencarry-swal-confirm-button {
-  background-color: var(--color-brand) !important; /* 확인 버튼 배경색 */
+  background-color: var(--color-brand) !important;
   border-radius: 10px !important;
   padding: 10px 25px !important;
   font-size: 1rem !important;
