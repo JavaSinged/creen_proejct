@@ -81,7 +81,7 @@ const Login = () => {
     }
 
     axios
-      .post(`http://localhost:10400/api/member/login`, member)
+      .post(`${import.meta.env.VITE_BACKSERVER}/member/login`, member)
       .then((res) => {
         const { member: loginUser, accessToken } = res.data;
 
