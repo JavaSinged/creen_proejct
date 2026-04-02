@@ -17,7 +17,6 @@ button {
   font-family: var(--font-body);
 }
 
-/* --- 2. 메인 컨테이너 (Option 3: 시차 효과 반영) --- */
 .screen-container {
   position: absolute;
   top: 0;
@@ -26,7 +25,6 @@ button {
   height: 100vh;
 
   background-image: url("/image/login/loginsign.jpg");
-  background-size: 120%;
   background-position: center;
   background-repeat: no-repeat;
   background-color: var(--color-brand);
@@ -43,7 +41,7 @@ button {
 .sun-rays {
   position: absolute;
   top: -50%;
-  left: -30%;
+  left: -20%;
   width: 80%;
   height: 80%;
   background: repeating-conic-gradient(
