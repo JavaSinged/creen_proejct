@@ -24,7 +24,6 @@ button {
   width: 100vw;
   height: 100vh;
 
-  background-image: url("/image/login/loginsign.jpg");
   background-position: center;
   background-repeat: no-repeat;
   background-color: var(--color-brand);

@@ -28,6 +28,21 @@ const Login = () => {
     confirmButton: "greencarry-swal-confirm-button",
   };
 
+  const bgImages = [
+    "/image/login/loginsign.jpg",
+    "/image/login/lo.jpg",
+    "/image/login/lo2.jpg",
+    "/image/login/lo3.jpg",
+    "/image/login/f.jpg",
+    "/image/login/f2.jpg",
+    "/image/login/lo.webp",
+  ];
+
+  const selectedBg = useMemo(() => {
+    const randomIndex = Math.floor(Math.random() * bgImages.length);
+    return bgImages[randomIndex];
+  }, []);
+
   const bubbleData = useMemo(() => {
     return [...Array(15)].map(() => ({
       left: `${Math.random() * 90}%`,
@@ -206,7 +221,11 @@ const Login = () => {
   };
 
   return (
-    <div className="screen-container" ref={containerRef}>
+    <div
+      className="screen-container"
+      ref={containerRef}
+      style={{ backgroundImage: `url(${selectedBg})` }}
+    >
       <div className="sun-rays"></div>
 
       {bubbleData.map((style, i) => (
