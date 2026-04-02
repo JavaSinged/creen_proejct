@@ -1,3 +1,4 @@
+/* --- 1. 폰트 및 공통 설정 --- */
 .screen-container {
   font-family: var(--font-body);
 }
@@ -11,12 +12,12 @@
 .find-tab-btn {
   font-family: var(--font-sub);
 }
-
 input,
 button {
   font-family: var(--font-body);
 }
 
+/* --- 2. 메인 컨테이너 (Option 3: 시차 효과 반영) --- */
 .screen-container {
   position: absolute;
   top: 0;
@@ -25,7 +26,7 @@ button {
   height: 100vh;
 
   background-image: url("/image/login/loginsign.jpg");
-  background-size: cover;
+  background-size: 120%;
   background-position: center;
   background-repeat: no-repeat;
   background-color: var(--color-brand);
@@ -33,13 +34,44 @@ button {
   display: flex;
   flex-direction: column;
   color: var(--color-bg);
-  overflow-y: auto;
+  overflow: hidden;
+
+  transition: background-position 0.2s ease-out;
+  z-index: 1;
+}
+
+.sun-rays {
+  position: absolute;
+  top: -50%;
+  left: -30%;
+  width: 80%;
+  height: 80%;
+  background: repeating-conic-gradient(
+    from 0deg,
+    transparent 0deg 20deg,
+    rgba(255, 255, 255, 0.05) 25deg 35deg,
+    transparent 40deg 60deg
+  );
+  pointer-events: none;
+  z-index: 2;
+  animation: sun-rotate 60s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes sun-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .header {
   width: 100%;
   text-align: center;
   padding: 30px 0;
+  z-index: 10;
 }
 
 .logo {
@@ -48,22 +80,7 @@ button {
   margin: 0;
   color: var(--color-bg);
 }
-.leaf-point {
-  position: relative;
-  display: inline-block;
-}
-.card-info {
-  font-size: 14px;
-  color: var(--text-sub);
-}
-.leaf-point::before {
-  content: "🌱";
-  position: absolute;
-  top: -19px;
-  left: 35%;
-  transform: translateX(-50%);
-  font-size: 1rem;
-}
+
 .main-content {
   flex: 1;
   display: flex;
@@ -71,6 +88,7 @@ button {
   align-items: center;
   gap: 70px;
   padding: 0 50px;
+  z-index: 10;
 }
 
 .info-section {
@@ -79,11 +97,6 @@ button {
   height: 350px;
   flex-direction: column;
   gap: 15px;
-}
-.eco-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
 }
 
 .main-title {
@@ -111,12 +124,33 @@ button {
 }
 
 .login-card {
-  background-color: var(--color-bg);
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 40px;
   color: var(--text-main);
   width: 420px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  z-index: 20;
+}
+
+.blooming-text:hover .leaf-point {
+  animation: text-sway 2s ease-in-out infinite;
+  color: var(--color-brand);
+  transition: color 0.3s;
+}
+
+@keyframes text-sway {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(2deg);
+  }
+  75% {
+    transform: rotate(-2deg);
+  }
 }
 
 .card-title {
@@ -125,23 +159,25 @@ button {
   margin: 0 0 10px 0;
 }
 
-.card-description {
-  font-size: 0.95rem;
-  color: #666;
-  margin: 0 0 15px 0;
-}
-
-.admin-login {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 25px;
-  font-size: 0.85rem;
+.card-info {
+  font-size: 14px;
   color: var(--text-sub);
+  margin-bottom: 20px;
 }
 
-.admin-login input[type="checkbox"] {
-  accent-color: var(--color-brand);
+.leaf-point {
+  position: relative;
+  display: inline-block;
+  font-weight: bold;
+}
+
+.leaf-point::before {
+  content: "🌱";
+  position: absolute;
+  top: -19px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1rem;
 }
 
 .tabs {
@@ -177,19 +213,6 @@ button {
   gap: 15px;
 }
 
-.login-form input[type="text"],
-.login-form input[type="password"] {
-  padding: 18px;
-  border-radius: 20px;
-  border: 1px solid var(--color-surface);
-  font-size: 1rem;
-  outline: none;
-}
-
-.login-form input:focus {
-  border-color: var(--color-brand);
-}
-
 .remember-me {
   display: flex;
   align-items: center;
@@ -213,10 +236,6 @@ button {
   cursor: pointer;
   margin-top: 10px;
   transition: background-color 0.3s;
-}
-
-.login-button:hover {
-  background-color: var(--color-brand);
 }
 
 .card-footer {
@@ -269,50 +288,66 @@ button {
   border-top: 10px solid var(--color-bg);
 }
 
-.character-illustration {
-  width: 100%;
-
-  height: auto;
-}
 .character-illustration img {
-  width: 70%;
-  height: auto;
+  width: 220px;
 }
+
 .MuiOutlinedInput-root {
   border-radius: 20px !important;
 }
-
-.MuiOutlinedInput-notchedOutline {
-  border-radius: 20px !important;
-}
-.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
-  border-color: #b0b0b0 !important;
-}
-
 .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
   border-color: var(--color-brand) !important;
 }
 
 .greencarry-swal-popup {
   border-radius: 20px !important;
-  padding: 2rem !important;
   font-family: "Pretendard", sans-serif;
 }
-
 .greencarry-swal-title {
   color: var(--color-brand) !important;
-  font-size: 1.5rem !important;
-  font-weight: 700 !important;
 }
-
 .greencarry-swal-confirm-button {
   background-color: var(--color-brand) !important;
   border-radius: 10px !important;
-  padding: 10px 25px !important;
-  font-size: 1rem !important;
 }
 
-.greencarry-swal-cancel-button {
-  border-radius: 10px !important;
-  padding: 10px 25px !important;
+.particle-leaf {
+  position: fixed;
+  background-color: var(--color-brand);
+  border-radius: 80% 0 80% 0;
+  pointer-events: none;
+  opacity: 0.7;
+  z-index: 100;
+  animation: leaf-fade-out 1.5s ease-out forwards;
+}
+
+@keyframes leaf-fade-out {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate(-20px, 60px) rotate(180deg) scale(0);
+    opacity: 0;
+  }
+}
+
+.eco-bubble {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  filter: blur(2px);
+  z-index: 3;
+  pointer-events: none;
+  animation: float-around 6s infinite ease-in-out;
+}
+
+@keyframes float-around {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
 }

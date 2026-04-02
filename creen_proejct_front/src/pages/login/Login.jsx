@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -14,17 +14,73 @@ const Login = () => {
   const [member, setMember] = useState({
     memberId: "",
     memberPw: "",
-    memberGrade: 1, // 1: 개인, 2: 사업자, 0: 관리자
+    memberGrade: 1,
   });
   const [activeTab, setActiveTab] = useState("personal");
-
   const [rememberId, setRememberId] = useState(false);
+
+  const containerRef = useRef(null);
+  const bubblesRef = useRef([]);
 
   const swalCustomClass = {
     popup: "greencarry-swal-popup",
     title: "greencarry-swal-title",
     confirmButton: "greencarry-swal-confirm-button",
   };
+
+  const bubbleData = useMemo(() => {
+    return [...Array(15)].map(() => ({
+      left: `${Math.random() * 90}%`,
+      top: `${Math.random() * 90}%`,
+      size: `${Math.random() * 20 + 10}px`,
+      delay: `${Math.random() * 5}s`,
+    }));
+  }, []);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleMouseMove = (e) => {
+      const { clientX: x, clientY: y } = e;
+
+      if (Math.random() > 0.88) {
+        const leaf = document.createElement("span");
+        leaf.classList.add("particle-leaf");
+        leaf.style.left = `${x}px`;
+        leaf.style.top = `${y}px`;
+        const size = Math.random() * 10 + 10;
+        leaf.style.width = `${size}px`;
+        leaf.style.height = `${size}px`;
+        leaf.style.transform = `rotate(${Math.random() * 360}deg)`;
+        container.appendChild(leaf);
+        setTimeout(() => leaf.remove(), 1500);
+      }
+
+      bubblesRef.current.forEach((bubble) => {
+        if (!bubble) return;
+        const rect = bubble.getBoundingClientRect();
+        const bX = rect.left + rect.width / 2;
+        const bY = rect.top + rect.height / 2;
+        const dist = Math.hypot(x - bX, y - bY);
+
+        if (dist < 150) {
+          const angle = Math.atan2(y - bY, x - bX);
+          const force = (150 - dist) / 2;
+          const moveX = -Math.cos(angle) * force;
+          const moveY = -Math.sin(angle) * force;
+          bubble.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.2)`;
+          bubble.style.transition = "transform 0.2s ease-out";
+        } else {
+          bubble.style.transform = `translate(0, 0) scale(1)`;
+          bubble.style.transition = "transform 1s ease-in-out";
+        }
+      });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
 
   useEffect(() => {
     const savedId = localStorage.getItem("savedUserId");
@@ -41,10 +97,7 @@ const Login = () => {
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    setMember((prev) => ({
-      ...prev,
-      memberGrade: tab === "personal" ? 1 : 2,
-    }));
+    setMember((prev) => ({ ...prev, memberGrade: tab === "personal" ? 1 : 2 }));
   };
 
   const login = () => {
@@ -56,13 +109,11 @@ const Login = () => {
         title: "입력 오류",
         text: "아이디와 비밀번호를 모두 입력해주세요.",
         customClass: swalCustomClass,
-        buttonsStyling: false,
-        confirmButtonText: "확인",
       });
       return;
     }
 
-    // 아이디 형식 검사 (admin1111 예외 처리)
+    // 아이디 정규식
     const idRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
     if (!idRegex.test(memberId) && memberId !== "admin1111") {
       Swal.fire({
@@ -70,8 +121,19 @@ const Login = () => {
         title: "아이디 형식 오류",
         text: "아이디는 영문과 숫자를 포함하여 8자 이상이어야 합니다.",
         customClass: swalCustomClass,
-        buttonsStyling: false,
-        confirmButtonText: "확인",
+      });
+      return;
+    }
+
+    // 비밀번호 정규식
+    const pwRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{10,}$/;
+    if (!pwRegex.test(memberPw) && memberId !== "admin1111") {
+      Swal.fire({
+        icon: "warning",
+        title: "비밀번호 보안 수준 미달",
+        html: `비밀번호 형식이 올바르지 않습니다.<br/><small>(대/소문자, 숫자, 특수문자 포함 10자 이상)</small>`,
+        customClass: swalCustomClass,
       });
       return;
     }
@@ -87,8 +149,6 @@ const Login = () => {
             title: "로그인 불가",
             text: "탈퇴한 회원입니다. 다시 이용하시려면 고객센터에 문의해주세요.",
             customClass: swalCustomClass,
-            buttonsStyling: false,
-            confirmButtonText: "확인",
           });
           return;
         }
@@ -100,21 +160,17 @@ const Login = () => {
           localStorage.setItem("memberGrade", loginUser.memberGrade);
           localStorage.setItem("memberThumb", loginUser.memberThumb);
 
-          if (rememberId) {
-            localStorage.setItem("savedUserId", member.memberId);
-          } else {
-            localStorage.removeItem("savedUserId");
-          }
+          if (rememberId) localStorage.setItem("savedUserId", memberId);
+          else localStorage.removeItem("savedUserId");
 
           let welcomeTitle = "";
           let welcomeHtml = "";
           let targetPath = "/";
-
           const grade = Number(loginUser.memberGrade);
 
           if (grade === 0) {
             welcomeTitle = "관리자 시스템 접속";
-            welcomeHtml = `<b style="color: var(--color-brand, #2e7d32);">관리자님</b> 환영합니다! <br/>그린캐리 관리자 모드로 로그인되었습니다.`;
+            welcomeHtml = `<b style="color: #2e7d32;">관리자님</b> 환영합니다! <br/>그린캐리 관리자 모드로 로그인되었습니다.`;
             targetPath = "/mypage/admin";
           } else if (grade === 2) {
             welcomeTitle = "파트너 센터 접속";
@@ -139,48 +195,55 @@ const Login = () => {
         }
       })
       .catch((err) => {
-        console.error("로그인 에러:", err);
+        console.error(err);
         Swal.fire({
           icon: "error",
           title: "로그인 실패",
-          text: "가입하지 않은 아이디이거나, 잘못된 비밀번호입니다.",
+          text: "정보가 일치하지 않습니다.",
           customClass: swalCustomClass,
-          buttonsStyling: false,
-          confirmButtonText: "확인",
         });
       });
   };
 
   return (
-    <div className="screen-container">
-      <h1
-        className="logo"
-        style={{
-          textAlign: "center",
-          padding: "30px 0",
-          margin: 0,
-          fontSize: "2.2rem",
-          fontWeight: 700,
-        }}
-      >
-        <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
-          GreenCarry
-        </Link>
-      </h1>
+    <div className="screen-container" ref={containerRef}>
+      <div className="sun-rays"></div>
+
+      {bubbleData.map((style, i) => (
+        <div
+          key={i}
+          className="eco-bubble"
+          ref={(el) => (bubblesRef.current[i] = el)}
+          style={{
+            left: style.left,
+            top: style.top,
+            width: style.size,
+            height: style.size,
+            animationDelay: style.delay,
+          }}
+        />
+      ))}
+
+      <header className="header">
+        <h1 className="logo">
+          <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+            GreenCarry
+          </Link>
+        </h1>
+      </header>
 
       <div className="main-content">
         <section className="info-section">
-          <div className="eco-brand"></div>
           <h2 className="main-title">
             탄소 발자국을 줄이는
             <br />
             맛있는 한 끼
           </h2>
           <div className="stats">
-            <div className="stat-item leaf">
+            <div className="stat-item">
               🌿 오늘 아낀 탄소 <span className="stat-value">1,245kg</span>
             </div>
-            <div className="stat-item tree">
+            <div className="stat-item">
               🌳 식재 효과 <span className="stat-value">156그루</span>
             </div>
           </div>
@@ -188,10 +251,11 @@ const Login = () => {
 
         <section className="login-card">
           <h3 className="card-title">반가워요, 에코 히어로!</h3>
-          <h2 className="card-info">
+          <h2 className="card-info blooming-text">
             로그인하여 <span className="leaf-point">친</span>환경 배달을
             시작하세요
           </h2>
+
           <div className="tabs">
             <button
               type="button"
@@ -216,7 +280,6 @@ const Login = () => {
               login();
             }}
           >
-            {/* 아이디 입력창 */}
             <TextField
               fullWidth
               variant="outlined"
@@ -225,23 +288,14 @@ const Login = () => {
               value={member.memberId}
               onChange={inputMember}
               margin="normal"
-              autoComplete="off"
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <PersonIcon
-                      style={{ color: "var(--color-brand, #2e7d32)" }}
-                    />
+                    <PersonIcon style={{ color: "#2e7d32" }} />
                   </InputAdornment>
                 ),
               }}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px",
-                },
-              }}
             />
-
             <TextField
               fullWidth
               variant="outlined"
@@ -254,16 +308,9 @@ const Login = () => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <LockIcon
-                      style={{ color: "var(--color-brand, #2e7d32)" }}
-                    />
+                    <LockIcon style={{ color: "#2e7d32" }} />
                   </InputAdornment>
                 ),
-              }}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px",
-                },
               }}
             />
 
@@ -276,6 +323,7 @@ const Login = () => {
               />
               <label htmlFor="remember_check">아이디 저장</label>
             </div>
+
             <button type="submit" className="login-button">
               로그인
             </button>
@@ -292,7 +340,7 @@ const Login = () => {
             <p>현재 456명이 환경을 지키고 있어요!</p>
           </div>
           <div className="character-illustration">
-            <img src="/image/logo.png" alt="GreenCarry Logo" />
+            <img src="/image/logo.png" alt="Logo" />
           </div>
         </section>
       </div>
