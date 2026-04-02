@@ -1,4 +1,4 @@
-import styles from "./OrderInfoEdit.module.css";
+import styles from "./ManagerInfoEdit.module.css";
 import AccountCircleSharpIcon from '@mui/icons-material/AccountCircleSharp';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';

@@ -25,11 +25,15 @@ import ManagerSignup from "./pages/signup/ManagerSignup";
 import Signup from "./pages/signup/Signup";
 import UserCS from "./pages/mypage/user/UserCS";
 
+import ManagerInfoEdit from "./pages/mypage/manager/ManagerInfoEdit"
+
 import AdminDashboard from "./pages/mypage/admin/AdminDashboard";
 import AdminUserManagement from "./pages/mypage/admin/AdminUserManagement";
 import AdminStoreManagement from "./pages/mypage/admin/AdminStoreManagement";
 import AdminReviewManagement from "./pages/mypage/admin/AdminReviewManagement";
 import AdminContainerManagement from "./pages/mypage/admin/AdminContainerManagement";
+
+
 
 const BasicLayout = () => {
   return (
@@ -71,7 +75,7 @@ function App() {
             {/* 🧑 일반 유저 마이페이지 */}
             <Route path="/mypage/user" element={<UserLayout />}>
               <Route index element={<UserProfile />} />
-              <Route path="userInfoEdit" element={<UserInfoEdit />} />
+              <Route path="profile" element={<UserInfoEdit />} />
               <Route path="userCS" element={<UserCS />} />
               {/* 기본 화면: 개인정보 수정 */}
               {/* <Route path="orders" element={<UserOrders />} /> */}
@@ -80,11 +84,11 @@ function App() {
             </Route>
 
             {/* 👨‍🍳 점주 마이페이지 */}
-            {/* <Route path="/mypage/manager" element={<ManagerLayout />}> */}
-            {/* <Route index element={<ManagerDashboard />} />{' '} */}
-            {/* 기본 화면: 통계 메인 */}
-            {/* <Route path="menus" element={<ManagerMenus />} /> */}
-            {/* </Route> */}
+            <Route path="/mypage/manager" element={<ManagerLayout />}>
+              {/* <Route index element={<ManagerDashboard />} />{' '} */}
+              {/* 기본 화면: 통계 메인 */}
+              <Route path="profile" element={<ManagerInfoEdit />} />
+            </Route>
 
             {/* 👮 관리자 마이페이지 */}
             <Route path="/mypage/admin" element={<AdminLayout />}>
