@@ -1,12 +1,17 @@
 package kr.co.iei.member.controller;
 
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import kr.co.iei.member.model.vo.Member;
 import kr.co.iei.utils.JwtUtil;
@@ -132,6 +138,7 @@ public class MemberController {
         // 🌟 이미 만들어둔 selectOneMember를 서비스에서 호출
     	System.out.println("현재 정보를 조회할 회원의 아이디 : " + memberId);
         Member member = memberService.selectOneMember(memberId);
+        System.out.println(member);
         
         if (member != null) {
             // 보안상 비밀번호는 제거하고 보낼 수도 있습니다.
@@ -160,5 +167,57 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     
+    }
+    @PostMapping("/updateProfile")
+    public ResponseEntity<?> updateProfile(
+    		@RequestParam String memberId, // 현재 접속중인 회원의 Id
+            @RequestParam String memberName,
+            @RequestParam String memberPhone,
+            @RequestParam(value = "uploadFile", required = false) MultipartFile uploadFile) {
+
+        // 1. 업데이트할 정보를 담을 Member 객체 생성
+        Member member = new Member();
+        member.setMemberId(memberId);
+        member.setMemberName(memberName);
+        member.setMemberPhone(memberPhone);
+        System.out.println(member);
+
+        // 2. 프로필 사진이 전송되었는지 확인 및 저장 로직
+        if (uploadFile != null && !uploadFile.isEmpty()) {
+            try {
+                // 🌟 이미지를 저장할 서버 경로 설정 
+            	String savePath = "\\\\192.168.31.26\\project\\upload\\web\\member\\";
+                
+                File folder = new File(savePath);
+                if (!folder.exists()) {
+                    folder.mkdirs(); // 폴더가 없으면 생성
+                }
+
+                // 파일명 충돌을 막기 위해 UUID(난수) + 원본 확장자로 새 파일명 생성
+                String originalFileName = uploadFile.getOriginalFilename();
+                String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+                String saveFileName = UUID.randomUUID().toString() + extension;
+
+                // 실제 서버 경로에 파일 저장
+                File dest = new File(savePath + saveFileName);
+                uploadFile.transferTo(dest);
+
+                // DB에 저장할 웹 접근 경로 세팅 (프론트에서 이 경로로 이미지를 부름)
+                member.setMemberThumb("/uploads/member/" + saveFileName);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("FILE_UPLOAD_ERROR");
+            }
+        }
+
+        // 3. 서비스 호출하여 DB 업데이트
+        int result = memberService.updateProfile(member);
+
+        if (result > 0) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("UPDATE_FAIL");
+        }
     }
 }

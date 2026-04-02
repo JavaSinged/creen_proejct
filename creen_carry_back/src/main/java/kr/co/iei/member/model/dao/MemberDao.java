@@ -20,4 +20,6 @@ public interface MemberDao {
 
 	int updatePassword(String memberId, String encodedNewPw);
 
+	int updateProfile(Member member);
+
 }

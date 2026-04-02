@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { AuthContext } from "../../../context/AuthContext";
 import api from "../../../utils/accessToken";
 import styles from "./UserInfoEdit.module.css";
@@ -14,28 +14,39 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import HomeIcon from "@mui/icons-material/Home";
 import Collapse from "@mui/material/Collapse";
+import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 
 export default function UserInfoEdit() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  // 🌟 1. 백엔드 서버 주소 변수 추가 (포트 번호가 다르다면 본인 환경에 맞게 수정하세요!)
+  const backHost = "http://localhost:10400";
+
   const [memberInfo, setMemberInfo] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // 프로필 수정용 상태
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileData, setProfileData] = useState({
+    memberName: "",
+    memberPhone: "",
+  });
+  const [profileImg, setProfileImg] = useState(null);
+  const [previewImg, setPreviewImg] = useState(null);
+  const fileInputRef = useRef(null);
 
   // 아코디언 상태
   const [openPwSet, setopenPwSet] = useState(false);
   const [openAddSet, setopenAddSet] = useState(false);
 
-  // 아코디언 토글 함수
   const togglePwSet = () => setopenPwSet(!openPwSet);
   const toggleAddSet = () => setopenAddSet(!openAddSet);
 
-  // 비밀번호 가시성 상태 (현재, 새 비밀번호, 확인 각각 관리)
   const [showCurrentPw, setShowCurrentPw] = useState(false);
   const [showNewPw, setShowNewPw] = useState(false);
   const [showConfirmPw, setShowConfirmPw] = useState(false);
 
-  // 입력 데이터 상태
   const [pwData, setPwData] = useState({
     currentPw: "",
     newPw: "",
@@ -47,15 +58,17 @@ export default function UserInfoEdit() {
     detailAddress: "",
   });
 
-  // 회원 정보 불러오기
   useEffect(() => {
     if (user && user.memberId) {
       api
-        .get(`/member/getMemberInfo`, {
-          params: { memberId: user.memberId },
-        })
+        .get(`/member/getMemberInfo`, { params: { memberId: user.memberId } })
         .then((res) => {
           setMemberInfo(res.data);
+          setProfileData({
+            memberName: res.data.memberName || "",
+            memberPhone: res.data.memberPhone || "",
+          });
+          if (res.data.memberThumb) setPreviewImg(res.data.memberThumb);
           setLoading(false);
         })
         .catch((err) => {
@@ -65,20 +78,69 @@ export default function UserInfoEdit() {
     }
   }, [user]);
 
+  // 프로필 정보 변경 핸들러
+  const handleProfileDataChange = (e) => {
+    const { name, value } = e.target;
+    setProfileData({ ...profileData, [name]: value });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfileImg(file);
+      setPreviewImg(URL.createObjectURL(file));
+    }
+  };
+
+  const handleProfileSubmit = async () => {
+    if (!profileData.memberName || !profileData.memberPhone) {
+      return Swal.fire(
+        "알림",
+        "이름과 전화번호를 모두 입력해주세요.",
+        "warning",
+      );
+    }
+
+    const formData = new FormData();
+    formData.append("memberId", user.memberId);
+    formData.append("memberName", profileData.memberName);
+    formData.append("memberPhone", profileData.memberPhone);
+    if (profileImg) {
+      formData.append("uploadFile", profileImg);
+    }
+
+    try {
+      const token = localStorage.getItem("accessToken");
+
+      const response = await api.post("/member/updateProfile", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.data === 1) {
+        Swal.fire("성공", "기본 정보가 수정되었습니다.", "success");
+        setIsEditingProfile(false);
+        setMemberInfo((prev) => ({
+          ...prev,
+          memberName: profileData.memberName,
+          memberPhone: profileData.memberPhone,
+          memberThumb: previewImg,
+        }));
+      }
+    } catch (error) {
+      Swal.fire("에러", "프로필 수정 중 오류가 발생했습니다.", "error");
+    }
+  };
+
   // 비밀번호 변경 핸들러
   const handlePwSubmit = async () => {
     const { currentPw, newPw, confirmPw } = pwData;
-
-    // 1. 빈 칸 체크
-    if (!currentPw || !newPw || !confirmPw) {
+    if (!currentPw || !newPw || !confirmPw)
       return Swal.fire("알림", "모든 필드를 입력해주세요.", "warning");
-    }
 
-    // 🌟 2. 강력한 비밀번호 정규표현식 (요청하신 조건 반영)
-    // 규칙: 대문자(?=.*[A-Z]), 소문자(?=.*[a-z]), 숫자(?=.*\d), 특수문자(?=.*[@$!%*#?&]) 포함, 10자 이상{10,}
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{10,}$/;
-
     if (!passwordRegex.test(newPw)) {
       return Swal.fire({
         icon: "warning",
@@ -92,28 +154,21 @@ export default function UserInfoEdit() {
       });
     }
 
-    // 3. 이전 비밀번호와 동일 여부 체크
-    if (currentPw === newPw) {
+    if (currentPw === newPw)
       return Swal.fire(
         "알림",
         "현재 비밀번호와 다른 새 비밀번호를 사용해주세요.",
         "info",
       );
-    }
-
-    // 4. 일치 여부 체크
-    if (newPw !== confirmPw) {
+    if (newPw !== confirmPw)
       return Swal.fire("오류", "새 비밀번호가 일치하지 않습니다.", "error");
-    }
 
-    // --- 통과 시 API 호출 ---
     try {
       const response = await api.post("/member/updatePassword", {
         memberId: user.memberId,
-        currentPw: currentPw,
-        newPw: newPw,
+        currentPw,
+        newPw,
       });
-
       if (response.data === "SUCCESS") {
         await Swal.fire(
           "성공",
@@ -137,11 +192,6 @@ export default function UserInfoEdit() {
     setPwData({ ...pwData, [name]: value });
   };
 
-  const handleAddressChange = (e) => {
-    const { name, value } = e.target;
-    setAddressDate({ ...addressData, [name]: value });
-  };
-
   const handleDeleteClick = () => {
     const isConfirmed = window.confirm(
       "정말로 탈퇴하시겠습니까? 데이터는 복구할 수 없습니다 ㅜㅜ",
@@ -156,26 +206,109 @@ export default function UserInfoEdit() {
 
   return (
     <div className={styles.right}>
-      <section className={styles.right_main}>
-        <div className={styles.icon_content}>
-          <div className={styles.icon}>
-            <AccountCircleSharpIcon className={styles.icon_inside} />
+      <section
+        className={`${styles.right_main} ${isEditingProfile ? styles.right_main_editing : styles.right_main_default}`}
+      >
+        <div
+          className={`${styles.icon_content} ${isEditingProfile ? styles.icon_content_editing : styles.icon_content_default}`}
+        >
+          <div
+            className={`${styles.icon_wrapper} ${isEditingProfile ? styles.icon_wrapper_editable : ""}`}
+            onClick={() => isEditingProfile && fileInputRef.current.click()}
+          >
+            {previewImg ? (
+              <img
+                src={
+                  previewImg.startsWith("blob:")
+                    ? previewImg
+                    : `${backHost}${previewImg}`
+                }
+                alt="profile"
+                className={styles.profile_image}
+              />
+            ) : (
+              <AccountCircleSharpIcon className={styles.icon_inside} />
+            )}
+
+            {isEditingProfile && (
+              <div className={styles.camera_overlay}>
+                <PhotoCameraIcon fontSize="small" />
+              </div>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              className={styles.hidden_input}
+              onChange={handleImageChange}
+            />
           </div>
+
+          {/* 프로필 텍스트 영역 */}
           <div className={styles.dashboard}>
             <p className={styles.dashboard_email}>{memberInfo?.memberEmail}</p>
-            <p className={styles.dashboard_name}>{memberInfo?.memberName} 님</p>
-            <p className={styles.dashboard_phoneNumber}>
-              {memberInfo?.memberPhone}
-            </p>
+
+            {isEditingProfile ? (
+              <div className={styles.edit_form_container}>
+                <input
+                  type="text"
+                  name="memberName"
+                  value={profileData.memberName}
+                  onChange={handleProfileDataChange}
+                  className={styles.edit_input}
+                  placeholder="이름"
+                />
+                <input
+                  type="text"
+                  name="memberPhone"
+                  value={profileData.memberPhone}
+                  onChange={handleProfileDataChange}
+                  className={styles.edit_input}
+                  placeholder="전화번호"
+                />
+                <div className={styles.edit_btn_group}>
+                  <button
+                    onClick={handleProfileSubmit}
+                    className={styles.save_btn}
+                  >
+                    저장
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsEditingProfile(false);
+                      setPreviewImg(memberInfo?.memberThumb);
+                    }}
+                    className={styles.cancel_btn}
+                  >
+                    취소
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <p className={styles.dashboard_name}>
+                  {memberInfo?.memberName} 님
+                </p>
+                <p className={styles.dashboard_phoneNumber}>
+                  {memberInfo?.memberPhone}
+                </p>
+              </div>
+            )}
           </div>
         </div>
-        <div className={styles.set_icon}>
-          <BorderColorIcon />
-        </div>
+
+        {!isEditingProfile && (
+          <div
+            className={styles.set_icon}
+            onClick={() => setIsEditingProfile(true)}
+          >
+            <BorderColorIcon />
+          </div>
+        )}
       </section>
 
       <section className={styles.mini_box}>
-        {/* 비밀번호 변경 섹션 */}
+        {/* 비밀번호 변경 아코디언 */}
         <div className={styles.Wrapper}>
           <div className={styles.pwSet} onClick={togglePwSet}>
             <p>비밀번호 변경</p>
@@ -186,7 +319,6 @@ export default function UserInfoEdit() {
           <Collapse in={openPwSet} timeout="auto" unmountOnExit>
             <div className={styles.pw_content_box}>
               <div className={styles.pw_form_container}>
-                {/* 🌟 비밀번호 입력 필드들을 배열로 구성하여 렌더링 */}
                 {[
                   {
                     label: "현재 비밀번호",
@@ -226,7 +358,6 @@ export default function UserInfoEdit() {
                     </div>
                   </div>
                 ))}
-
                 <div className={styles.pw_input_row}>
                   <label></label>
                   <button
@@ -241,7 +372,7 @@ export default function UserInfoEdit() {
           </Collapse>
         </div>
 
-        {/* 주소지 변경 섹션 */}
+        {/* 주소지 변경 아코디언 */}
         <div className={styles.Wrapper}>
           <div className={styles.addSet} onClick={toggleAddSet}>
             <p>주소지 변경</p>
@@ -251,20 +382,31 @@ export default function UserInfoEdit() {
           </div>
           <Collapse in={openAddSet} timeout="auto" unmountOnExit>
             <div className={styles.add_content_box}>
-              {/* 여기에 주소지 입력 폼을 추가할 수 있습니다 */}
               <div className={styles.current_address_section}>
-                <p className={styles.address_detail}>
-                  {memberInfo?.memberAddress || "주소 정보 없음"}
-                </p>
+                <p className={styles.current_address_title}>현재 주소지</p>
+                <div className={styles.current_address_box}>
+                  <HomeIcon className={styles.home_icon} />
+                  <div className={styles.address_info}>
+                    <div className={styles.address_tag_row}>
+                      <span className={styles.address_name}>기본 배송지</span>
+                      <span className={styles.address_tag}>현재 주소</span>
+                    </div>
+                    <p className={styles.address_detail}>
+                      {memberInfo?.memberAddress || "주소 정보 없음"}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </Collapse>
         </div>
       </section>
 
+      {/* 회원 탈퇴 영역 */}
       <div className={styles.deleteSet}>
         <div className={styles.delete_btn} onClick={handleDeleteClick}>
-          회원 탈퇴
+          <span className={styles.text_hover}>정말 떠나시겠어요? 😢</span>
+          <span className={styles.text_default}>회원 탈퇴</span>
         </div>
       </div>
     </div>
