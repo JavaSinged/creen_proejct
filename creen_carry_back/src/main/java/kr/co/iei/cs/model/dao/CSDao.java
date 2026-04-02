@@ -5,10 +5,15 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 import kr.co.iei.cs.model.vo.Faq;
+import kr.co.iei.cs.model.vo.Qna;
 
 @Mapper
 public interface CSDao {
 
-	List<Faq> selectAllList(int faqCategory);
+	List<Faq> selectAllList(Faq faq);
+
+	List<Qna> selectMyInquiry(String memberId);
+
+	int insertQna(Qna qna);
 
 }

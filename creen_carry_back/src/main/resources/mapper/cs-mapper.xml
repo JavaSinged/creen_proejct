@@ -3,16 +3,36 @@
 <mapper namespace="kr.co.iei.cs.model.dao.CSDao">
 
 <select id="selectAllList" resultType="faq">
-	select * from faq_tbl
-	
-		<if test="faq_category == 1">
-		where faq_category = #{faqCategory}
-		</if>
-	
-	order by faq_no asc
-
+    SELECT * FROM faq_tbl
+    <where>
+        <if test="faqCategory != null and faqCategory != 0">
+            AND faq_category = #{faqCategory}
+        </if>
+        
+        <if test="searchKeyword != null and searchKeyword != ''">
+            AND (
+                faq_title LIKE '%' || #{searchKeyword} || '%' 
+                OR faq_content LIKE '%' || #{searchKeyword} || '%'
+            )
+        </if>
+    </where>
+    ORDER BY faq_no ASC
 </select>
 
+<select id="selectMyInquiry" resultType="qna">
+	select * from qna_tbl where member_id=#{memberId} order by qna_no desc
+</select>
+
+<insert id="insertQna">
+	insert into qna_tbl values
+			(qna_tbl_seq.nextval, 
+			#{memberId}, 
+			#{qnaTitle},
+			#{qnaContent},
+			null,
+			0,
+			sysdate)
+</insert>
 
 
 

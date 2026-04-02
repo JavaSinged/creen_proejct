@@ -15,4 +15,5 @@ public class Faq {
  private Integer faqCategory;
  private String faqTitle;
  private String faqContent;
+ private String searchKeyword;
 }

@@ -11,6 +11,8 @@ import StarsIcon from "@mui/icons-material/Stars";
 const UserCS = () => {
   const { user } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState("faq"); // 기본: faq활성화
+
+  const [searchKeyword, setSearchKeyword] = useState("");
   return (
     <section className={styles.cs_container}>
       <div className={styles.top_section}>
@@ -27,6 +29,10 @@ const UserCS = () => {
             type="text"
             className={styles.search_input}
             placeholder="궁금한 점을 검색해보세요."
+            value={searchKeyword}
+            onChange={(e) => {
+              setSearchKeyword(e.target.value);
+            }}
           />
           <span className={styles.search_icon}>
             <SearchIcon />
@@ -54,31 +60,66 @@ const UserCS = () => {
               1 : 1 문의하기
             </button>
           </div>
+          <div className={styles.tabs_nav_answer}>
+            <button
+              className={`${styles.tab_item} ${activeTab === "answer" ? styles.active : ""}`}
+              onClick={() => {
+                setActiveTab("answer");
+              }}
+            >
+              1 : 1 문의내역
+            </button>
+          </div>
         </div>
       </div>
       {/*컨텐츠 랜더링영역 */}
       <div className={styles.content_area}>
-        {activeTab === "faq" ? <FAQSection /> : <QnASection />}
+        {activeTab === "faq" ? (
+          <FAQSection
+            searchKeyword={searchKeyword}
+            setSearchKeyword={setSearchKeyword}
+          />
+        ) : activeTab === "qna" ? (
+          <QnASection
+            setSearchKeyword={setSearchKeyword}
+            user={user}
+            setActiveTab={setActiveTab}
+          />
+        ) : (
+          <AnswerSection user={user} />
+        )}
       </div>
     </section>
   );
 };
-const FAQSection = () => {
-  const categories = ["결제", "배달", "에코 포인트", "서비스 이용"];
-  //카테고리 상태값
+
+const FAQSection = ({ searchKeyword, setSearchKeyword }) => {
+  //0:전체조회, 1:결제, 2:배달, 3:에코포인트, 4:서비스이용
+  const categories = [
+    { id: 0, label: "전체" },
+    { id: 1, label: "결제" },
+    { id: 2, label: "배달" },
+    { id: 3, label: "에코 포인트" },
+    { id: 4, label: "서비스 이용" },
+  ];
   const [status, setStatus] = useState(0); // 0:전체조회, 1:결제, 2:배달, 3:에코포인트, 4:서비스이용
-  const [openIndex, setOpenIndex] = useState(null); //아코디언 상태 (null : 모두 닫힘)
   const [faqList, setFaqList] = useState([]); // 받아올 리스트
+  const [openIndex, setOpenIndex] = useState(null); //아코디언 상태 (null : 모두 닫힘)
 
   const indexToggle = (index) => {
     //아코디언 하나만 열리게
     setOpenIndex(openIndex === index ? null : index);
   };
-  //전체조회
+
+  //faq 전체조회
   useEffect(() => {
+    setOpenIndex(null);
     axios
       .get(`${import.meta.env.VITE_BACKSERVER}/cs/inquiries/faq`, {
-        params: { faq_category: status },
+        params: {
+          faqCategory: status,
+          searchKeyword: searchKeyword,
+        },
       })
       .then((res) => {
         console.log(res);
@@ -87,20 +128,21 @@ const FAQSection = () => {
       .catch((err) => {
         console.log(err);
       });
-  }, [status]);
+  }, [status, searchKeyword]);
   return (
     <div className={styles.faq_wrap}>
       <div className={styles.category_group}>
         {categories.map((cat) => {
           return (
             <button
-              key={`key:${cat}`} // 키값 나중에 수정하기
-              className={`${styles.cat_btn} ${status === cat ? styles.cat_active : ""}`}
+              key={`key:${cat.id}`}
+              className={`${styles.cat_btn} ${status === cat.id ? styles.cat_active : ""}`}
               onClick={() => {
-                setStatus(cat);
+                setStatus(cat.id);
+                //setSearchKeyword("");
               }}
             >
-              {cat}
+              {cat.label}
             </button>
           );
         })}
@@ -108,35 +150,103 @@ const FAQSection = () => {
 
       <div className={styles.faq_list}>
         {/* 반복될 질문 아이템 (실제로는 데이터를 map 돌리면 됩니다) */}
-
-        {faqList.map((item, i) => (
-          <details
-            key={item.faqNo}
-            className={styles.faq_item}
-            open={openIndex === i}
-          >
-            <summary
-              className={styles.faq_header}
-              onClick={(e) => {
-                e.preventDefault();
-                indexToggle(i);
-              }}
+        {faqList.length > 0 ? (
+          faqList.map((item, i) => (
+            <details
+              key={item.faqNo} // 출력시 키값 pk사용
+              className={styles.faq_item}
+              open={openIndex === i}
             >
-              <span className={styles.q_no}>{<StarsIcon />}</span>
-              <span className={styles.q_text}>{item.faqTitle}</span>
-              <span className={styles.arrow}>
-                <KeyboardArrowDownIcon />
-              </span>
-            </summary>
-            <div className={styles.faq_answer}>{item.faqContent}</div>
-          </details>
-        ))}
+              <summary
+                className={styles.faq_header}
+                onClick={(e) => {
+                  e.preventDefault();
+                  indexToggle(i);
+                }}
+              >
+                <span className={styles.q_no}>{<StarsIcon />}</span>
+                <span className={styles.q_text}>{item.faqTitle}</span>
+                <span className={styles.arrow}>
+                  <KeyboardArrowDownIcon />
+                </span>
+              </summary>
+              <div className={styles.faq_answer}>{item.faqContent}</div>
+            </details>
+          ))
+        ) : (
+          <div className={styles.no_result}>
+            <p>
+              🔍 현재 카테고리에 '{searchKeyword}'에 대한 검색 결과가 없습니다.
+            </p>
+            <span>다른 검색어를 입력하시거나 카테고리를 변경해 보세요.</span>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-const QnASection = () => {
+const QnASection = ({ setSearchKeyword, user, setActiveTab }) => {
+  useEffect(() => {
+    setSearchKeyword("");
+  }, [setSearchKeyword]);
+
+  //입력: 제목, 내용 ( 답변상태: 0 ))
+  const [inquiry, setInquiry] = useState({
+    memberId: user.memberId,
+    qnaTitle: "",
+    qnaContent: "",
+  });
+
+  const handleChange = (e) => {
+    const maxLength = {
+      qnaTitle: 25,
+      qnaContent: 400,
+    };
+
+    const { name, value } = e.target;
+    if (value.length >= maxLength[name]) {
+      if (value.length === maxLength[name]) {
+        alert(
+          `${name === "qnaTitle" ? "제목" : "내용"}은 최대 ${maxLength[name]}자까지 입력 가능합니다.`,
+        );
+      }
+      setInquiry({ ...inquiry, [name]: value.slice(0, maxLength[name]) });
+      return;
+    }
+    setInquiry({ ...inquiry, [name]: value });
+  };
+
+  const insertQna = (e) => {
+    if (inquiry.qnaTitle === "" || inquiry.qnaContent === "") {
+      alert("제목과 내용을 모두 입력해주세요.");
+      return; // 함수를 여기서 종료 (서버로 안 보냄)
+    }
+    if (inquiry.qnaTitle.length > 25) {
+      alert("제목이 25자를 초과했습니다. 내용을 줄여주세요.");
+      return;
+    }
+
+    if (inquiry.qnaContent.length > 400) {
+      alert("내용이 400자를 초과했습니다. 내용을 줄여주세요.");
+      return;
+    }
+
+    axios
+      .post(`${import.meta.env.VITE_BACKSERVER}/cs/inquiries/submit`, inquiry)
+      .then((res) => {
+        console.log(res);
+        console.log(inquiry);
+        alert("문의가 정상적으로 등록되었습니다.");
+        setActiveTab("answer");
+      })
+      .catch((err) => {
+        console.log(err);
+        alert(
+          "글자 수가 너무 길거나 서버 오류가 발생했습니다. 내용을 줄여주세요.",
+        );
+      });
+  };
   return (
     <div className={styles.qna_wrap}>
       <div className={styles.qna_guide}>
@@ -152,18 +262,127 @@ const QnASection = () => {
           <label>문의 제목</label>
           <input
             type="text"
+            name="qnaTitle"
             className={styles.form_input}
             placeholder="제목을 입력해주세요."
+            value={inquiry.qnaTitle}
+            onChange={handleChange}
           />
         </div>
         <div className={styles.input_group}>
           <label>문의 내용</label>
           <textarea
+            type="textarea"
+            name="qnaContent"
             className={styles.form_textarea}
             placeholder="내용을 입력해주세요."
+            value={inquiry.qnaContent}
+            onChange={handleChange}
+            maxLength={400}
           ></textarea>
+
+          <div className={styles.char_count_wrapper}>
+            <span
+              className={`${styles.char_count} ${inquiry.qnaContent.length >= 400 ? styles.limit_reached : ""}`}
+            >
+              {inquiry.qnaContent.length} / 400자
+            </span>
+          </div>
         </div>
-        <button className={styles.submit_btn}>문의 등록</button>
+        <button type="button" className={styles.submit_btn} onClick={insertQna}>
+          문의 등록
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const AnswerSection = ({ user }) => {
+  const [inquiryList, setInquiryList] = useState([]);
+  const [openIndex, setOpenIndex] = useState(null); //아코디언 상태 (null : 모두 닫힘)
+  const indexToggle = (index) => {
+    //아코디언 하나만 열리게
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
+  useEffect(() => {
+    if (!user || !user.memberId) return;
+    axios
+      .get(`${import.meta.env.VITE_BACKSERVER}/cs/inquiries/list`, {
+        params: { memberId: user.memberId },
+      })
+      .then((res) => {
+        console.log(res);
+        setInquiryList(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [user?.memberId]);
+  return (
+    <div className={styles.answer_wrap}>
+      <h4 className={styles.answer_title}>1 : 1 문의내역</h4>
+      <p className={styles.answer_desc}>
+        * 최근 3개월 이내의 문의내역만 확인 가능합니다.
+      </p>
+      <div className={styles.inquiry_list}>
+        {inquiryList.length > 0 ? (
+          inquiryList.map((item, i) => (
+            <details
+              key={item.qnaNo}
+              className={styles.inquiry_item_details}
+              open={openIndex === i}
+            >
+              <summary
+                className={styles.faq_header}
+                onClick={(e) => {
+                  e.preventDefault();
+                  indexToggle(i);
+                }}
+              >
+                <div className={styles.inquiry_info}>
+                  <p className={styles.inquiry_subject}>{item.qnaTitle}</p>
+                  <p className={styles.inquiry_preview_one_line}>
+                    {item.qnaContent}
+                  </p>
+                </div>
+                <div className={styles.inquiry_meta}>
+                  <span className={styles.inquiry_date}>{item.qnaDate}</span>
+                  <span className={styles.arrow}>
+                    <KeyboardArrowDownIcon />
+                  </span>
+                </div>
+              </summary>
+
+              <div className={styles.faq_answer}>
+                {/* 1. 문의 내용 영역 */}
+                <div className={styles.qna_content_box}>
+                  <p className={styles.answer_label}>[문의 내용]</p>
+                  <div className={styles.content_text}>{item.qnaContent}</div>
+                </div>
+
+                {/* 2. 구분선 (HR 태그 또는 CSS 처리) */}
+                <hr className={styles.qna_divider} />
+
+                {/* 3. 문의 답변 영역 */}
+                <div className={styles.qna_answer_box}>
+                  <p className={styles.answer_label}>[문의 답변]</p>
+                  {item.qnaAnswer ? (
+                    <div className={styles.answer_text}>{item.qnaAnswer}</div>
+                  ) : (
+                    <div className={styles.waiting_text}>
+                      관리자의 답변을 기다리고 있습니다.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </details>
+          ))
+        ) : (
+          <div className={styles.empty_list}>
+            3개월 이내에 문의하신 내역이 없습니다.
+          </div>
+        )}
       </div>
     </div>
   );
