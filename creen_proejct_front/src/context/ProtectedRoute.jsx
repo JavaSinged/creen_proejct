@@ -34,7 +34,7 @@ const ProtectedRoute = ({
     // (방금 로그인 버튼을 눌러서 들어온 사람은 알림 없이 패스)
     if (wasLoggedInInitially.current === true) {
       Swal.fire({
-        icon: "info",
+        icon: "warning",
         title: "이미 로그인되어 있습니다.",
         showConfirmButton: false,
         timer: 1500,
