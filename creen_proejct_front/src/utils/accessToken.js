@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:10400", // 백엔드 주소
+  baseURL: `${import.meta.env.VITE_BACKSERVER}`, // 백엔드 주소
 });
 
 // 🌟 요청 인터셉터: 서버로 보내기 직전에 실행

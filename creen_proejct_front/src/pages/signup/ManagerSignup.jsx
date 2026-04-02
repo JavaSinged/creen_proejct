@@ -88,7 +88,7 @@ const ManagerSignup = () => {
     }
     axios
       .get(
-        `${import.meta.env.VITE_BACKSERVER}/api/member/exists?memberId=${member.memberId}`,
+        `${import.meta.env.VITE_BACKSERVER}/member/exists?memberId=${member.memberId}`,
       )
       .then((res) => {
         if (res.data) {
@@ -120,7 +120,7 @@ const ManagerSignup = () => {
     if (checkEmail === 0) {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_BACKSERVER}/api/member/emailDupCheck?memberEmail=${member.memberEmail}`,
+          `${import.meta.env.VITE_BACKSERVER}/member/emailDupCheck?memberEmail=${member.memberEmail}`,
         );
 
         if (res.data) {
@@ -145,10 +145,7 @@ const ManagerSignup = () => {
 
     const obj = { memberEmail: member.memberEmail };
     axios
-      .post(
-        `${import.meta.env.VITE_BACKSERVER}/api/member/email-verification`,
-        obj,
-      )
+      .post(`${import.meta.env.VITE_BACKSERVER}/member/email-verification`, obj)
       .then((res) => {
         setMailAuthCode(res.data);
         setMailAuth(2);
@@ -221,7 +218,7 @@ const ManagerSignup = () => {
   const storeDupCheck = () => {
     axios
       .get(
-        `${import.meta.env.VITE_BACKSERVER}/api/member/storeDupCheck?storeOwnerNo=${member.storeOwnerNo}`,
+        `${import.meta.env.VITE_BACKSERVER}/member/storeDupCheck?storeOwnerNo=${member.storeOwnerNo}`,
       )
       .then((res) => {
         if (res.data === null || res.data === "") {
@@ -403,7 +400,7 @@ const ManagerSignup = () => {
 
     axios
       .post(
-        `${import.meta.env.VITE_BACKSERVER}/api/member/signupManager`,
+        `${import.meta.env.VITE_BACKSERVER}/member/signupManager`,
         submitData,
       )
       .then((res) => {

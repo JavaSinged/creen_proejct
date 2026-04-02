@@ -82,7 +82,7 @@ const UserSignup = () => {
 
     axios
       .get(
-        `${import.meta.env.VITE_BACKSERVER}/api/member/exists?memberId=${member.memberId}`,
+        `${import.meta.env.VITE_BACKSERVER}/member/exists?memberId=${member.memberId}`,
       )
       .then((res) => {
         console.log("중복 체크 결과:", res.data);
@@ -119,7 +119,7 @@ const UserSignup = () => {
     if (checkEmail === 0) {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_BACKSERVER}/api/member/emailDupCheck?memberEmail=${member.memberEmail}`,
+          `${import.meta.env.VITE_BACKSERVER}/member/emailDupCheck?memberEmail=${member.memberEmail}`,
         );
 
         if (res.data) {
@@ -144,10 +144,7 @@ const UserSignup = () => {
 
     const obj = { memberEmail: member.memberEmail };
     axios
-      .post(
-        `${import.meta.env.VITE_BACKSERVER}/api/member/email-verification`,
-        obj,
-      )
+      .post(`${import.meta.env.VITE_BACKSERVER}/member/email-verification`, obj)
       .then((res) => {
         console.log("인증번호 발송 성공:", res.data);
         setMailAuthCode(res.data); // 서버에서 보낸 인증번호 저장
@@ -368,7 +365,7 @@ const UserSignup = () => {
     }
 
     axios
-      .post(`${import.meta.env.VITE_BACKSERVER}/api/member/userSignup`, member)
+      .post(`${import.meta.env.VITE_BACKSERVER}/member/userSignup`, member)
       .then((res) => {
         console.log("가입 진행 데이터:", res.data);
         Swal.fire({

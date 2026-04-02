@@ -97,7 +97,7 @@ const Account = () => {
     }
 
     api
-      .post("/api/member/verifyCode", {
+      .post("/member/verifyCode", {
         memberEmail: formData.memberEmail,
         inputCode,
       })
