@@ -27,6 +27,8 @@ public class CSController {
 	public ResponseEntity<?> selectAllList(@RequestParam(value="faq_category") int faqCategory){
 		List<Faq> list = csService.selectAllList(faqCategory);
 		return ResponseEntity.ok(list);
+		
+
 	}
 
 }

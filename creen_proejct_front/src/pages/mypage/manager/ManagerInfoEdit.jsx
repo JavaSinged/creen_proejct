@@ -35,7 +35,7 @@ export default function OderInfoEdit() {
     const handleDeleteClick = () => {
         const isConfirmed = window.confirm("정말로 탈퇴하시겠습니까? 데이터는 복구할 수 없습니다 ㅜㅜ");
         if (isConfirmed) {
-            navigate("/nooo");
+            navigate("/mypage/manager/deleteMember");
         }
     };
     return (

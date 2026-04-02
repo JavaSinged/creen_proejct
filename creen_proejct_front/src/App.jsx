@@ -18,6 +18,7 @@ import ManagerLayout from "./components/layout/mypageSidebar/ManagerLayout";
 import AdminLayout from "./components/layout/mypageSidebar/AdminLayout";
 import UserProfile from "./pages/mypage/user/UserProfile";
 import UserInfoEdit from "./pages/mypage/user/UserInfoEdit";
+import UserDelAccount from "./pages/mypage/deleteMember/UserDelAccount";
 
 import { AuthProvider } from "./context/AuthContext";
 import UserSignup from "./pages/signup/UserSignup";
@@ -36,6 +37,7 @@ import AdminContainerManagement from "./pages/mypage/admin/AdminContainerManagem
 
 // 🌟 문지기 컴포넌트
 import ProtectedRoute from "./context/ProtectedRoute";
+import ManagerDelAccount from "./pages/mypage/deleteMember/ManagerDelAccount";
 
 
 const BasicLayout = () => {
@@ -81,12 +83,12 @@ function App() {
               <Route path="/orderPage" element={<OrderPage />} />
               <Route path="/paymentPage" element={<PaymentPage />} />
               <Route path="/checkoutPage" element={<CheckoutPage />} />
-
               {/* 마이페이지 사이드바(UserLayout)가 적용되는 페이지 */}
               <Route path="/mypage/user" element={<UserLayout />}>
                 <Route index element={<UserProfile />} />
                 <Route path="profile" element={<UserInfoEdit />} />
                 <Route path="userCS" element={<UserCS />} />
+                <Route path="deleteMember" element={<UserDelAccount />} />
               </Route>
             </Route > {" "}
             {/* 👈 누락됐던 User 닫기 태그 추가! */}
@@ -97,11 +99,8 @@ function App() {
               <Route path="/mypage/manager" element={<ManagerLayout />}>
                 <Route index element={<div>사업자 대시보드 화면</div>} />
                 <Route path="profile" element={<ManagerInfoEdit />} />
-                <Route
-                  path="menus"
-                  element={<div>사업자 메뉴 관리 화면</div>}
-
-                />
+                <Route path="menus" element={<div>사업자 메뉴 관리 화면</div>} />
+                <Route path="deleteMember" element={<ManagerDelAccount />} />
               </Route>
             </Route>
             {/* ---------------------------------------------------- */}
