@@ -1,0 +1,18 @@
+package kr.co.iei.common.config; // 본인 패키지 경로에 맞게 수정하세요!
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Configuration
+public class WebMvcConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    	//회원 프로필용
+        registry.addResourceHandler("/uploads/member/**") //DB에 저장될 값
+                .addResourceLocations("file:////192.168.31.26/project/upload/web/member/"); //실제 경로
+
+
+    }
+}

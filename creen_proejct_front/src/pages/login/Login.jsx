@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
-import "./Login.css";
+import "./Auth.css";
+
+import useEcoEffects from "../../hooks/useEcoEffects";
 
 // MUI Icons & Components
 import PersonIcon from "@mui/icons-material/Person";
@@ -17,14 +19,14 @@ const Login = () => {
   const [member, setMember] = useState({
     memberId: "",
     memberPw: "",
-    memberGrade: 1, // 1: 개인, 2: 사업자, 0: 관리자
+    memberGrade: 1,
   });
   const [activeTab, setActiveTab] = useState("personal");
-
-  // 🌟 1. 아이디 저장 체크박스 상태
   const [rememberId, setRememberId] = useState(false);
 
-  // 🎨 GreenCarry 전용 Swal 스타일 공통 객체
+  // 🌟 Caps Lock 켜짐 감지 상태
+  const [isCapsLockOn, setIsCapsLockOn] = useState(false);
+
   const swalCustomClass = {
     popup: "greencarry-swal-popup",
     title: "greencarry-swal-title",
@@ -44,11 +46,15 @@ const Login = () => {
   }, []);
 
   // 🌟 2. 화면이 켜질 때(초기 렌더링) 로컬스토리지에서 아이디 꺼내오기
+
+  const { containerRef, bubblesRef, selectedBg, bubbleData, fireflyData } =
+    useEcoEffects();
+
   useEffect(() => {
     const savedId = localStorage.getItem("savedUserId");
     if (savedId) {
       setMember((prev) => ({ ...prev, memberId: savedId }));
-      setRememberId(true); // 체크박스도 켬
+      setRememberId(true);
     }
   }, []);
 
@@ -57,15 +63,20 @@ const Login = () => {
     setMember({ ...member, [name]: value });
   };
 
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    setMember((prev) => ({
-      ...prev,
-      memberGrade: tab === "personal" ? 1 : 2,
-    }));
+  // 🌟 Caps Lock 감지 핸들러
+  const handleKeyUp = (e) => {
+    if (e.getModifierState("CapsLock")) {
+      setIsCapsLockOn(true);
+    } else {
+      setIsCapsLockOn(false);
+    }
   };
 
-  // 🌟 핵심 로그인 함수
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setMember((prev) => ({ ...prev, memberGrade: tab === "personal" ? 1 : 2 }));
+  };
+
   const login = () => {
     const { memberId, memberPw } = member;
 
@@ -75,13 +86,10 @@ const Login = () => {
         title: "입력 오류",
         text: "아이디와 비밀번호를 모두 입력해주세요.",
         customClass: swalCustomClass,
-        buttonsStyling: false,
-        confirmButtonText: "확인",
       });
       return;
     }
 
-    // 아이디 형식 검사 (admin1111 예외 처리)
     const idRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
     if (!idRegex.test(memberId) && memberId !== "admin1111") {
       Swal.fire({
@@ -89,8 +97,18 @@ const Login = () => {
         title: "아이디 형식 오류",
         text: "아이디는 영문과 숫자를 포함하여 8자 이상이어야 합니다.",
         customClass: swalCustomClass,
-        buttonsStyling: false,
-        confirmButtonText: "확인",
+      });
+      return;
+    }
+
+    const pwRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{10,}$/;
+    if (!pwRegex.test(memberPw) && memberId !== "admin1111") {
+      Swal.fire({
+        icon: "warning",
+        title: "비밀번호 보안 수준 미달",
+        html: `비밀번호 형식이 올바르지 않습니다.<br/><small>(대/소문자, 숫자, 특수문자 포함 10자 이상)</small>`,
+        customClass: swalCustomClass,
       });
       return;
     }
@@ -100,32 +118,34 @@ const Login = () => {
       .then((res) => {
         const { member: loginUser, accessToken } = res.data;
 
+        if (loginUser && Number(loginUser.memberStatus) === 2) {
+          Swal.fire({
+            icon: "error",
+            title: "로그인 불가",
+            text: "탈퇴한 회원입니다. 다시 이용하시려면 고객센터에 문의해주세요.",
+            customClass: swalCustomClass,
+          });
+          return;
+        }
+
         if (loginUser && accessToken) {
-          // 1️⃣ 로컬스토리지에 정보 우선 저장 (이 시점엔 화면 변화 없음)
           localStorage.setItem("accessToken", accessToken);
           localStorage.setItem("memberId", loginUser.memberId);
           localStorage.setItem("memberName", loginUser.memberName);
           localStorage.setItem("memberGrade", loginUser.memberGrade);
+          localStorage.setItem("memberThumb", loginUser.memberThumb);
 
-          // 🌟 2️⃣ [아이디 저장 로직 실행]
-          if (rememberId) {
-            // 체크박스 O -> 서랍에 아이디 저장
-            localStorage.setItem("savedUserId", member.memberId);
-          } else {
-            // 체크박스 X -> 서랍에서 아이디 삭제 (이전에 저장했더라도 날림)
-            localStorage.removeItem("savedUserId");
-          }
+          if (rememberId) localStorage.setItem("savedUserId", memberId);
+          else localStorage.removeItem("savedUserId");
 
-          // 3️⃣ 권한별 메시지 및 이동 경로 세팅
           let welcomeTitle = "";
           let welcomeHtml = "";
           let targetPath = "/";
-
           const grade = Number(loginUser.memberGrade);
 
           if (grade === 0) {
             welcomeTitle = "관리자 시스템 접속";
-            welcomeHtml = `<b style="color: var(--color-brand, #2e7d32);">관리자님</b> 환영합니다! <br/>그린캐리 관리자 모드로 로그인되었습니다.`;
+            welcomeHtml = `<b style="color: #2e7d32;">관리자님</b> 환영합니다! <br/>그린캐리 관리자 모드로 로그인되었습니다.`;
             targetPath = "/mypage/admin";
           } else if (grade === 2) {
             welcomeTitle = "파트너 센터 접속";
@@ -137,75 +157,102 @@ const Login = () => {
             targetPath = "/";
           }
 
-          // 4️⃣ [핵심] 커스텀 디자인 팝업을 띄우고, 닫히면 새로고침하며 강제 이동!
           Swal.fire({
             icon: "success",
             title: welcomeTitle,
             html: welcomeHtml,
-            showConfirmButton: false, // 성공 시에는 깔끔하게 버튼 숨김
-            timer: 1500, // 1.5초 뒤 자동 이동
-            customClass: swalCustomClass, // 🎨 둥글고 초록초록한 스타일 적용!
+            showConfirmButton: false,
+            timer: 1500,
+            customClass: swalCustomClass,
           }).then(() => {
-            // AuthContext의 타이머나 문지기(ProtectedRoute)가 꼬이지 않도록 아예 새로고침
             window.location.replace(targetPath);
           });
         }
       })
       .catch((err) => {
-        console.error("로그인 에러:", err);
+        console.error(err);
         Swal.fire({
           icon: "error",
           title: "로그인 실패",
-          text: "가입하지 않은 아이디이거나, 잘못된 비밀번호입니다.",
+          text: "정보가 일치하지 않습니다.",
           customClass: swalCustomClass,
-          buttonsStyling: false,
-          confirmButtonText: "확인",
         });
       });
   };
 
   return (
-    <div className="screen-container">
-      <h1
-        className="logo"
-        style={{
-          textAlign: "center",
-          padding: "30px 0",
-          margin: 0,
-          fontSize: "2.2rem",
-          fontWeight: 700,
-        }}
-      >
-        <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
-          GreenCarry
-        </Link>
-      </h1>
+    <div
+      className="screen-container"
+      ref={containerRef}
+      style={{ backgroundImage: `url(${selectedBg})` }}
+    >
+      {/*
+      {fireflyData &&
+        fireflyData.map((style, i) => (
+          <div
+            key={`firefly-${i}`}
+            className="firefly"
+            style={{
+              left: style.left,
+              top: style.top,
+              animationDuration: style.animationDuration,
+              animationDelay: style.animationDelay,
+            }}
+          />
+        ))}
+          */}
+
+      {bubbleData.map((style, i) => (
+        <div
+          key={i}
+          className="eco-bubble"
+          ref={(el) => (bubblesRef.current[i] = el)}
+          style={{
+            left: style.left,
+            top: style.top,
+            width: style.size,
+            height: style.size,
+            animationDelay: style.delay,
+          }}
+        />
+      ))}
+
+      <header className="header">
+        <h1 className="logo">
+          <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+            GreenCarry
+          </Link>
+        </h1>
+      </header>
 
       <div className="main-content">
         <section className="info-section">
-          <div className="eco-brand"></div>
           <h2 className="main-title">
             탄소 발자국을 줄이는
             <br />
             맛있는 한 끼
           </h2>
           <div className="stats">
-            <div className="stat-item leaf">
+            <div className="stat-item">
               🌿 오늘 아낀 탄소 <span className="stat-value">1,245kg</span>
             </div>
-            <div className="stat-item tree">
+            <div className="stat-item">
               🌳 식재 효과 <span className="stat-value">156그루</span>
             </div>
           </div>
         </section>
 
-        <section className="login-card">
+        <section className="login-card premium-glass">
           <h3 className="card-title">반가워요, 에코 히어로!</h3>
-          <h2 className="card-info">
+          <h2 className="card-info blooming-text">
             로그인하여 <span className="leaf-point">친</span>환경 배달을
             시작하세요
           </h2>
-          <div className="tabs">
+
+          <div className="premium-tabs">
+            <div
+              className={`slide-indicator ${activeTab === "business" ? "right" : "left"}`}
+            ></div>
             <button
               type="button"
               className={`tab-button ${activeTab === "personal" ? "active" : ""}`}
@@ -229,7 +276,6 @@ const Login = () => {
               login();
             }}
           >
-            {/* 아이디 입력창 */}
             <TextField
               fullWidth
               variant="outlined"
@@ -237,25 +283,15 @@ const Login = () => {
               placeholder="아이디를 입력해주세요."
               value={member.memberId}
               onChange={inputMember}
-              margin="normal"
-              autoComplete="off"
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <PersonIcon
-                      style={{ color: "var(--color-brand, #2e7d32)" }}
-                    />
+                    <PersonIcon style={{ color: "#2e7d32" }} />
                   </InputAdornment>
                 ),
               }}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px", // 둥근 입력창
-                },
-              }}
             />
 
-            {/* 비밀번호 입력창 */}
             <TextField
               fullWidth
               variant="outlined"
@@ -264,24 +300,21 @@ const Login = () => {
               placeholder="비밀번호를 입력해주세요."
               value={member.memberPw}
               onChange={inputMember}
-              margin="normal"
+              onKeyUp={handleKeyUp}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <LockIcon
-                      style={{ color: "var(--color-brand, #2e7d32)" }}
-                    />
+                    <LockIcon style={{ color: "#2e7d32" }} />
                   </InputAdornment>
                 ),
               }}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "12px",
-                },
-              }}
             />
 
-            <div className="remember-me">
+            <div className={`caps-warning ${isCapsLockOn ? "show" : ""}`}>
+              <span>⚠️ Caps Lock이 켜져 있습니다.</span>
+            </div>
+
+            <div className="remember-me" style={{ marginTop: "5px" }}>
               <input
                 type="checkbox"
                 id="remember_check"
@@ -290,7 +323,8 @@ const Login = () => {
               />
               <label htmlFor="remember_check">아이디 저장</label>
             </div>
-            <button type="submit" className="login-button">
+
+            <button type="submit" className="login-button shimmer-btn">
               로그인
             </button>
           </form>
@@ -308,7 +342,7 @@ const Login = () => {
             </p>
           </div>
           <div className="character-illustration">
-            <img src="/image/logo.png" alt="GreenCarry Logo" />
+            <img src="/image/logo.png" alt="Logo" />
           </div>
         </section>
       </div>

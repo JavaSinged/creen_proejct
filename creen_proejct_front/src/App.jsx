@@ -26,7 +26,7 @@ import ManagerSignup from "./pages/signup/ManagerSignup";
 import Signup from "./pages/signup/Signup";
 import UserCS from "./pages/mypage/user/UserCS";
 
-import ManagerInfoEdit from "./pages/mypage/manager/ManagerInfoEdit"
+import ManagerInfoEdit from "./pages/mypage/manager/ManagerInfoEdit";
 
 import AdminDashboard from "./pages/mypage/admin/AdminDashboard";
 import AdminUserManagement from "./pages/mypage/admin/AdminUserManagement";
@@ -34,11 +34,9 @@ import AdminStoreManagement from "./pages/mypage/admin/AdminStoreManagement";
 import AdminReviewManagement from "./pages/mypage/admin/AdminReviewManagement";
 import AdminContainerManagement from "./pages/mypage/admin/AdminContainerManagement";
 
-
 // 🌟 문지기 컴포넌트
 import ProtectedRoute from "./context/ProtectedRoute";
 import ManagerDelAccount from "./pages/mypage/deleteMember/ManagerDelAccount";
-
 
 const BasicLayout = () => {
   return (
@@ -58,7 +56,7 @@ function App() {
       <div>
         <Routes>
           {/* ==================================================== */}
-          {/* 🔓 1. 퍼블릭 구역 (로그인한 사용자는 접근 불가) */}
+          {/* 1. 퍼블릭 구역 (로그인한 사용자는 접근 불가) */}
           {/* ==================================================== */}
           <Route element={<ProtectedRoute requireGuest={true} />}>
             <Route path="/login" element={<Login />} />
@@ -71,12 +69,12 @@ function App() {
           {/* 2. 헤더/푸터가 붙는 구역 (BasicLayout) */}
           {/* ==================================================== */}
           <Route element={<BasicLayout />}>
-            {/* 🔓 공통 접근 구역 (로그인 여부 상관없음) */}
+            {/* 공통 접근 구역 (로그인 여부 상관없음) */}
             <Route path="/" element={<Home />} />
             <Route path="/storeView" element={<StoreView />} />
             <Route path="/storeDetail" element={<StoreDetail />} />
             {/* ---------------------------------------------------- */}
-            {/* 🛡️ 일반 유저 (Grade: 1) 철통 방어 구역 */}
+            {/* 일반 유저 (Grade: 1) 구역 */}
             {/* ---------------------------------------------------- */}
             <Route element={<ProtectedRoute requireUser={true} />}>
               {/* 마이페이지 사이드바가 필요 없는 일반 유저 전용 페이지 */}
@@ -90,22 +88,23 @@ function App() {
                 <Route path="userCS" element={<UserCS />} />
                 <Route path="deleteMember" element={<UserDelAccount />} />
               </Route>
-            </Route > {" "}
-            {/* 👈 누락됐던 User 닫기 태그 추가! */}
+            </Route>{" "}
             {/* ---------------------------------------------------- */}
-            {/* 🛡️ 사업자 파트너 (Grade: 2) 철통 방어 구역 */}
-            {/* ---------------------------------------------------- */}
+            {/* 사업자 파트너 (Grade: 2) 구역 */}
             <Route element={<ProtectedRoute requireManager={true} />}>
               <Route path="/mypage/manager" element={<ManagerLayout />}>
                 <Route index element={<div>사업자 대시보드 화면</div>} />
                 <Route path="profile" element={<ManagerInfoEdit />} />
-                <Route path="menus" element={<div>사업자 메뉴 관리 화면</div>} />
+
+                <Route
+                  path="menus"
+                  element={<div>사업자 메뉴 관리 화면</div>}
+                />
                 <Route path="deleteMember" element={<ManagerDelAccount />} />
               </Route>
             </Route>
             {/* ---------------------------------------------------- */}
-            {/* 🛡️ 총괄 관리자 (Grade: 0) 철통 방어 구역 */}
-            {/* ---------------------------------------------------- */}
+            {/* 총괄 관리자 (Grade: 0) 구역 */}
             <Route element={<ProtectedRoute requireAdmin={true} />}>
               <Route path="/mypage/admin" element={<AdminLayout />}>
                 <Route index element={<AdminDashboard />} />
@@ -117,13 +116,13 @@ function App() {
                   element={<AdminContainerManagement />}
                 />
               </Route>
-            </Route>{" "}
-          </Route > {" "}
-
+            </Route>
+            {/* ---------------------------------------------------- */}
+          </Route>
           <Route path="*" element={<NotFound />} />
-        </Routes >
-      </div >
-    </AuthProvider >
+        </Routes>
+      </div>
+    </AuthProvider>
   );
 }
 

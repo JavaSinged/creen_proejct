@@ -22,6 +22,10 @@ public interface MemberDao {
 
 	int updatePassword(String memberId, String encodedNewPw);
 
+
 	List<Member> selectAllMember();
+
+	int updateProfile(Member member);
+
 
 }

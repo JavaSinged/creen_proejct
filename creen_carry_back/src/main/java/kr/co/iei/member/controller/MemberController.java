@@ -1,13 +1,18 @@
 package kr.co.iei.member.controller;
 
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import kr.co.iei.member.model.vo.Member;
 import kr.co.iei.utils.JwtUtil;
@@ -139,6 +145,7 @@ public class MemberController {
         // 🌟 이미 만들어둔 selectOneMember를 서비스에서 호출
     	System.out.println("현재 정보를 조회할 회원의 아이디 : " + memberId);
         Member member = memberService.selectOneMember(memberId);
+        System.out.println(member);
         
         if (member != null) {
             // 보안상 비밀번호는 제거하고 보낼 수도 있습니다.
@@ -163,9 +170,51 @@ public class MemberController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("비밀번호 변경 실패");
             }
         } catch (IllegalArgumentException e) {
-            // 현재 비밀번호가 틀린 경우 서비스에서 던진 메시지 처리
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     
+    }
+    @PostMapping("/updateProfile")
+    public ResponseEntity<?> updateProfile(
+            @RequestParam String memberId,
+            @RequestParam String memberName,
+            @RequestParam String memberPhone,
+            @RequestParam(value = "uploadFile", required = false) MultipartFile uploadFile) {
+
+        Member member = new Member();
+        member.setMemberId(memberId);
+        member.setMemberName(memberName);
+        member.setMemberPhone(memberPhone);
+
+        if (uploadFile != null && !uploadFile.isEmpty()) {
+            try {
+                String savePath = "\\\\192.168.31.26\\project\\upload\\web\\member\\";
+                File folder = new File(savePath);
+                if (!folder.exists()) folder.mkdirs();
+
+                String originalFileName = uploadFile.getOriginalFilename();
+                String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+                String saveFileName = UUID.randomUUID().toString() + extension;
+
+                File dest = new File(savePath + saveFileName);
+                uploadFile.transferTo(dest);
+
+                String memberThumb = "/uploads/member/" + saveFileName;
+                member.setMemberThumb(memberThumb);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("FILE_UPLOAD_ERROR");
+            }
+        }
+
+        int result = memberService.updateProfile(member);
+
+        if (result > 0) {
+
+            return ResponseEntity.ok(member.getMemberThumb() != null ? member.getMemberThumb() : "SUCCESS_NO_IMAGE");
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("UPDATE_FAIL");
+        }
     }
 }

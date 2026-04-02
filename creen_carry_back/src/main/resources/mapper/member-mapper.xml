@@ -30,20 +30,36 @@
 
 	<select id="checkMember" resultType="int">
 		SELECT COUNT(*)
-		FROM MEMBER_TBL
+		FROM
+		MEMBER_TBL
 		WHERE MEMBER_ID = #{memberId}
-		AND MEMBER_EMAIL = #{memberEmail}
+		AND MEMBER_EMAIL =
+		#{memberEmail}
 	</select>
-	
+
 	<select id="selectOneMember" resultType="member">
-	    select * from member_tbl where member_id = #{memberId}
+		select * from member_tbl
+		where member_id = #{memberId}
 	</select>
-	
+
 	<update id="updatePassword">
-    UPDATE member_tbl 
-    SET member_pw = #{encodedNewPw} 
-    WHERE member_id = #{memberId}
-</update>
+		UPDATE member_tbl
+		SET member_pw = #{encodedNewPw}
+		WHERE member_id = #{memberId}
+	</update>
+
+	<update id="updateProfile">
+		UPDATE member_tbl
+		SET
+		member_name = #{memberName},
+		member_phone = #{memberPhone}
+
+		<if test="memberThumb != null">
+			, member_thumb = #{memberThumb}
+		</if>
+
+		WHERE member_id = #{memberId}
+	</update>
 
 
 <select id="selectAllMember" resultType="member">

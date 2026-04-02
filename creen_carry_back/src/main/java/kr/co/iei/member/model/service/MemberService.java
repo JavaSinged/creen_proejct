@@ -146,8 +146,16 @@ public class MemberService {
 	    
 	    return result > 0;
 	}
+
 	public List<Member> getMembers() {
 		return memberDao.selectAllMember();
+
+	//개인정보 수정
+	@Transactional
+	public int updateProfile(Member member) {
+		int result = memberDao.updateProfile(member);
+		return result;
+
 	}
 
 }
