@@ -1,35 +1,54 @@
-/* 탭 컨테이너 */
 .tabContainer {
+  position: relative;
   display: flex;
-  width: 100%;
-  max-width: 600px; /* 적절한 너비 설정 */
-  margin: 0 auto 30px auto; /* 중앙 정렬 및 아래 여백 */
-  border: 1px solid #2e8147;
-  border-radius: 12px;
-  overflow: hidden; /* 자식 버튼의 모서리가 튀어나가지 않게 */
+  width: 400px; /* 대시보드에 맞게 너비 조절 가능 */
+  background: #e0e0e0; /* 비활성화된 배경색 */
+  border-radius: 50px;
+  padding: 5px;
+  margin: 20px auto 40px; /* 가운데 정렬 및 여백 */
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* 개별 탭 버튼 기본 스타일 */
+/* 개별 버튼 기본 스타일 */
 .tabButton {
+  position: relative;
   flex: 1;
-  padding: 14px 0;
+  z-index: 2; /* 배경 바보다 위에 있어야 함 */
   border: none;
+  background: none;
+  padding: 12px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #666; /* 기본 글자색 */
   cursor: pointer;
-  font-size: 16px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  transition: all 0.3s ease;
-  background-color: #ecf4ef; /* 비활성 상태: 연한 녹색 */
-  color: #555;
+  transition: color 0.3s ease;
 }
 
-/* 활성화된 탭 스타일 */
-.activeTab {
-  background-color: #2e8147; /* 활성 상태: 진한 녹색 */
-  color: white;
+/* 활성화된 버튼의 글자색 */
+.activeText {
+  color: #fff !important;
+}
+
+/* 🌟 슬라이드 인디케이터 (움직이는 배경) */
+.slideIndicator {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: calc(50% - 5px); /* 버튼의 딱 절반 크기 */
+  height: calc(100% - 10px);
+  background: #2e7d32; /* 그린캐리 브랜드 컬러 */
+  border-radius: 50px;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* 부드러운 움직임 */
+  z-index: 1;
+}
+
+/* 오른쪽으로 이동할 때의 위치값 */
+.slideIndicator.left {
+  transform: translateX(0);
+}
+
+.slideIndicator.right {
+  transform: translateX(100%);
 }
 
 /* 버튼 내 사각형 아이콘 스타일 */
