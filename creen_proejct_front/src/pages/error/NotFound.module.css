@@ -35,7 +35,7 @@
 
 /* 🌟 2. 숲 이미지 (완료 시 나타남) */
 .forest {
-  background-image: url("https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=1920");
+  background-image: url("/image/login/lo3.jpg");
   opacity: 0; /* 처음엔 숨김 */
 }
 

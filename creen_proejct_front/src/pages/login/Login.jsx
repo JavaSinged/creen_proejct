@@ -36,16 +36,16 @@ const Login = () => {
     const konamiCode = "ArrowUpArrowUpArrowDownArrowDown";
 
     const triggerLeafRain = () => {
-      for (let i = 0; i < 1000; i++) {
+      for (let i = 0; i < 600; i++) {
         const leaf = document.createElement("div");
         leaf.className = "easter-egg-leaf";
         leaf.innerHTML = "🍃"; // 나뭇잎 이모지
-        leaf.style.left = Math.random() * 100 + "vw";
+        leaf.style.left = Math.random() * 130 + "vw";
 
         // 🌟 세로 시작 위치 랜덤 (0 ~ -100vh 사이의 깊이로 배치)
         // 이렇게 하면 어떤 나뭇잎은 한참 뒤에 화면에 나타나서 자연스럽습니다.
-        leaf.style.top = -(Math.random() * 100) + "vh";
-        leaf.style.animationDuration = Math.random() * 2 + 3 + "s"; // 3~5초 사이 랜덤 속도
+        leaf.style.top = -(Math.random() * 130) + "vh";
+        leaf.style.animationDuration = Math.random() * 1 + 3 + "s"; // 3~5초 사이 랜덤 속도
         leaf.style.opacity = Math.random();
         leaf.style.fontSize = Math.random() * 20 + 10 + "px";
 
@@ -54,7 +54,7 @@ const Login = () => {
         // 애니메이션이 끝나면 요소 삭제 (메모리 관리)
         setTimeout(() => {
           leaf.remove();
-        }, 5500);
+        }, 6000);
       }
     };
 

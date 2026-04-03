@@ -66,6 +66,23 @@ export default function Footer() {
           </div>
         </div>
       </div>
+
+      <div className={styles.hidden_garden_container}>
+        <div className={styles.garden_content}>
+          <div className={styles.decorations}>
+            <span className={styles.item}>🍄</span>
+            <span className={styles.item}>🌱</span>
+            <span className={styles.item}>🌼</span>
+            <span className={styles.item}>🐰</span>
+            <span className={styles.item}>🍀</span>
+            <span className={styles.item}>🌸</span>
+          </div>
+          <div className={styles.garden_message}>
+            <h4>"당신의 발걸음이 지구를 다시 숨쉬게 합니다"</h4>
+            <p>GreenCarry와 함께해주셔서 감사합니다. 🌍✨</p>
+          </div>
+        </div>
+      </div>
     </footer>
   );
 }
