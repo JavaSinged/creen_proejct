@@ -1,8 +1,16 @@
 import styles from "./Signup.module.css";
 import { useNavigate } from "react-router-dom";
 import useEcoEffects from "../../hooks/useEcoEffects";
+
 const Signup = () => {
-  const { containerRef, bubblesRef, selectedBg, bubbleData } = useEcoEffects();
+  const {
+    containerRef,
+    bubblesRef,
+    selectedBg,
+    bubbleData,
+    fireflyData,
+    leafData,
+  } = useEcoEffects();
   const navigate = useNavigate();
 
   return (
@@ -11,7 +19,30 @@ const Signup = () => {
       ref={containerRef}
       style={{ backgroundImage: `url(${selectedBg})` }}
     >
-      <div className="sun-rays"></div>
+      {leafData &&
+        leafData.map((leaf) => (
+          <div
+            key={leaf.id}
+            className="particle-leaf"
+            style={{
+              left: leaf.x,
+              top: leaf.y,
+            }}
+          />
+        ))}
+      {fireflyData &&
+        fireflyData.map((style, i) => (
+          <div
+            key={`firefly-${i}`}
+            className="firefly"
+            style={{
+              left: style.left,
+              top: style.top,
+              animationDuration: style.animationDuration,
+              animationDelay: style.animationDelay,
+            }}
+          />
+        ))}
 
       {bubbleData.map((style, i) => (
         <div
@@ -27,14 +58,13 @@ const Signup = () => {
           }}
         />
       ))}
-      {/* 화면 최상단 로고 - 클릭 시 홈으로 */}
+
       <header className={styles.header}>
         <h1 className={styles.logo} onClick={() => navigate("/")}>
           GreenCarry
         </h1>
       </header>
 
-      {/* 중앙 카드 세션 */}
       <main className={styles.option_paper}>
         <h2 className={styles.option_card_title}>회원가입</h2>
 

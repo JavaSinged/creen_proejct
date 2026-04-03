@@ -7,7 +7,6 @@ import useAccountStore from "../../store/accountStore";
 import useEcoEffects from "../../hooks/useEcoEffects";
 
 const Account = () => {
-  // 🌟 반딧불이(fireflyData) 추가
   const { containerRef, bubblesRef, selectedBg, bubbleData, fireflyData } =
     useEcoEffects();
   const navigate = useNavigate();

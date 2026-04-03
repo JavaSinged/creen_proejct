@@ -130,13 +130,11 @@ button {
 }
 
 .premium-glass {
-  background: rgba(255, 255, 255, 0.75) !important;
-  backdrop-filter: blur(24px) saturate(150%);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(28px) saturate(150%);
+  -webkit-backdrop-filter: blur(28px) saturate(150%);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow:
-    0 15px 35px rgba(0, 0, 0, 0.15),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.4);
 }
 
 .card-title {
@@ -147,7 +145,7 @@ button {
 
 .card-info {
   font-size: 14px;
-  color: var(--text-sub);
+  color: var(--text-main);
   margin-bottom: 20px;
 }
 
@@ -279,7 +277,7 @@ button {
   align-items: center;
   gap: 8px;
   font-size: 0.85rem;
-  color: var(--text-sub);
+  color: var(--text-main);
 }
 .remember-me input[type="checkbox"] {
   accent-color: var(--color-brand);
@@ -383,7 +381,7 @@ button {
 .card-footer a,
 .back-to-login {
   text-decoration: none;
-  color: var(--text-sub);
+  color: var(--text-main);
   transition: color 0.3s;
 }
 .card-footer a:hover,

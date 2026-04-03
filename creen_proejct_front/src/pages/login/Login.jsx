@@ -13,7 +13,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
 
 const Login = () => {
-  // 일반 유저 카운트
+  // 유저 카운트
   const [userCount, setUserCount] = useState(0);
 
   const [member, setMember] = useState({
@@ -24,7 +24,6 @@ const Login = () => {
   const [activeTab, setActiveTab] = useState("personal");
   const [rememberId, setRememberId] = useState(false);
 
-  // 🌟 Caps Lock 켜짐 감지 상태
   const [isCapsLockOn, setIsCapsLockOn] = useState(false);
 
   const swalCustomClass = {
@@ -37,15 +36,12 @@ const Login = () => {
     axios
       .get(`${import.meta.env.VITE_BACKSERVER}/member`)
       .then((res) => {
-        // 일단 전체 회원 저장
         setUserCount(res.data.length);
       })
       .catch((err) => {
         console.log(err);
       });
   }, []);
-
-  // 🌟 2. 화면이 켜질 때(초기 렌더링) 로컬스토리지에서 아이디 꺼내오기
 
   const { containerRef, bubblesRef, selectedBg, bubbleData, fireflyData } =
     useEcoEffects();
@@ -63,7 +59,6 @@ const Login = () => {
     setMember({ ...member, [name]: value });
   };
 
-  // 🌟 Caps Lock 감지 핸들러
   const handleKeyUp = (e) => {
     if (e.getModifierState("CapsLock")) {
       setIsCapsLockOn(true);
@@ -186,7 +181,6 @@ const Login = () => {
       ref={containerRef}
       style={{ backgroundImage: `url(${selectedBg})` }}
     >
-      {/*
       {fireflyData &&
         fireflyData.map((style, i) => (
           <div
@@ -200,7 +194,6 @@ const Login = () => {
             }}
           />
         ))}
-          */}
 
       {bubbleData.map((style, i) => (
         <div
