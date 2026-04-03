@@ -11,6 +11,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import LockIcon from "@mui/icons-material/Lock";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
+import EcoEarth from "../../components/Easter Egg/EcoEarth";
 
 const Login = () => {
   // 🌟 1번 이스터에그 상태 (로고 클릭)
@@ -267,6 +268,7 @@ const Login = () => {
       ref={containerRef}
       style={{ backgroundImage: `url(${selectedBg})` }}
     >
+      <EcoEarth></EcoEarth>
       {fireflyData &&
         fireflyData.map((style, i) => (
           <div

@@ -18,6 +18,9 @@ import EcoLightSwitch from "../../components/Easter Egg/EcoLightSwitch";
 import EcoRider from "../../components/Easter Egg/EcoRider";
 import EcoClean from "../../components/Easter Egg/EcoClean";
 import EcoDrone from "../../components/Easter Egg/EcoDrone";
+import EcoRecycle from "../../components/Easter Egg/EcoRecycle";
+import EcoEarth from "../../components/Easter Egg/EcoEarth";
+import EcoFlood from "../../components/Easter Egg/EcoFlood";
 
 const banners = [
   {
@@ -115,6 +118,9 @@ export default function Home() {
       <EcoClean />
       <EcoRider />
       <EcoDrone />
+      <EcoRecycle />
+      <EcoEarth />
+      <EcoFlood />
       {/* 1. 배너 (기존 유지) */}
       <div className={styles.banner_wrap}>
         <Swiper
