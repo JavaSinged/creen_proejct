@@ -109,6 +109,39 @@
   animation: shimmer-sweep 3s infinite;
 }
 
+.re_button {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 15px;
+  font-family: var(--font-sub);
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: var(--color-bg);
+  color: var(--text-sub);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(46, 129, 71, 0.2);
+}
+
+.re_button::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  transform: skewX(-25deg);
+  animation: shimmer-sweep 3s infinite;
+}
+
 .footer_text {
   font-size: 0.9rem;
   color: var(--text-main);

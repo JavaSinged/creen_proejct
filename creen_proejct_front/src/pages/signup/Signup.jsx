@@ -77,7 +77,7 @@ const Signup = () => {
           </button>
 
           <button
-            className={styles.reg_button}
+            className={styles.re_button}
             onClick={() => navigate("/managerSignup")}
           >
             사업자 회원가입
