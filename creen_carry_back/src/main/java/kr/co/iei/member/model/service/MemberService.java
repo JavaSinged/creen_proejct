@@ -55,7 +55,7 @@ public class MemberService {
 		return memberDao.findId(member);
 	}
 
-	@Transactional // 수정 작업이므로 트랜잭션 처리
+	@Transactional 
 	public int resetPw(Member member) {
 
 		// 1. DB에서 현재 회원의 정보(암호화된 기존 비밀번호)를 먼저 불러옵니다.
@@ -161,12 +161,13 @@ public class MemberService {
 		return result;
 
 	}
-
+	@Transactional
 	public int insertUser(Member member) {
 		int result = memberDao.insertUser(member);
 		return result;
 	}
 	
+	@Transactional
 	public int insertManager(Member member) {
 		String memberPw = member.getMemberPw();
 		System.out.println(memberPw);
@@ -188,6 +189,7 @@ public class MemberService {
 		return member;
 	}
 	@Transactional
+
 	public void deleteMember(String memberId, String rawPassword) {
 		// DB에서 내 정보 찾기
 		Member member = memberDao.selectOneMember(memberId);
@@ -207,5 +209,10 @@ public class MemberService {
 	public int getCommunityTotalCarbon() {
 	    return memberDao.getCommunityTotalCarbon();
 	}
+
+    public int updateAddress(Member member) {
+        return memberDao.updateAddress(member);
+    }
+
 
 }

@@ -36,6 +36,8 @@ public interface MemberDao {
 
 	Member emailDupCheck(String memberEmail);
 
+	int updateAddress(Member member);
+
 
 	void deleteMember(String memberId);
 

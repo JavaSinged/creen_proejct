@@ -11,8 +11,77 @@ import PersonIcon from "@mui/icons-material/Person";
 import LockIcon from "@mui/icons-material/Lock";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
+import EcoEarth from "../../components/Easter Egg/EcoEarth";
 
 const Login = () => {
+  // 🌟 1번 이스터에그 상태 (로고 클릭)
+  const [clickCount, setClickCount] = useState(0);
+
+  const handleLogoEasterEgg = () => {
+    setClickCount((prev) => prev + 1);
+    if (clickCount + 1 === 5) {
+      Swal.fire({
+        title: "당신은 진정한 에코 히어로!",
+        text: "그린캐리와 함께 지구를 구해주셔서 감사합니다!",
+        iconHtml: "🌿",
+        showConfirmButton: false,
+        timer: 2000,
+        customClass: swalCustomClass,
+      });
+      setClickCount(0);
+    }
+  };
+
+  useEffect(() => {
+    let inputKeys = [];
+    const konamiCode = "ArrowUpArrowUpArrowDownArrowDown";
+
+    const triggerLeafRain = () => {
+      for (let i = 0; i < 600; i++) {
+        const leaf = document.createElement("div");
+        leaf.className = "easter-egg-leaf";
+        leaf.innerHTML = "🍃"; // 나뭇잎 이모지
+        leaf.style.left = Math.random() * 130 + "vw";
+
+        // 🌟 세로 시작 위치 랜덤 (0 ~ -100vh 사이의 깊이로 배치)
+        // 이렇게 하면 어떤 나뭇잎은 한참 뒤에 화면에 나타나서 자연스럽습니다.
+        leaf.style.top = -(Math.random() * 130) + "vh";
+        leaf.style.animationDuration = Math.random() * 1 + 3 + "s"; // 3~5초 사이 랜덤 속도
+        leaf.style.opacity = Math.random();
+        leaf.style.fontSize = Math.random() * 20 + 10 + "px";
+
+        document.body.appendChild(leaf);
+
+        // 애니메이션이 끝나면 요소 삭제 (메모리 관리)
+        setTimeout(() => {
+          leaf.remove();
+        }, 6000);
+      }
+    };
+
+    const handleKeyDown = (e) => {
+      inputKeys.push(e.key);
+      inputKeys = inputKeys.slice(-4);
+
+      if (inputKeys.join("") === konamiCode) {
+        triggerLeafRain(); // 🌟 나뭇잎 비 실행!
+
+        Swal.fire({
+          title: "🍃 Nature Power!",
+          text: "에코 에너지가 쏟아집니다!",
+          icon: "success",
+          showConfirmButton: false,
+          timer: 2000,
+          customClass: swalCustomClass,
+        });
+        inputKeys = [];
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   // 유저 카운트
   const [userCount, setUserCount] = useState(0);
 
@@ -22,8 +91,9 @@ const Login = () => {
     memberGrade: 1,
   });
   const [activeTab, setActiveTab] = useState("personal");
-  const [rememberId, setRememberId] = useState(false);
 
+  const [rememberId, setRememberId] = useState(false);
+  const [autoLogin, setAutoLogin] = useState(false);
   const [isCapsLockOn, setIsCapsLockOn] = useState(false);
 
   const swalCustomClass = {
@@ -108,10 +178,15 @@ const Login = () => {
       return;
     }
 
+    const loginPayload = {
+      ...member,
+      autoLogin: autoLogin,
+    };
+
     axios
-      .post(`${import.meta.env.VITE_BACKSERVER}/member/login`, member)
+      .post(`${import.meta.env.VITE_BACKSERVER}/member/login`, loginPayload)
       .then((res) => {
-        const { member: loginUser, accessToken } = res.data;
+        const { member: loginUser, accessToken, refreshToken } = res.data;
 
         if (loginUser && Number(loginUser.memberStatus) === 2) {
           Swal.fire({
@@ -124,14 +199,26 @@ const Login = () => {
         }
 
         if (loginUser && accessToken) {
+          if (refreshToken) {
+            localStorage.setItem("refreshToken", refreshToken);
+          }
           localStorage.setItem("accessToken", accessToken);
           localStorage.setItem("memberId", loginUser.memberId);
           localStorage.setItem("memberName", loginUser.memberName);
           localStorage.setItem("memberGrade", loginUser.memberGrade);
           localStorage.setItem("memberThumb", loginUser.memberThumb);
 
-          if (rememberId) localStorage.setItem("savedUserId", memberId);
-          else localStorage.removeItem("savedUserId");
+          if (rememberId) {
+            localStorage.setItem("savedUserId", memberId);
+          } else {
+            localStorage.removeItem("savedUserId");
+          }
+
+          if (autoLogin) {
+            localStorage.setItem("isAutoLogin", "true");
+          } else {
+            localStorage.removeItem("isAutoLogin");
+          }
 
           let welcomeTitle = "";
           let welcomeHtml = "";
@@ -181,6 +268,7 @@ const Login = () => {
       ref={containerRef}
       style={{ backgroundImage: `url(${selectedBg})` }}
     >
+      <EcoEarth></EcoEarth>
       {fireflyData &&
         fireflyData.map((style, i) => (
           <div
@@ -307,14 +395,41 @@ const Login = () => {
               <span>⚠️ Caps Lock이 켜져 있습니다.</span>
             </div>
 
-            <div className="remember-me" style={{ marginTop: "5px" }}>
-              <input
-                type="checkbox"
-                id="remember_check"
-                checked={rememberId}
-                onChange={(e) => setRememberId(e.target.checked)}
-              />
-              <label htmlFor="remember_check">아이디 저장</label>
+            <div
+              className="remember-me"
+              style={{
+                marginTop: "5px",
+                display: "flex",
+                gap: "20px",
+                alignItems: "center",
+              }}
+            >
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "5px" }}
+              >
+                <input
+                  type="checkbox"
+                  id="remember_check"
+                  checked={rememberId}
+                  onChange={(e) => setRememberId(e.target.checked)}
+                />
+                <label htmlFor="remember_check" style={{ margin: 0 }}>
+                  아이디 저장
+                </label>
+              </div>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "5px" }}
+              >
+                <input
+                  type="checkbox"
+                  id="auto_login_check"
+                  checked={autoLogin}
+                  onChange={(e) => setAutoLogin(e.target.checked)}
+                />
+                <label htmlFor="auto_login_check" style={{ margin: 0 }}>
+                  자동 로그인
+                </label>
+              </div>
             </div>
 
             <button type="submit" className="login-button shimmer-btn">
@@ -334,8 +449,17 @@ const Login = () => {
               현재 <span>{userCount}</span>명이 환경을 지키고 있어요!
             </p>
           </div>
-          <div className="character-illustration">
-            <img src="/image/logo.png" alt="Logo" />
+          <div className="character-illustration" onClick={handleLogoEasterEgg}>
+            <img
+              src="/image/logo.png"
+              alt="Logo"
+              style={{
+                cursor: "pointer",
+                transition: "transform 0.5s",
+                transform:
+                  clickCount > 0 ? `rotate(${clickCount * 72}deg)` : "none",
+              }}
+            />
           </div>
         </section>
       </div>

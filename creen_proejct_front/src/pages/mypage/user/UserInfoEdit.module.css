@@ -276,7 +276,7 @@
 .find_address_btn {
   flex: 1;
   background-color: var(--color-brand);
-  color: white;
+  color: var(--color-bg);
   border: none;
   border-radius: 20px;
   padding: 12px 0;
@@ -320,7 +320,7 @@
   align-items: flex-start;
   gap: 15px;
   padding: 20px;
-  background-color: #ffffff;
+  background-color: var(--color-bg);
   border-radius: 12px;
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.05);
   border: 1px solid #f0f0f0;
@@ -330,6 +330,99 @@
   color: #333;
   font-size: 24px !important;
   margin-top: 2px;
+}
+
+.change_address_section {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px dashed #e0e0e0;
+}
+
+.change_address_title {
+  font-family: var(--font-sub);
+  font-size: 1rem;
+  color: var(--text-main);
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+.address_input_group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.address_row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.address_input,
+.address_input_full {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color 0.2s;
+  background-color: #f9f9f9;
+}
+
+.address_input:focus,
+.address_input_full:focus {
+  border-color: var(--color-brand);
+  background-color: var(--color-bg);
+}
+
+.address_input:read-only,
+.address_input_full:read-only {
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+.address_input {
+  width: 120px; /* 우편번호 칸 크기 */
+}
+
+.address_input_full {
+  flex: 1; /* 가로 전체 차지 */
+}
+
+.address_search_btn {
+  padding: 0 15px;
+  background-color: transparent;
+  color: var(--color-brand);
+  border: 1px solid var(--color-brand);
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.address_search_btn:hover {
+  background-color: var(--color-brand);
+  color: #fff;
+}
+
+.address_save_btn {
+  width: 100%;
+  padding: 15px;
+  background-color: var(--color-brand);
+  color: var(--color-bg);
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.address_save_btn:hover {
+  opacity: 0.8;
 }
 
 .address_info {
@@ -353,7 +446,7 @@
 
 .address_tag {
   background-color: var(--color-brand);
-  color: white;
+  color: var(--color-bg);
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.03em;

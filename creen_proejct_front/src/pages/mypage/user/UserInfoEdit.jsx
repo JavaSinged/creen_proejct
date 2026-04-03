@@ -4,6 +4,7 @@ import api from "../../../utils/accessToken";
 import styles from "./UserInfoEdit.module.css";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { useDaumPostcodePopup } from "react-daum-postcode";
 
 // MUI Icons
 import AccountCircleSharpIcon from "@mui/icons-material/AccountCircleSharp";
@@ -51,10 +52,12 @@ export default function UserInfoEdit() {
     newPw: "",
     confirmPw: "",
   });
-  const [addressData, setAddressDate] = useState({
-    zipCode: "",
-    address: "",
-    detailAddress: "",
+
+  // 주소 변경용 상태
+  const [newAddress, setNewAddress] = useState({
+    memberAddrCode: "",
+    memberAddr: "",
+    memberDetailAddr: "",
   });
 
   useEffect(() => {
@@ -115,7 +118,6 @@ export default function UserInfoEdit() {
         Swal.fire("성공", "기본 정보가 수정되었습니다.", "success");
 
         const serverPath = response.data;
-
         const finalPath =
           serverPath === "SUCCESS_NO_IMAGE" ? previewImg : serverPath;
 
@@ -193,8 +195,91 @@ export default function UserInfoEdit() {
     setPwData({ ...pwData, [name]: value });
   };
 
+  // 다음 우편번호 API 핸들러
+  const openPostcode = useDaumPostcodePopup(
+    "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js",
+  );
+
+  const handleCompletePostcode = (data) => {
+    let fullAddress = data.address;
+    let extraAddress = "";
+    if (data.addressType === "R") {
+      if (data.bname !== "") extraAddress += data.bname;
+      if (data.buildingName !== "")
+        extraAddress +=
+          extraAddress !== "" ? `, ${data.buildingName}` : data.buildingName;
+      fullAddress += extraAddress !== "" ? ` (${extraAddress})` : "";
+    }
+    setNewAddress((prev) => ({
+      ...prev,
+      memberAddrCode: data.zonecode,
+      memberAddr: fullAddress,
+    }));
+  };
+
+  const handleSearchAddress = () => {
+    openPostcode({ onComplete: handleCompletePostcode });
+  };
+
+  // 주소 저장 핸들러
+  const updateAddress = async () => {
+    if (!newAddress.memberAddrCode || !newAddress.memberDetailAddr.trim()) {
+      Swal.fire({
+        icon: "warning",
+        text: "상세 주소를 포함한 변경할 주소를 모두 입력해주세요.",
+      });
+      return;
+    }
+
+    try {
+      const response = await api.post("/member/updateAddress", {
+        memberId: user.memberId,
+        memberAddrcode: newAddress.memberAddrCode,
+        memberAddr: newAddress.memberAddr,
+        memberDetailAddr: newAddress.memberDetailAddr,
+      });
+
+      Swal.fire("성공", "주소지가 성공적으로 변경되었습니다!", "success");
+
+      setMemberInfo((prev) => ({
+        ...prev,
+        memberAddrcode: newAddress.memberAddrCode,
+        memberAddr: newAddress.memberAddr,
+        memberDetailAddr: newAddress.memberDetailAddr,
+      }));
+
+      setNewAddress({
+        memberAddrCode: "",
+        memberAddr: "",
+        memberDetailAddr: "",
+      });
+      setopenAddSet(false);
+    } catch (error) {
+      console.error(error);
+      Swal.fire("에러", "주소 변경 중 오류가 발생했습니다.", "error");
+    }
+  };
+
+  // 🌟 회원 탈퇴 핸들러 (Swal 적용)
   const handleDeleteClick = () => {
     navigate("/mypage/user/deleteMember");
+
+    Swal.fire({
+      title: "정말 떠나시겠어요? 😢",
+      text: "회원 탈퇴 시 모든 데이터는 복구할 수 없습니다.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33", // 탈퇴 버튼은 강조색(빨강)
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "탈퇴하기",
+      cancelButtonText: "취소",
+      reverseButtons: true, // 취소 버튼을 왼쪽으로
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // 확인 버튼을 눌렀을 때만 탈퇴 페이지로 이동
+        navigate("/mypage/user/deleteMember");
+      }
+    });
   };
 
   if (loading)
@@ -242,7 +327,6 @@ export default function UserInfoEdit() {
             />
           </div>
 
-          {/* 프로필 텍스트 영역 */}
           <div className={styles.dashboard}>
             <p className={styles.dashboard_email}>{memberInfo?.memberEmail}</p>
 
@@ -306,7 +390,7 @@ export default function UserInfoEdit() {
       </section>
 
       <section className={styles.mini_box}>
-        {/* 비밀번호 변경 아코디언 */}
+        {/* 비밀번호 변경 */}
         <div className={styles.Wrapper}>
           <div className={styles.pwSet} onClick={togglePwSet}>
             <p>비밀번호 변경</p>
@@ -370,7 +454,7 @@ export default function UserInfoEdit() {
           </Collapse>
         </div>
 
-        {/* 주소지 변경 아코디언 */}
+        {/* 주소지 변경 */}
         <div className={styles.Wrapper}>
           <div className={styles.addSet} onClick={toggleAddSet}>
             <p>주소지 변경</p>
@@ -390,10 +474,64 @@ export default function UserInfoEdit() {
                       <span className={styles.address_tag}>현재 주소</span>
                     </div>
                     <p className={styles.address_detail}>
-                      {memberInfo?.memberAddress || "주소 정보 없음"}
+                      {memberInfo?.memberAddr
+                        ? `[${memberInfo.memberAddrcode || ""}] ${memberInfo.memberAddr} ${memberInfo.memberDetailAddr || ""}`
+                        : "주소 정보 없음"}
                     </p>
                   </div>
                 </div>
+              </div>
+
+              <div className={styles.change_address_section}>
+                <p className={styles.change_address_title}>새로운 주소 입력</p>
+                <div className={styles.address_input_group}>
+                  <div className={styles.address_row}>
+                    <input
+                      type="text"
+                      className={styles.address_input}
+                      placeholder="우편번호"
+                      value={newAddress.memberAddrCode}
+                      readOnly
+                    />
+                    <button
+                      type="button"
+                      className={styles.address_search_btn}
+                      onClick={handleSearchAddress}
+                    >
+                      우편번호 검색
+                    </button>
+                  </div>
+                  <div className={styles.address_row}>
+                    <input
+                      type="text"
+                      className={styles.address_input_full}
+                      placeholder="주소"
+                      value={newAddress.memberAddr}
+                      readOnly
+                    />
+                  </div>
+                  <div className={styles.address_row}>
+                    <input
+                      type="text"
+                      className={styles.address_input_full}
+                      placeholder="상세주소를 입력해주세요"
+                      value={newAddress.memberDetailAddr}
+                      onChange={(e) =>
+                        setNewAddress({
+                          ...newAddress,
+                          memberDetailAddr: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className={styles.address_save_btn}
+                  onClick={updateAddress}
+                >
+                  이 주소로 변경하기
+                </button>
               </div>
             </div>
           </Collapse>

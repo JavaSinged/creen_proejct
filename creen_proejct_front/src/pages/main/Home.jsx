@@ -14,6 +14,13 @@ import StarIcon from "@mui/icons-material/Star";
 import StarHalfIcon from "@mui/icons-material/StarHalf";
 import StarOutlineIcon from "@mui/icons-material/StarOutline";
 import useCartStore from "../../store/useCartStore";
+import EcoLightSwitch from "../../components/Easter Egg/EcoLightSwitch";
+import EcoRider from "../../components/Easter Egg/EcoRider";
+import EcoClean from "../../components/Easter Egg/EcoClean";
+import EcoDrone from "../../components/Easter Egg/EcoDrone";
+import EcoRecycle from "../../components/Easter Egg/EcoRecycle";
+import EcoEarth from "../../components/Easter Egg/EcoEarth";
+import EcoFlood from "../../components/Easter Egg/EcoFlood";
 
 const banners = [
   {
@@ -107,6 +114,13 @@ export default function Home() {
 
   return (
     <div className={styles.page_container}>
+      <EcoLightSwitch />
+      <EcoClean />
+      <EcoRider />
+      <EcoDrone />
+      <EcoRecycle />
+      <EcoEarth />
+      <EcoFlood />
       {/* 1. 배너 (기존 유지) */}
       <div className={styles.banner_wrap}>
         <Swiper
