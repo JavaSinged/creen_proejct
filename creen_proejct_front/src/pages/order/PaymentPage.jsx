@@ -52,7 +52,7 @@ const PaymentPage = () => {
     usedPoint: ecoPoint,
     deliveryType: deliveryPrice === 0 ? 1 : deliveryPrice === 1000 ? 2 : 3,
     items: cartList.map((item) => ({
-      menuId: item.id,
+      menuId: Number(item.menuId),
       quantity: item.quantity,
       price: item.unitPrice,
       options: item.options.map((o) => o.optionName).join(","),
@@ -90,6 +90,7 @@ const PaymentPage = () => {
   // };
 
   const handlePayment = async () => {
+    console.log(JSON.stringify(payInfo, null, 2));
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_BACKSERVER}/stores/order`,
@@ -120,6 +121,9 @@ const PaymentPage = () => {
       });
     } catch (error) {
       console.error("결제 준비 중 에러 발생:", error);
+      console.log(error);
+      console.log(error.response);
+      console.log(error.response?.data);
       alert("주문 처리 중 오류가 발생했습니다.");
     }
   };

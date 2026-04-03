@@ -27,5 +27,10 @@ public interface StoreDao {
 		    @Param("orderId") int orderId
 		);
 
+	int insertOrderHistory(
+		    @Param("orderId") int orderId,
+		    @Param("memberId") String memberId
+		);
+
 
 }

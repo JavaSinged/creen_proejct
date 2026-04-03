@@ -104,4 +104,13 @@
   FROM menu_tbl m
   WHERE m.menu_id = #{orderItem.menuId}
 </insert>
+<insert id="insertOrderHistory">
+    INSERT INTO order_list_map (
+        order_id,
+        member_id
+    ) VALUES (
+        #{orderId},
+        #{memberId}
+    )
+</insert>
 </mapper>

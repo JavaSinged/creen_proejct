@@ -33,21 +33,35 @@ public class StoreService {
     }
 
     @Transactional
-	public int insertOrder(Order order) {
-    	int orderId = 0;
-		int result = storeDao.insertOrder(order);
-		if(result == 1) {
-			orderId = order.getOrderId();
-			System.out.println(orderId);
-			List<OrderItem> list = order.getItems();
-			System.out.println(list);
-			for (OrderItem orderItem : list) {
-				int menuResult = storeDao.insertOrderDetail(orderItem, orderId);
-				System.out.println(menuResult);
-			}
-			
-		}
-		return orderId;
-	}
+    public int insertOrder(Order order) {
+        int result = storeDao.insertOrder(order);
+
+        if (result != 1) {
+            return 0;
+        }
+
+        int orderId = order.getOrderId();
+        String memberId = order.getMemberId();
+
+        List<OrderItem> list = order.getItems();
+
+        // 1. 주문 상세
+        if (list != null && !list.isEmpty()) {
+            for (OrderItem orderItem : list) {
+                int detailResult = storeDao.insertOrderDetail(orderItem, orderId);
+                if (detailResult != 1) {
+                    throw new RuntimeException("주문 상세 실패");
+                }
+            }
+        }
+
+        // 2. 주문 이력
+        int historyResult = storeDao.insertOrderHistory(orderId, memberId);
+        if (historyResult != 1) {
+            throw new RuntimeException("주문 이력 저장 실패");
+        }
+
+        return orderId;
+    }
 
 }
