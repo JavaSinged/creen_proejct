@@ -161,4 +161,9 @@ public class MemberService {
 
 	}
 
+	public int insertUser(Member member) {
+		int result = memberDao.insertUser(member);
+		return result;
+	}
+
 }

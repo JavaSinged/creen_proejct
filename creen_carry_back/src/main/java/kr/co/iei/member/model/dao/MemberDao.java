@@ -27,5 +27,7 @@ public interface MemberDao {
 
 	int updateProfile(Member member);
 
+	int insertUser(Member member);
+
 
 }
