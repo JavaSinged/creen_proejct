@@ -29,5 +29,11 @@ public interface MemberDao {
 
 	int insertUser(Member member);
 
+	int insertManager(Member member);
+
+	Member storeDupCheck(int storeOwnerNo);
+
+	Member emailDupCheck(String memberEmail);
+
 
 }

@@ -165,5 +165,26 @@ public class MemberService {
 		int result = memberDao.insertUser(member);
 		return result;
 	}
+	
+	public int insertManager(Member member) {
+		String memberPw = member.getMemberPw();
+		System.out.println(memberPw);
+		String encPw=passwordEncoder.encode(memberPw);
+		System.out.println(encPw);
+		member.setMemberPw(encPw);
+		int result = memberDao.insertManager(member);
+		System.out.println(member);
+		
+		return result;
+	}
+
+	public Member storeDupCheck(int storeOwnerNo) {
+		Member member = memberDao.storeDupCheck(storeOwnerNo);
+		return member;
+	}
+	public Member emailDupCheck(String memberEmail) {
+		Member member = memberDao.emailDupCheck(memberEmail);
+		return member;
+	}
 
 }
