@@ -4,7 +4,7 @@ import api from "../../../utils/accessToken";
 import styles from "./UserInfoEdit.module.css";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-import { useDaumPostcodePopup } from "react-daum-postcode"; // 🌟 우편번호 팝업 추가
+import { useDaumPostcodePopup } from "react-daum-postcode";
 
 // MUI Icons
 import AccountCircleSharpIcon from "@mui/icons-material/AccountCircleSharp";
@@ -53,7 +53,7 @@ export default function UserInfoEdit() {
     confirmPw: "",
   });
 
-  // 🌟 주소 변경용 상태 추가
+  // 주소 변경용 상태
   const [newAddress, setNewAddress] = useState({
     memberAddrCode: "",
     memberAddr: "",
@@ -195,7 +195,7 @@ export default function UserInfoEdit() {
     setPwData({ ...pwData, [name]: value });
   };
 
-  // 🌟 다음 우편번호 API 핸들러
+  // 다음 우편번호 API 핸들러
   const openPostcode = useDaumPostcodePopup(
     "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js",
   );
@@ -221,7 +221,7 @@ export default function UserInfoEdit() {
     openPostcode({ onComplete: handleCompletePostcode });
   };
 
-  // 🌟 주소 저장 핸들러 (수정된 부분)
+  // 주소 저장 핸들러
   const updateAddress = async () => {
     if (!newAddress.memberAddrCode || !newAddress.memberDetailAddr.trim()) {
       Swal.fire({
@@ -232,7 +232,6 @@ export default function UserInfoEdit() {
     }
 
     try {
-      // API 경로와 파라미터는 실제 백엔드에 맞게 수정하세요
       const response = await api.post("/member/updateAddress", {
         memberId: user.memberId,
         memberAddrcode: newAddress.memberAddrCode,
@@ -242,7 +241,6 @@ export default function UserInfoEdit() {
 
       Swal.fire("성공", "주소지가 성공적으로 변경되었습니다!", "success");
 
-      // 🌟 새로고침 전에도 날아가지 않도록, 백엔드 변수명에 맞게 업데이트!
       setMemberInfo((prev) => ({
         ...prev,
         memberAddrcode: newAddress.memberAddrCode,
@@ -250,7 +248,6 @@ export default function UserInfoEdit() {
         memberDetailAddr: newAddress.memberDetailAddr,
       }));
 
-      // 폼 초기화 및 아코디언 닫기
       setNewAddress({
         memberAddrCode: "",
         memberAddr: "",
@@ -263,11 +260,24 @@ export default function UserInfoEdit() {
     }
   };
 
+  // 🌟 회원 탈퇴 핸들러 (Swal 적용)
   const handleDeleteClick = () => {
-    const isConfirmed = window.confirm(
-      "정말로 탈퇴하시겠습니까? 데이터는 복구할 수 없습니다 ㅜㅜ",
-    );
-    if (isConfirmed) navigate("/mypage/user/deleteMember");
+    Swal.fire({
+      title: "정말 떠나시겠어요? 😢",
+      text: "회원 탈퇴 시 모든 데이터는 복구할 수 없습니다.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33", // 탈퇴 버튼은 강조색(빨강)
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "탈퇴하기",
+      cancelButtonText: "취소",
+      reverseButtons: true, // 취소 버튼을 왼쪽으로
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // 확인 버튼을 눌렀을 때만 탈퇴 페이지로 이동
+        navigate("/mypage/user/deleteMember");
+      }
+    });
   };
 
   if (loading)
@@ -315,7 +325,6 @@ export default function UserInfoEdit() {
             />
           </div>
 
-          {/* 프로필 텍스트 영역 */}
           <div className={styles.dashboard}>
             <p className={styles.dashboard_email}>{memberInfo?.memberEmail}</p>
 
@@ -379,7 +388,7 @@ export default function UserInfoEdit() {
       </section>
 
       <section className={styles.mini_box}>
-        {/* 비밀번호 변경 아코디언 */}
+        {/* 비밀번호 변경 */}
         <div className={styles.Wrapper}>
           <div className={styles.pwSet} onClick={togglePwSet}>
             <p>비밀번호 변경</p>
@@ -443,7 +452,7 @@ export default function UserInfoEdit() {
           </Collapse>
         </div>
 
-        {/* 🌟 주소지 변경 아코디언 */}
+        {/* 주소지 변경 */}
         <div className={styles.Wrapper}>
           <div className={styles.addSet} onClick={toggleAddSet}>
             <p>주소지 변경</p>
@@ -453,7 +462,6 @@ export default function UserInfoEdit() {
           </div>
           <Collapse in={openAddSet} timeout="auto" unmountOnExit>
             <div className={styles.add_content_box}>
-              {/* 1. 현재 주소지 표시 영역 */}
               <div className={styles.current_address_section}>
                 <p className={styles.current_address_title}>현재 주소지</p>
                 <div className={styles.current_address_box}>
@@ -463,7 +471,6 @@ export default function UserInfoEdit() {
                       <span className={styles.address_name}>기본 배송지</span>
                       <span className={styles.address_tag}>현재 주소</span>
                     </div>
-                    {/* 🌟 새로고침해도 데이터를 정확히 조합해서 출력하도록 수정 */}
                     <p className={styles.address_detail}>
                       {memberInfo?.memberAddr
                         ? `[${memberInfo.memberAddrcode || ""}] ${memberInfo.memberAddr} ${memberInfo.memberDetailAddr || ""}`
@@ -473,12 +480,9 @@ export default function UserInfoEdit() {
                 </div>
               </div>
 
-              {/* 2. 새로운 주소지 입력 폼 영역 */}
               <div className={styles.change_address_section}>
                 <p className={styles.change_address_title}>새로운 주소 입력</p>
-
                 <div className={styles.address_input_group}>
-                  {/* 우편번호 & 검색 버튼 */}
                   <div className={styles.address_row}>
                     <input
                       type="text"
@@ -495,8 +499,6 @@ export default function UserInfoEdit() {
                       우편번호 검색
                     </button>
                   </div>
-
-                  {/* 기본 주소 */}
                   <div className={styles.address_row}>
                     <input
                       type="text"
@@ -506,8 +508,6 @@ export default function UserInfoEdit() {
                       readOnly
                     />
                   </div>
-
-                  {/* 상세 주소 */}
                   <div className={styles.address_row}>
                     <input
                       type="text"
@@ -523,8 +523,6 @@ export default function UserInfoEdit() {
                     />
                   </div>
                 </div>
-
-                {/* 저장 버튼 */}
                 <button
                   type="button"
                   className={styles.address_save_btn}
