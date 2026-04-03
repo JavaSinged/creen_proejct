@@ -4,6 +4,7 @@ import api from "../../../utils/accessToken";
 import styles from "./UserInfoEdit.module.css";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { useDaumPostcodePopup } from "react-daum-postcode"; // 🌟 우편번호 팝업 추가
 
 // MUI Icons
 import AccountCircleSharpIcon from "@mui/icons-material/AccountCircleSharp";
@@ -51,10 +52,12 @@ export default function UserInfoEdit() {
     newPw: "",
     confirmPw: "",
   });
-  const [addressData, setAddressDate] = useState({
-    zipCode: "",
-    address: "",
-    detailAddress: "",
+
+  // 🌟 주소 변경용 상태 추가
+  const [newAddress, setNewAddress] = useState({
+    memberAddrCode: "",
+    memberAddr: "",
+    memberDetailAddr: "",
   });
 
   useEffect(() => {
@@ -115,7 +118,6 @@ export default function UserInfoEdit() {
         Swal.fire("성공", "기본 정보가 수정되었습니다.", "success");
 
         const serverPath = response.data;
-
         const finalPath =
           serverPath === "SUCCESS_NO_IMAGE" ? previewImg : serverPath;
 
@@ -191,6 +193,72 @@ export default function UserInfoEdit() {
   const handlePwChange = (e) => {
     const { name, value } = e.target;
     setPwData({ ...pwData, [name]: value });
+  };
+
+  // 🌟 다음 우편번호 API 핸들러
+  const openPostcode = useDaumPostcodePopup(
+    "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js",
+  );
+
+  const handleCompletePostcode = (data) => {
+    let fullAddress = data.address;
+    let extraAddress = "";
+    if (data.addressType === "R") {
+      if (data.bname !== "") extraAddress += data.bname;
+      if (data.buildingName !== "")
+        extraAddress +=
+          extraAddress !== "" ? `, ${data.buildingName}` : data.buildingName;
+      fullAddress += extraAddress !== "" ? ` (${extraAddress})` : "";
+    }
+    setNewAddress((prev) => ({
+      ...prev,
+      memberAddrCode: data.zonecode,
+      memberAddr: fullAddress,
+    }));
+  };
+
+  const handleSearchAddress = () => {
+    openPostcode({ onComplete: handleCompletePostcode });
+  };
+
+  // 🌟 주소 저장 핸들러
+  const updateAddress = async () => {
+    if (!newAddress.memberAddrCode || !newAddress.memberDetailAddr.trim()) {
+      Swal.fire({
+        icon: "warning",
+        text: "상세 주소를 포함한 변경할 주소를 모두 입력해주세요.",
+      });
+      return;
+    }
+
+    try {
+      // API 경로와 파라미터는 실제 백엔드에 맞게 수정하세요
+      const response = await api.post("/member/updateAddress", {
+        memberId: user.memberId,
+        memberAddrCode: newAddress.memberAddrCode,
+        memberAddr: newAddress.memberAddr,
+        memberDetailAddr: newAddress.memberDetailAddr,
+      });
+
+      Swal.fire("성공", "주소지가 성공적으로 변경되었습니다!", "success");
+
+      // 화면의 현재 주소를 즉시 업데이트
+      setMemberInfo((prev) => ({
+        ...prev,
+        memberAddress: `${newAddress.memberAddr} ${newAddress.memberDetailAddr}`,
+      }));
+
+      // 폼 초기화 및 아코디언 닫기
+      setNewAddress({
+        memberAddrCode: "",
+        memberAddr: "",
+        memberDetailAddr: "",
+      });
+      setopenAddSet(false);
+    } catch (error) {
+      console.error(error);
+      Swal.fire("에러", "주소 변경 중 오류가 발생했습니다.", "error");
+    }
   };
 
   const handleDeleteClick = () => {
@@ -373,7 +441,7 @@ export default function UserInfoEdit() {
           </Collapse>
         </div>
 
-        {/* 주소지 변경 아코디언 */}
+        {/* 🌟 주소지 변경 아코디언 */}
         <div className={styles.Wrapper}>
           <div className={styles.addSet} onClick={toggleAddSet}>
             <p>주소지 변경</p>
@@ -383,6 +451,7 @@ export default function UserInfoEdit() {
           </div>
           <Collapse in={openAddSet} timeout="auto" unmountOnExit>
             <div className={styles.add_content_box}>
+              {/* 1. 현재 주소지 표시 영역 */}
               <div className={styles.current_address_section}>
                 <p className={styles.current_address_title}>현재 주소지</p>
                 <div className={styles.current_address_box}>
@@ -397,6 +466,67 @@ export default function UserInfoEdit() {
                     </p>
                   </div>
                 </div>
+              </div>
+
+              {/* 2. 새로운 주소지 입력 폼 영역 */}
+              <div className={styles.change_address_section}>
+                <p className={styles.change_address_title}>새로운 주소 입력</p>
+
+                <div className={styles.address_input_group}>
+                  {/* 우편번호 & 검색 버튼 */}
+                  <div className={styles.address_row}>
+                    <input
+                      type="text"
+                      className={styles.address_input}
+                      placeholder="우편번호"
+                      value={newAddress.memberAddrCode}
+                      readOnly
+                    />
+                    <button
+                      type="button"
+                      className={styles.address_search_btn}
+                      onClick={handleSearchAddress}
+                    >
+                      우편번호 검색
+                    </button>
+                  </div>
+
+                  {/* 기본 주소 */}
+                  <div className={styles.address_row}>
+                    <input
+                      type="text"
+                      className={styles.address_input_full}
+                      placeholder="주소"
+                      value={newAddress.memberAddr}
+                      readOnly
+                    />
+                  </div>
+
+                  {/* 상세 주소 */}
+                  <div className={styles.address_row}>
+                    <input
+                      type="text"
+                      className={styles.address_input_full}
+                      placeholder="상세주소를 입력해주세요"
+                      value={newAddress.memberDetailAddr}
+                      onChange={(e) =>
+                        setNewAddress({
+                          ...newAddress,
+                          memberDetailAddr: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+
+                {/* 저장 버튼 */}
+                <button
+                  type="button"
+                  className={styles.address_save_btn}
+                  onClick={updateAddress}
+                >
+                  이 주소로 변경하기
+                </button>
               </div>
             </div>
           </Collapse>
