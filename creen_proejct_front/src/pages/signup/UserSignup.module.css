@@ -324,3 +324,11 @@ body,
     padding-top: 0;
   }
 }
+:global(.signup-input-underline):-webkit-autofill,
+:global(.signup-input-underline):-webkit-autofill:hover,
+:global(.signup-input-underline):-webkit-autofill:focus,
+:global(.signup-input-underline):-webkit-autofill:active {
+  -webkit-transition: background-color 9999s ease-out;
+  transition: background-color 9999s ease-out;
+  -webkit-text-fill-color: #222222 !important;
+}
