@@ -46,11 +46,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  mix-blend-mode: multiply; /* 기존 화면을 극단적으로 어둡게 만듦 */
 }
 
 .eco-dark-overlay.active {
   opacity: 1;
+  pointer-events: auto;
 }
 
 .eco-dark-message {

@@ -11,9 +11,15 @@ const EcoLightSwitch = () => {
   useEffect(() => {
     if (isDarkMode) {
       document.body.classList.add("eco-dark-mode");
+      document.body.style.overflow = "hidden";
     } else {
       document.body.classList.remove("eco-dark-mode");
+      document.body.style.overflow = "auto";
     }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
   }, [isDarkMode]);
 
   const handlePointerDown = (e) => {
