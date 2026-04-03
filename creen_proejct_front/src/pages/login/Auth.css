@@ -31,7 +31,7 @@ button {
   flex-direction: column;
   color: var(--color-bg);
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: hidden;
   transition: background-position 0.2s ease-out;
   z-index: 1;
 
