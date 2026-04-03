@@ -22,7 +22,10 @@ const Login = () => {
     memberGrade: 1,
   });
   const [activeTab, setActiveTab] = useState("personal");
+
+  // 🌟 아이디 저장 & 자동 로그인 상태
   const [rememberId, setRememberId] = useState(false);
+  const [autoLogin, setAutoLogin] = useState(false);
 
   const [isCapsLockOn, setIsCapsLockOn] = useState(false);
 
@@ -108,10 +111,16 @@ const Login = () => {
       return;
     }
 
+    // 🌟 백엔드로 자동 로그인 여부(autoLogin)도 함께 전송합니다!
+    const loginPayload = {
+      ...member,
+      autoLogin: autoLogin,
+    };
+
     axios
-      .post(`${import.meta.env.VITE_BACKSERVER}/member/login`, member)
+      .post(`${import.meta.env.VITE_BACKSERVER}/member/login`, loginPayload)
       .then((res) => {
-        const { member: loginUser, accessToken } = res.data;
+        const { member: loginUser, accessToken, refreshToken } = res.data;
 
         if (loginUser && Number(loginUser.memberStatus) === 2) {
           Swal.fire({
@@ -124,14 +133,29 @@ const Login = () => {
         }
 
         if (loginUser && accessToken) {
+          // 토큰 및 유저 정보 저장
+          if (refreshToken) {
+            localStorage.setItem("refreshToken", refreshToken);
+          }
           localStorage.setItem("accessToken", accessToken);
           localStorage.setItem("memberId", loginUser.memberId);
           localStorage.setItem("memberName", loginUser.memberName);
           localStorage.setItem("memberGrade", loginUser.memberGrade);
           localStorage.setItem("memberThumb", loginUser.memberThumb);
 
-          if (rememberId) localStorage.setItem("savedUserId", memberId);
-          else localStorage.removeItem("savedUserId");
+          // 🌟 아이디 저장 로직
+          if (rememberId) {
+            localStorage.setItem("savedUserId", memberId);
+          } else {
+            localStorage.removeItem("savedUserId");
+          }
+
+          // 🌟 자동 로그인 플래그 저장 (AuthContext 등에서 활용 가능)
+          if (autoLogin) {
+            localStorage.setItem("isAutoLogin", "true");
+          } else {
+            localStorage.removeItem("isAutoLogin");
+          }
 
           let welcomeTitle = "";
           let welcomeHtml = "";
@@ -307,14 +331,42 @@ const Login = () => {
               <span>⚠️ Caps Lock이 켜져 있습니다.</span>
             </div>
 
-            <div className="remember-me" style={{ marginTop: "5px" }}>
-              <input
-                type="checkbox"
-                id="remember_check"
-                checked={rememberId}
-                onChange={(e) => setRememberId(e.target.checked)}
-              />
-              <label htmlFor="remember_check">아이디 저장</label>
+            {/* 🌟 아이디 저장 & 자동 로그인 체크박스 그룹 */}
+            <div
+              className="remember-me"
+              style={{
+                marginTop: "5px",
+                display: "flex",
+                gap: "20px",
+                alignItems: "center",
+              }}
+            >
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "5px" }}
+              >
+                <input
+                  type="checkbox"
+                  id="remember_check"
+                  checked={rememberId}
+                  onChange={(e) => setRememberId(e.target.checked)}
+                />
+                <label htmlFor="remember_check" style={{ margin: 0 }}>
+                  아이디 저장
+                </label>
+              </div>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "5px" }}
+              >
+                <input
+                  type="checkbox"
+                  id="auto_login_check"
+                  checked={autoLogin}
+                  onChange={(e) => setAutoLogin(e.target.checked)}
+                />
+                <label htmlFor="auto_login_check" style={{ margin: 0 }}>
+                  자동 로그인
+                </label>
+              </div>
             </div>
 
             <button type="submit" className="login-button shimmer-btn">

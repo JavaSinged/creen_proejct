@@ -424,6 +424,7 @@ button {
 
 .character-illustration img {
   width: 220px;
+  box-shadow: var(--text-main);
 }
 
 .MuiOutlinedInput-root {

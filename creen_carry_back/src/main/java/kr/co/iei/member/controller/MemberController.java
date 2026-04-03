@@ -29,7 +29,7 @@ import kr.co.iei.member.model.service.MemberService;
 
 @RestController
 @RequestMapping("/member")
-@CrossOrigin(value = "*") // 리액트 접근 허용
+@CrossOrigin(value = "*") 
 public class MemberController {
 
 	private final EmailSender emailSender;
@@ -45,7 +45,7 @@ public class MemberController {
 	MemberController(BCryptPasswordEncoder passwordEncoder, EmailSender emailSender) {
 		this.passwordEncoder = passwordEncoder;
 		this.emailSender = emailSender;
-	} // ✨ JwtUtil 주입
+	} 
 
 	@GetMapping
 	public ResponseEntity<?> getMembers() {
@@ -53,7 +53,7 @@ public class MemberController {
 		return ResponseEntity.ok(list);
 	}
 
-	// 1.로그인기능
+	// 로그인기능
 	@PostMapping("/login")
 	public ResponseEntity<?> loginMember(@RequestBody Member member) {
 		System.out.println("로그인 요청 데이터: " + member);
@@ -62,23 +62,29 @@ public class MemberController {
 		System.out.println("로그인 결과 데이터: " + loginMember);
 
 		if (loginMember != null) {
-			// 🌟 1. 액세스 토큰 생성 (ID와 등급 정보를 담음)
 			String accessToken = jwtUtil.createToken(loginMember.getMemberId(), loginMember.getMemberGrade());
-
-			// 🌟 2. 응답 데이터 구성 (Member 객체 + AccessToken)
+            
 			Map<String, Object> response = new HashMap<>();
 			response.put("member", loginMember);
 			response.put("accessToken", accessToken);
 
-			// 성공 시 200 OK와 함께 데이터 전송
+	
+			if (member.isAutoLogin()) {
+		
+				String refreshToken = jwtUtil.createRefreshToken(loginMember.getMemberId());
+				
+				response.put("refreshToken", refreshToken);
+				
+				System.out.println("✅ 자동 로그인 활성화: Refresh Token 발급 완료");
+			}
+
 			return ResponseEntity.ok(response);
 		} else {
-			// 실패 시 401 Unauthorized 전송
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
 	}
 
-	// 2. 아이디 찾기 (이름 + 이메일)
+	//아이디 찾기 (이름 + 이메일)
 	@PostMapping("/findId")
 	public ResponseEntity<?> findId(@RequestBody Member member) {
 		// DB에서 이름과 이메일이 일치하는 사용자의 ID를 가져옴
@@ -91,7 +97,7 @@ public class MemberController {
 		}
 	}
 
-	// 비밀번호 재설정 1차 인증
+	//비밀번호 재설정 1차 인증
 	@PostMapping("/checkMember")
 	public ResponseEntity<?> checkMember(@RequestBody Member member) {
 		// 아이디와 이메일이 일치하는 행이 있는지 COUNT 조회
@@ -99,33 +105,26 @@ public class MemberController {
 		return ResponseEntity.ok(result);
 	}
 
-	// 3. 비밀번호 재설정 (아이디 + 새 비밀번호)
+	//비밀번호 재설정
 	@PostMapping("/resetPw")
 	public ResponseEntity<?> resetPw(@RequestBody Member member) {
 		System.out.println("넘어온 아이디: " + member.getMemberId()); // 👈 이거 꼭 확인!
 		System.out.println("넘어온 비번: " + member.getMemberPw());
-		// 서비스에서 암호화 후 업데이트 진행
 		int result = memberService.resetPw(member);
 
 		if (result == -1) {
-			// 🌟 기존 비밀번호와 동일할 경우 프론트엔드로 반환
 			return ResponseEntity.ok(-1);
 		} else if (result > 0) {
-			// 성공 시
 			return ResponseEntity.ok(result);
 		} else {
-			// 실패 시
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("변경 실패");
 		}
 	}
 
 	@PostMapping("/sendAuthCode")
 	public ResponseEntity<?> sendAuthCode(@RequestBody Member member) {
-		// 🌟 실제 메일 발송 실행
 		String authCode = memberService.sendAuthCode(member.getMemberEmail());
 
-		// 보안상 실제로는 authCode를 리턴하지 않고 서버 세션/Redis에 저장하지만,
-		// 현재 테스트 환경에 맞춰 발송 성공 메시지만 보냅니다.
 		return ResponseEntity.ok(authCode);
 	}
 
@@ -136,7 +135,6 @@ public class MemberController {
 		System.out.println("프론트에서 온 이메일: " + email);
 		System.out.println("프론트에서 온 입력코드: " + inputCode);
 
-		// 서비스에서 저장된 인증번호와 비교
 		boolean isMatch = memberService.checkAuthCode(email, inputCode);
 
 		return ResponseEntity.ok(isMatch);
@@ -144,13 +142,11 @@ public class MemberController {
 
 	@GetMapping("/getMemberInfo")
 	public ResponseEntity<?> getMemberInfo(@RequestParam String memberId) {
-		// 🌟 이미 만들어둔 selectOneMember를 서비스에서 호출
 		System.out.println("현재 정보를 조회할 회원의 아이디 : " + memberId);
 		Member member = memberService.selectOneMember(memberId);
 		System.out.println(member);
 
 		if (member != null) {
-			// 보안상 비밀번호는 제거하고 보낼 수도 있습니다.
 			return ResponseEntity.ok(member);
 		} else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("회원 정보 없음");
@@ -159,12 +155,10 @@ public class MemberController {
 
 	@PostMapping("/updatePassword")
 	public ResponseEntity<?> updatePassword(@RequestBody Map<String, String> data) {
-		// 프론트에서 보낸 데이터 추출
 		String memberId = data.get("memberId");
 		String currentPw = data.get("currentPw");
 		String newPw = data.get("newPw");
 
-		// 서비스 호출 (결과에 따라 메시지 반환)
 		try {
 			boolean result = memberService.updatePassword(memberId, currentPw, newPw);
 			if (result) {
@@ -178,6 +172,7 @@ public class MemberController {
 
 	}
 
+	//유저 정보업데이트
 	@PostMapping("/updateProfile")
 	public ResponseEntity<?> updateProfile(@RequestParam String memberId, @RequestParam String memberName,
 			@RequestParam String memberPhone,
@@ -231,29 +226,26 @@ public class MemberController {
 	// 메일전송요청
 	@PostMapping(value = "/email-verification")
 	public ResponseEntity<?> sendMail(@RequestBody Member member) {
-		// 🌟 실제 메일 발송 실행
+
 		String authCode = memberService.sendAuthCode(member.getMemberEmail());
 
-		// 보안상 실제로는 authCode를 리턴하지 않고 서버 세션/Redis에 저장하지만,
-		// 현재 테스트 환경에 맞춰 발송 성공 메시지만 보냅니다.
+
 		return ResponseEntity.ok(authCode);
 	}
 
-	// user회원가입
+	//user회원가입
 	@PostMapping(value = "/userSignup")
 	public ResponseEntity<?> userSignup(@RequestBody Member member) {
 		int result = memberService.insertUser(member);
 		return ResponseEntity.ok(result);
 	}
 	
-	//1. 사업자 번호 중복 체크 (Service의 파라미터 int 타입에 맞춤)
+	//사업자 번호 중복 체크 
     @GetMapping("/storeDupCheck")
     public ResponseEntity<?> storeDupCheck(@RequestParam String storeOwnerNo) {
-        // Service 메서드 명: storeDupCheck(int)
         Member member = memberService.storeDupCheck(storeOwnerNo);
         System.out.println(storeOwnerNo);
         
-        // 리액트 조건문 (res.data === "" 일 때 성공)에 맞게 처리
         return ResponseEntity.ok(member == null ? "" : member);
     }
     @GetMapping("/emailDupCheck")
@@ -262,11 +254,10 @@ public class MemberController {
     	return ResponseEntity.ok(member==null);
     }
 
-    // 2. 사업자 회원가입 (Service의 메서드 명 insertManager에 맞춤)
+    //사업자 회원가입
     @PostMapping("/signupManager")
     public ResponseEntity<?> signupManager(@RequestBody Member member) {
-        // Service 메서드 명: insertManager(Member)
-        // Service 내부에서 이미 passwordEncoder로 비번 암호화를 하고 있으므로 바로 호출
+
         int result = memberService.insertManager(member);
         
         if (result > 0) {
@@ -283,11 +274,33 @@ public class MemberController {
         int result = memberService.updateAddress(member);
         
         if (result > 0) {
-            // 업데이트 성공 시
             return ResponseEntity.ok("SUCCESS");
         } else {
-            // 업데이트 실패 시 (500 에러 반환)
             return ResponseEntity.internalServerError().body("FAIL");
         }
     }
+    
+    @PostMapping("/refresh")
+	public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> tokenData) {
+		String refreshToken = tokenData.get("refreshToken");
+
+		if (refreshToken != null && jwtUtil.validateToken(refreshToken)) {
+			String memberId = jwtUtil.getMemberIdFromToken(refreshToken);
+			
+			Member member = memberService.selectOneMember(memberId);
+			
+			if (member != null) {
+				System.out.println("토큰 재발행");
+				String newAccessToken = jwtUtil.createToken(memberId, member.getMemberGrade());
+				
+				Map<String, String> response = new HashMap<>();
+				response.put("accessToken", newAccessToken);
+				
+				System.out.println("✅ 자동 로그인: " + memberId + "님의 AccessToken 재발급 완료!");
+				return ResponseEntity.ok(response);
+			}
+		}
+		
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("REFRESH_TOKEN_EXPIRED");
+	}
 }
