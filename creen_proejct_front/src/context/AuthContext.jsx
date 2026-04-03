@@ -11,7 +11,6 @@ export const AuthProvider = ({ children }) => {
   const logoutTimerRef = useRef(null);
   const isLoggingOut = useRef(false);
 
-  // 🎨 [CSS 직접 주입] Swal 스타일 커스텀 (아이콘 색상 및 버튼 테두리 제거)
   useEffect(() => {
     const style = document.createElement("style");
     style.innerHTML = `
@@ -74,11 +73,10 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  // 🧹 인증 관련 데이터만 골라서 삭제 (아이디 저장은 남겨둠)
   const clearAuthData = () => {
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken"); // 🌟 리프레시 토큰도 삭제 대상 추가
-    localStorage.removeItem("isAutoLogin"); // 🌟 자동로그인 플래그도 삭제
+    localStorage.removeItem("refreshToken"); //
+    localStorage.removeItem("isAutoLogin"); //
     localStorage.removeItem("memberId");
     localStorage.removeItem("memberName");
     localStorage.removeItem("memberGrade");
@@ -118,7 +116,6 @@ export const AuthProvider = ({ children }) => {
     const id = localStorage.getItem("memberId");
     const thumb = localStorage.getItem("memberThumb");
 
-    // 🌟 자동 로그인 여부 확인 (문자열 "true"와 비교)
     const isAutoLogin = localStorage.getItem("isAutoLogin") === "true";
 
     if (token) {
@@ -127,14 +124,10 @@ export const AuthProvider = ({ children }) => {
         const decodedPayload = JSON.parse(atob(payload));
         const currentTime = Math.floor(Date.now() / 1000);
 
-        // 1. 토큰이 만료된 경우
         if (decodedPayload.exp && decodedPayload.exp < currentTime) {
-          // 🌟 자동 로그인 유저가 아닐 때만 즉시 로그아웃 팝업을 띄움
           if (!isAutoLogin) {
             logout(true);
           } else {
-            // 자동 로그인 유저는 여기서 가만히 둡니다.
-            // 이후 api.js의 인터셉터가 통신 시점에 401을 감지하고 토큰을 갱신할 것입니다.
             setIsLogin(true);
             setUser({
               memberId: id,
@@ -143,9 +136,7 @@ export const AuthProvider = ({ children }) => {
               memberThumb: thumb,
             });
           }
-        }
-        // 2. 토큰이 아직 유효한 경우
-        else {
+        } else {
           setIsLogin(true);
           setUser({
             memberId: id,

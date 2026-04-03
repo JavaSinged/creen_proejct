@@ -17,6 +17,7 @@ import useCartStore from "../../store/useCartStore";
 import EcoLightSwitch from "../../components/Easter Egg/EcoLightSwitch";
 import EcoRider from "../../components/Easter Egg/EcoRider";
 import EcoClean from "../../components/Easter Egg/EcoClean";
+import EcoDrone from "../../components/Easter Egg/EcoDrone";
 
 const banners = [
   {
@@ -113,6 +114,7 @@ export default function Home() {
       <EcoLightSwitch />
       <EcoClean />
       <EcoRider />
+      <EcoDrone />
       {/* 1. 배너 (기존 유지) */}
       <div className={styles.banner_wrap}>
         <Swiper
