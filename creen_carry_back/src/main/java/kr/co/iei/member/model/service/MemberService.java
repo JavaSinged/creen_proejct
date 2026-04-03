@@ -201,5 +201,11 @@ public class MemberService {
 		}
 		memberDao.deleteMember(memberId);
 	}
+	public int getTotalCarbonPoint(String memberId) {
+	    return memberDao.getTotalCarbonPoint(memberId);
+	}
+	public int getCommunityTotalCarbon() {
+	    return memberDao.getCommunityTotalCarbon();
+	}
 
 }

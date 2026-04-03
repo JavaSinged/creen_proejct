@@ -26,6 +26,6 @@ public interface StoreDao {
 		    @Param("orderItem") OrderItem orderItem,
 		    @Param("orderId") int orderId
 		);
-
+	int getTotalCarbonPoint(String memberId);
 
 }

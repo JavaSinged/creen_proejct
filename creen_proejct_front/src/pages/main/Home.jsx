@@ -52,7 +52,7 @@ export default function Home() {
     axios
       .get(`${import.meta.env.VITE_BACKSERVER}/stores`)
       .then((res) => {
-        console.log("서버 데이터 확인:", res.data);
+        //console.log("서버 데이터 확인:", res.data);
         // 서버에서 넘어온 배열 데이터를 상태에 저장
         setStoreList(res.data);
       })
@@ -138,9 +138,8 @@ export default function Home() {
           {categories.map((item) => (
             <div
               key={item.name}
-              className={`${styles.category_item} ${
-                selectedCategory === item.name ? styles.active : ""
-              }`}
+              className={`${styles.category_item} ${selectedCategory === item.name ? styles.active : ""
+                }`}
               onClick={() => setSelectedCategory(item.name)}
             >
               <div className={styles.category_img_circle}>

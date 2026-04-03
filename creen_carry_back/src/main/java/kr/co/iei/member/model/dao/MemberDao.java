@@ -39,5 +39,9 @@ public interface MemberDao {
 
 	void deleteMember(String memberId);
 
+	int getTotalCarbonPoint(String memberId);
+
+	int getCommunityTotalCarbon();
+
 
 }

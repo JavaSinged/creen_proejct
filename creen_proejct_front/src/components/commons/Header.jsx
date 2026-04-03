@@ -18,7 +18,7 @@ export default function Header() {
   const { isLogin, user, logout, isLoading } = useContext(AuthContext);
 
   const backHost = import.meta.env.VITE_BACKSERVER;
-  console.log("현재 헤더에 들어온 유저 정보:", user);
+  //console.log("현재 헤더에 들어온 유저 정보:", user);
 
   // 🎨 GreenCarry 전용 Swal 스타일 함수
   const fireStyledSwal = (icon, title, text) => {
