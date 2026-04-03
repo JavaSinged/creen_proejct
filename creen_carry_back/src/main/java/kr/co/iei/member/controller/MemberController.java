@@ -1,7 +1,9 @@
 package kr.co.iei.member.controller;
 
+
 import java.io.File;
 import java.io.IOException;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
+
+import org.springframework.security.core.userdetails.UserDetails;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +38,9 @@ import kr.co.iei.member.model.service.MemberService;
 @CrossOrigin(value = "*") // 리액트 접근 허용
 public class MemberController {
 
+
 	private final EmailSender emailSender;
+
 
 	private final BCryptPasswordEncoder passwordEncoder;
 
@@ -41,6 +49,7 @@ public class MemberController {
 
 	@Autowired
 	private JwtUtil jwtUtil;
+
 
 	MemberController(BCryptPasswordEncoder passwordEncoder, EmailSender emailSender) {
 		this.passwordEncoder = passwordEncoder;
@@ -52,6 +61,7 @@ public class MemberController {
 		List<Member> list = memberService.getMembers();
 		return ResponseEntity.ok(list);
 	}
+
 
 	// 1.로그인기능
 	@PostMapping("/login")
@@ -275,4 +285,36 @@ public class MemberController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+
+
+
+
+	@PostMapping("/delete")
+	public ResponseEntity<?> deleteMember(@RequestBody Map<String, String> requestBody) // 프론트 에서 보낸 {password : password}받기
+	{
+		String memberId = requestBody.get("memberId");
+		String rawPassword = requestBody.get("password");
+		
+		try {
+			// 서비스에 비밀번호 맞는지 확인 후 삭제 진행
+			memberService.deleteMember(memberId, rawPassword);
+			// 성공하면 프론트 response.ok로 넘어감
+			return ResponseEntity.ok().body("회원 탈퇴가 완료되었습니다.");
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		}
+	}
+		@GetMapping("/total-carbon")
+		@CrossOrigin(origins = "http://localhost:5173")
+		public ResponseEntity<Integer> getTotalCarbon(@RequestParam String memberId) {
+			int totalPoint = memberService.getTotalCarbonPoint(memberId); 
+			return ResponseEntity.ok(totalPoint);
+	}
+		@GetMapping("/community-carbon")
+		@CrossOrigin(origins = "http://localhost:5173")
+		public ResponseEntity<Integer> getCommunityCarbon() {
+			int total = memberService.getCommunityTotalCarbon();
+			return ResponseEntity.ok(total);
+	}
 }

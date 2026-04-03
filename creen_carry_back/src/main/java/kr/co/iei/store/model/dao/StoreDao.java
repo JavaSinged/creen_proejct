@@ -24,7 +24,6 @@ public interface StoreDao {
 
 	int insertOrder(Order order);
 
-	int insertOrderDetail(@Param("orderItem") OrderItem orderItem, @Param("orderId") int orderId);
 
 	int insertOrderHistory(@Param("orderId") int orderId, @Param("memberId") String memberId);
 
@@ -35,5 +34,12 @@ public interface StoreDao {
 	List<OrderListResponse> searchOrdersByMemberId(String memberId);
 
 	List<OrderResponse> searchOrderList(String memberId);
+
+	int insertOrderDetail(
+		    @Param("orderItem") OrderItem orderItem,
+		    @Param("orderId") int orderId
+		);
+	int getTotalCarbonPoint(String memberId);
+
 
 }

@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
+import { AuthContext } from "../../../context/AuthContext";
 import styles from "./UserProfile.module.css";
 import Diversity1Icon from '@mui/icons-material/Diversity1';
 import EnergySavingsLeafIcon from '@mui/icons-material/EnergySavingsLeaf';
@@ -7,19 +8,23 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import StorefrontIcon from '@mui/icons-material/Storefront'; // 가게 아이콘
 import Collapse from '@mui/material/Collapse';
+import axios from "axios";
 
 const UserProfile = () => {
+    const { user } = useContext(AuthContext); // 로그인 유저 정보
+    const [point, setPoint] = useState(0);
+    const [communityPoint, setCommunityPoint] = useState(0);
     const carbonSt = {
         title: "커뮤니티가 절약한 탄소",
-        value: "9,999",
+        value: (communityPoint / 1000).toFixed(1),
         unit: "kg",
         subText: "CO2"
     };
     const myCarbonSt = {
         title: "나의 탄소 절감량",
-        value: "9,999",
-        unit: "kg",
-        subText: "이번 달 절감량"
+        value: point.toLocaleString(),
+        unit: "g",
+        subText: "나의 총 실천 기록"
     };
     const FromLastMonth = {
         title: "지난 달 대비",
@@ -28,7 +33,6 @@ const UserProfile = () => {
         subText: "증가"
     };
 
-    const [point, setPoint] = useState(10000);
     const [openEco, setOpenEco] = useState(false);
     const [openHistory, setOpenHistory] = useState(false);
     const [progress, setProgress] = useState(0);
@@ -37,22 +41,50 @@ const UserProfile = () => {
     const toggleHistory = () => setOpenHistory(!openHistory);
 
     /* [ 게이지 바 계산 로직 안내 ]
-       1. 현재 탄소 절감량 (current)과 목표량 (target)을 정의합니다.
-       2. 공식: (현재량 / 목표량) * 100 = 퍼센트(%)
-       3. Math.min(값, 100): 계산된 값이 100을 넘더라도 게이지가 뚫고 나가지 않게 최대치를 100으로 고정합니다.
+        1. 현재 탄소 절감량 (current)과 목표량 (target)을 정의합니다.
+        2. 공식: (현재량 / 목표량) * 100 = 퍼센트(%)
+        3. Math.min(값, 100): 계산된 값이 100을 넘더라도 게이지가 뚫고 나가지 않게 최대치를 100으로 고정합니다.
     */
+
     useEffect(() => {
-        const targetPercent = 75;
-
+        const fetchUserPoint = async () => {
+            if (user?.memberId) {
+                try {
+                    const token = localStorage.getItem("accessToken");
+                    const response = await axios.get(
+                        `${import.meta.env.VITE_BACKSERVER}/member/total-carbon`,
+                        {
+                            params: { memberId: user.memberId },
+                            headers: { Authorization: `Bearer ${token}` }
+                        }
+                    );
+                    setPoint(response.data);
+                } catch (err) {
+                    console.error("포인트 로딩 실패", err);
+                }
+            }
+            try {
+                const commRes = await axios.get(
+                    `${import.meta.env.VITE_BACKSERVER}/member/community-carbon`
+                );
+                setCommunityPoint(commRes.data);
+            } catch (err) {
+                console.error("커뮤니티 포인트 로딩 실패", err);
+            }
+        };
+        fetchUserPoint();
+    }, [user]);
+    useEffect(() => {
+        const targetPoint = 10000;
+        const calculatedPercent = Math.min((point / targetPoint) * 100, 100);
         const timer = setTimeout(() => {
-            setProgress(targetPercent);
+            setProgress(calculatedPercent);
         }, 100);
-
         return () => clearTimeout(timer);
-    }, []);
+    }, [point]);
+
     return (
         <div className={styles.right}>
-            {/* 상단 3개 통계 박스 */}
             <section className={styles.right_main}>
                 <div className={styles.icon_content}>
                     <div className={styles.icon}><Diversity1Icon /></div>
@@ -84,19 +116,19 @@ const UserProfile = () => {
                         <div className={styles.gauge_fill} style={{ width: `${progress}%` }}></div>
                     </div>
                     <div className={styles.gauge_info}>
-                        <span>🌳 나무 10 그루 상당</span>
+                        {/* 실제 포인트에 따른 나무 그루 수 계산 적용 */}
+                        <span>🌳 나무 {(point / 6600).toFixed(2)} 그루 상당</span>
                     </div>
                 </div>
             </section>
 
-            {/* 하단 에코 포인트 영역 */}
+            {/* 하단 에코 */}
             <section className={styles.right_sub}>
                 <div className={styles.my_point}>
                     <span>에코 포인트</span>
                     <p>보유 포인트 : {point.toLocaleString()}P</p>
                 </div>
 
-                {/* 1. 에코 포인트란? (Collapse 적용) */}
                 <div className={styles.collapse_wrapper}>
                     <div className={styles.collapse_header} onClick={toggleEco}>
                         <p>에코 포인트란?</p>
@@ -114,7 +146,6 @@ const UserProfile = () => {
                     </Collapse>
                 </div>
 
-                {/* 2. 적립 내역 (Collapse 적용) */}
                 <div className={styles.collapse_wrapper}>
                     <div className={styles.collapse_header} onClick={toggleHistory}>
                         <p>적립 내역 <span className={styles.history_sub}>최근 3개월 적립 내역</span></p>
@@ -124,40 +155,12 @@ const UserProfile = () => {
                     </div>
                     <Collapse in={openHistory} timeout="auto" unmountOnExit>
                         <div className={styles.history_list}>
-                            {/* 리스트 아이템 1 */}
                             <div className={styles.history_item}>
                                 <div className={styles.history_left}>
                                     <StorefrontIcon className={styles.store_icon} />
-                                    <span>핵밥 : 핵밥 정식</span>
+                                    <span>친환경 배달 실천</span>
                                 </div>
-                                <span className={styles.plus_point}>+ 20P</span>
-                            </div>
-                            {/* 리스트 아이템 2 */}
-                            <div className={styles.history_item}>
-                                <div className={styles.history_left}>
-                                    <StorefrontIcon className={styles.store_icon} />
-                                    <span>핵밥 : 핵밥 정식</span>
-                                    <span className={styles.history_date}>2026 - 01 - 03</span>
-                                </div>
-                                <span className={styles.plus_point}>+ 20P</span>
-                            </div>
-                            {/* 리스트 아이템 3 */}
-                            <div className={styles.history_item}>
-                                <div className={styles.history_left}>
-                                    <StorefrontIcon className={styles.store_icon} />
-                                    <span>핵밥 : 핵밥 정식</span>
-                                    <span className={styles.history_date}>2026 - 01 - 03</span>
-                                </div>
-                                <span className={styles.plus_point}>+ 20P</span>
-                            </div>
-                            {/* 리스트 아이템 4 */}
-                            <div className={styles.history_item}>
-                                <div className={styles.history_left}>
-                                    <StorefrontIcon className={styles.store_icon} />
-                                    <span>핵밥 : 핵밥 정식</span>
-                                    <span className={styles.history_date}>2026 - 01 - 03</span>
-                                </div>
-                                <span className={styles.plus_point}>+ 20P</span>
+                                <span className={styles.plus_point}>기록 확인 중...</span>
                             </div>
                         </div>
                     </Collapse>
