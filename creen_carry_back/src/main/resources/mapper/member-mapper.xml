@@ -84,7 +84,7 @@
 		)
 	</insert>
 
-	<select id="storeDupCheck" parameterType="_int"
+	<select id="storeDupCheck" parameterType="String"
 		resultType="member">
 		SELECT * FROM MEMBER_TBL WHERE STORE_OWNER_NO = #{storeOwnerNo}
 	</select>
