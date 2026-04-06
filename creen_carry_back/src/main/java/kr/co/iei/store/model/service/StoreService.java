@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -89,10 +90,11 @@ public class StoreService {
 
 
 	public List<OrderResponse> searchOrderList(String memberId){
-	    return storeDao.searchOrderList(memberId);
+		List<OrderResponse> list = storeDao.searchOrderList(memberId);
+	System.out.println(list);
+		return list;
+
 	}
-
-
 
 	public Integer getStoreId(String memberId) {
 		Integer storeId = storeDao.getStoreId(memberId);
@@ -177,28 +179,6 @@ public class StoreService {
 	    }
 
 	    return 1;
-	}
-	@Transactional
-	public int cancleOrder(Integer orderId) {
-		int result = storeDao.cancelOrder(orderId);
-		return result;
-	}
-
-	public int[] selectOrderList(String memberId) {
-		int[] arr = storeDao.selectOrderList(memberId);
-		return arr;
-
-	}
-	@Transactional
-	public int cancleOrder(Integer orderId) {
-		int result = storeDao.cancelOrder(orderId);
-		return result;
-	}
-
-	public int[] selectOrderList(String memberId) {
-		int[] arr = storeDao.selectOrderList(memberId);
-		return arr;
-
 	}
 
 }
