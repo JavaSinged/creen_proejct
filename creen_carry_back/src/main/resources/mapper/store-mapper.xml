@@ -63,7 +63,7 @@
 		ASC, o.option_no ASC
 	</select>
 
-	<insert id="insertOrder" parameterType="order">
+<insert id="insertOrder" parameterType="order">
 
 		<selectKey keyProperty="orderId" resultType="int"
 			order="BEFORE">
@@ -115,6 +115,7 @@
 		VALUES (#{orderId},
 		#{memberId})
 	</insert>
+
 
 	<select id="searchOrderItems" parameterType="int"
 		resultType="orderItem">
