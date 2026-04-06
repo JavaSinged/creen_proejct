@@ -40,6 +40,6 @@ public class OrderResponse {
 	private String deliveryAddress;// 배달 주소
 
 	// 6. 리뷰 정보
-	private int hasReview; // 리뷰 작성 여부 (0 또는 1)
+	private Integer hasReview; // 리뷰 작성 여부 (0 또는 1)
 
 }

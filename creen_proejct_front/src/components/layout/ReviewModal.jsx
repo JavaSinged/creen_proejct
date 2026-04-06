@@ -74,11 +74,7 @@ export default function ReviewModal({ order, onClose }) {
         {/* 상단 주문 정보 카드 */}
         <div className={styles.order_card}>
           <img
-            src={
-              order.menuImage
-                ? `${import.meta.env.VITE_BACKSERVER}${order.menuImage}`
-                : "/img/no-image.png"
-            }
+            src={order.menuImage}
             alt="menu"
             className={styles.order_img}
             onError={(e) => {
