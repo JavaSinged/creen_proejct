@@ -57,8 +57,9 @@ public class StoreService {
                     throw new RuntimeException("주문 상세 실패");
                 }
             }
-            int setPoint = storeDao.updatePoint(order);
-            int addReduceCarbon = storeDao.addReduceCarbon(orderId);
+            // 임시 주석
+//            int setPoint = storeDao.updatePoint(order);
+//            int addReduceCarbon = storeDao.addReduceCarbon(orderId);
         }
 
         // 2. 주문 이력
