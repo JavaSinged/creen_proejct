@@ -166,6 +166,7 @@
 		o.order_id AS orderId,
 		o.store_id AS storeId, s.store_name AS storeName,
 		o.order_status AS orderStatus,
+		o.get_Point as getPoint,
 		TO_CHAR(olm.reg_date, 'YYYY-MM-DD') AS orderDate,
 
 		-- 1. 합계 정보 (금액, 수량, 탄소)

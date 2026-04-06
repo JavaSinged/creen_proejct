@@ -168,7 +168,7 @@ const UserOrderListPage = () => {
 
                 <div className={styles.carbonValueWrap}>
                   <strong className={styles.carbonValue}>
-                    {(Number(order.orderCarbon ?? 0) / 1000).toFixed(3)} kg
+                    {Number(order.getPoint ?? 0).toFixed(1)} g
                   </strong>
                   <span>CO2</span>
                 </div>

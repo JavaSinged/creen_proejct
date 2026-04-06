@@ -81,7 +81,9 @@ public class StoreService {
 	}
 
 	public List<OrderResponse> searchOrderList(String memberId){
-	    return storeDao.searchOrderList(memberId);
+		List<OrderResponse> list = storeDao.searchOrderList(memberId);
+	System.out.println(list);
+		return list;
 	}
 
 }

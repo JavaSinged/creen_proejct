@@ -35,7 +35,7 @@ public class OrderResponse {
 	private List<OrderItem> items; // 전체 아이템 리스트 (필요 시)
 
 	// 5. 🌟 탄소 및 주소 정보
-	private Integer orderCarbon; // 탄소 절감량 (0.000kg 방지)
+	private Double orderCarbon; // 탄소 절감량 (0.000kg 방지)
 	private String storeAddress; // 매장 주소
 	private String deliveryAddress;// 배달 주소
 
