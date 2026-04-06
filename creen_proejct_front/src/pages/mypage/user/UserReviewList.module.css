@@ -1,0 +1,131 @@
+.container {
+  width: 100%;
+  padding: 20px;
+}
+
+.filter_row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.filter_row input {
+  border: 1px solid #246337;
+  border-radius: 20px;
+  padding: 5px 15px;
+  color: #246337;
+}
+
+.review_card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+  margin-bottom: 25px;
+}
+
+.card_header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.store_name {
+  font-weight: bold;
+  margin-right: 10px;
+}
+.menu_detail,
+.order_date {
+  color: #666;
+  font-size: 0.85rem;
+  margin-left: 10px;
+}
+
+.delete_btn {
+  background: #246337;
+  color: white;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.card_body {
+  display: flex;
+  gap: 20px;
+}
+
+.review_img {
+  width: 180px;
+  height: 180px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.chat_area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* 말말풍선 공통 */
+.bubble_content {
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  position: relative;
+  line-height: 1.5;
+}
+
+/* 사용자 리뷰 스타일 */
+.user_bubble {
+  align-self: flex-start;
+  width: 90%;
+}
+.user_top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+.avatar {
+  width: 30px;
+  height: 30px;
+  background: #ddd;
+  border-radius: 50%;
+}
+.user_bubble .bubble_content {
+  background: #f0f0f0;
+}
+
+/* 사장님 답글 스타일 (그린톤) */
+.owner_bubble {
+  align-self: flex-end;
+  width: 90%;
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+.owner_bubble .bubble_content {
+  background: #e8f5e9;
+  flex: 1;
+}
+.avatar_owner {
+  width: 30px;
+  height: 30px;
+  background: #bbb;
+  border-radius: 50%;
+}
+.reply_date {
+  display: block;
+  text-align: right;
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 5px;
+}

@@ -361,4 +361,9 @@ public class MemberController {
             return ResponseEntity.internalServerError().body("리뷰 등록 중 서버 오류가 발생했습니다.");
         }
     }
+    @GetMapping("/myReviewList/{memberId}")
+    public ResponseEntity<?> getMyReviewList(@PathVariable String memberId) {
+        List<Review> list = memberService.selectReviewList(memberId);
+        return ResponseEntity.ok(list);
+    }
 }

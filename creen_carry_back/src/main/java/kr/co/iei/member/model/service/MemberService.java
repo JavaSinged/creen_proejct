@@ -287,4 +287,9 @@ public class MemberService {
 		}
 	}
 
+	public List<Review> selectReviewList(String memberId) {
+		List<Review> list = memberDao.selectReviewList(memberId);
+		return list;
+	}
+
 }

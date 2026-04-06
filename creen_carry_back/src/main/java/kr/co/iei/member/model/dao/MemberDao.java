@@ -53,4 +53,6 @@ public interface MemberDao {
 
     int insertReview(Review review);
 
+	List<Review> selectReviewList(String memberId);
+
 }

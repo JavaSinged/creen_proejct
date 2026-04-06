@@ -118,10 +118,12 @@
 		SELECT
 		NVL(SUM(get_point), 0)
 		FROM order_tbl
-		WHERE member_id = #{memberId}
+		WHERE member_id =
+		#{memberId}
 	</select>
 	<select id="getCommunityTotalCarbon" resultType="int">
-		SELECT NVL(SUM(get_point), 0) FROM order_tbl
+		SELECT
+		NVL(SUM(get_point), 0) FROM order_tbl
 	</select>
 
 
@@ -136,32 +138,65 @@
 
 	<select id="checkOrderOwner" resultType="int">
 		SELECT COUNT(*)
-		FROM order_tbl
+		FROM
+		order_tbl
 		WHERE order_id = #{orderId} AND member_id = #{memberId}
 	</select>
 
 	<select id="isAlreadyReviewed" resultType="int">
 		SELECT COUNT(*)
-		FROM review_tbl
+		FROM
+		review_tbl
 		WHERE order_id = #{orderId}
 	</select>
 
-	<insert id="insertReview" parameterType="kr.co.iei.member.model.vo.Review">
-    INSERT INTO review_tbl (
-        order_id,          member_id,
-        review_thumb,      review_content,
-        review_rating,
-        review_date,
-        store_id           ) VALUES (
-        #{orderId},
-        #{memberId},
-        #{reviewThumb, jdbcType=VARCHAR}, #{reviewContent},
-        #{reviewRating},
-        SYSDATE,
-        #{storeId}
-    )
-</insert>
+	<insert id="insertReview"
+		parameterType="kr.co.iei.member.model.vo.Review">
+		INSERT INTO review_tbl (
+		order_id, member_id,
+		review_thumb, review_content,
+		review_rating,
+		review_date,
+		store_id )
+		VALUES (
+		#{orderId},
+		#{memberId},
+		#{reviewThumb, jdbcType=VARCHAR},
+		#{reviewContent},
+		#{reviewRating},
+		SYSDATE,
+		#{storeId}
+		)
+	</insert>
+	<select id="selectReviewList" resultType="Review">
+		SELECT
+		r.order_id AS orderId,
+		s.store_name AS storeName,
+		r.review_content AS reviewContent,
+		r.review_rating AS reviewRating,
+		r.review_thumb AS reviewThumb,
+		TO_CHAR(r.review_date, 'YYYY-MM-DD') AS reviewDate,
 
+		(SELECT SUM(price * quantity)
+		FROM order_detail
+		WHERE order_id = r.order_id) AS totalPrice,
+
+		(SELECT m.menu_name
+		FROM order_detail od
+		JOIN menu_tbl m ON od.menu_id = m.menu_id
+		WHERE od.order_id = r.order_id
+		AND ROWNUM = 1) AS menuName,
+
+		(SELECT COUNT(*) - 1
+		FROM order_detail
+		WHERE order_id = r.order_id) AS extraCount
+
+		FROM review_tbl r
+		JOIN store_tbl s ON r.store_id = s.store_id
+		-- ❌ LEFT JOIN review_comment_tbl rc 부분 삭제
+		WHERE r.member_id = #{memberId}
+		ORDER BY r.review_date DESC
+	</select>
 
 
 
