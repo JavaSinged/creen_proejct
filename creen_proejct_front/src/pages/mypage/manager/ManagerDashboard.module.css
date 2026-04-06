@@ -1,0 +1,292 @@
+/* 전체 컨테이너 */
+.managerContainer {
+  padding: 40px;
+  background-color: #f8faf8; /* 연한 그리너리 배경 */
+  min-height: 100vh;
+  font-family:
+    "Pretendard",
+    -apple-system,
+    sans-serif;
+}
+
+/* 상단 탭 영역 */
+.tabWrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 35px;
+}
+
+.tabContainer {
+  position: relative;
+  display: flex;
+  width: 340px;
+  background: #ffffff;
+  border: 1px solid #eee;
+  border-radius: 50px;
+  padding: 5px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.tabButton {
+  position: relative;
+  flex: 1;
+  z-index: 2;
+  border: none;
+  background: none;
+  padding: 12px 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #999;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: color 0.3s ease;
+}
+
+.tabIcon {
+  width: 14px;
+  height: 14px;
+  background-color: #ddd;
+  border-radius: 3px;
+}
+
+.activeText {
+  color: #fff !important;
+}
+
+.activeText .tabIcon {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* 슬라이딩 인디케이터 */
+.slideIndicator {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: calc(50% - 5px);
+  height: calc(100% - 10px);
+  background: #2e7d32; /* GreenCarry 브랜드 컬러 */
+  border-radius: 50px;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+}
+
+.slideIndicator.left {
+  transform: translateX(0);
+}
+.slideIndicator.right {
+  transform: translateX(100%);
+}
+
+/* 대시보드 그리드 (2열 레이아웃) */
+.contentGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+}
+
+/* 카드 스타일 */
+.chartCard {
+  background: #fff;
+  border-radius: 24px;
+  padding: 32px;
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.cardHeader span {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #666;
+}
+
+.viewMore {
+  background: none;
+  border: none;
+  color: #2e7d32;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mainValue {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #222;
+  margin-bottom: 5px;
+}
+
+.trendText {
+  font-size: 0.9rem;
+  color: #4caf50;
+  margin-bottom: 20px;
+}
+
+/* 차트 내부 중앙 라벨링 */
+.chartWrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+  height: 200px;
+  width: 100%;
+}
+
+.chartCenterLabel {
+  position: absolute;
+  text-align: center;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.reviewCenterLabel {
+  position: absolute;
+  top: 55%;
+  text-align: center;
+}
+
+.chartCenterLabel p,
+.reviewCenterLabel p {
+  font-size: 0.85rem;
+  color: #999;
+  margin: 0;
+}
+
+.chartCenterLabel strong,
+.reviewCenterLabel strong {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+/* 배달 경로 프로그레스 바 영역 */
+.deliveryProgressSection {
+  margin-top: 25px;
+}
+
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #444;
+}
+
+.progressRow {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.label {
+  width: 100px; /* 도보 & 자전거를 위해 너비 확보 */
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.progressBarBg {
+  flex: 1;
+  height: 10px;
+  background: #f0f2f0;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 1s ease-out;
+}
+
+.percent {
+  width: 40px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #333;
+  text-align: right;
+}
+
+/* 리뷰 범례 그리드 */
+.legendGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 15px;
+  padding: 20px;
+  background: #fcfdfc;
+  border-radius: 16px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.legendName {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.legendPercent {
+  margin-left: auto;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #444;
+}
+
+/* 회원 문의 내역 뷰 */
+.inquiryWrapper {
+  background: #fff;
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+}
+
+.inquiryTitle {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 30px;
+}
+
+.emptyState {
+  padding: 100px 0;
+  text-align: center;
+  color: #bbb;
+  font-size: 1.1rem;
+  border: 2px dashed #eee;
+  border-radius: 20px;
+}
+
+/* 반응형 처리 */
+@media (max-width: 768px) {
+  .contentGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .managerContainer {
+    padding: 20px;
+  }
+
+  .tabWrapper {
+    justify-content: center;
+  }
+}
