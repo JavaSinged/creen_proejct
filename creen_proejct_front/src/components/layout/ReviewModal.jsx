@@ -174,7 +174,7 @@ export default function ReviewModal({ order, onClose }) {
             <div className={styles.stars}>
               {[1, 2, 3, 4, 5].map((num) => (
                 <span
-                  key={num}
+                  key={`star-rating-${num}`}
                   onClick={() => setRating(num)}
                   onMouseEnter={() => setHover(num)}
                   onMouseLeave={() => setHover(0)}

@@ -89,7 +89,7 @@ public class StoreService {
 	public List<OrderResponse> searchOrderList(String memberId){
 		List<OrderResponse> list = storeDao.searchOrderList(memberId);
 	System.out.println(list);
-		return list;
+		return list;}
 
 
 

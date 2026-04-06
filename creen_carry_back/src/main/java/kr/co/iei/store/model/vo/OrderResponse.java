@@ -26,10 +26,6 @@ public class OrderResponse {
 
 	// 3. 🌟 포인트 및 배달 정보
 
-	private String storeName;
-	private Integer orderId;
-	private Integer totalPrice;
-
 	private Integer usedPoint;
 	private Integer getPoint;
 	private Integer deliveryPrice;
@@ -50,9 +46,7 @@ public class OrderResponse {
 	// 6. 리뷰 정보
 	private Integer hasReview; // 리뷰 작성 여부 (0 또는 1)
 
-	private List<OrderItem> items;
-	private Integer orderStatus;
-	private String orderDate;
+
 	private Double totalReduceCarbon;
 
 
