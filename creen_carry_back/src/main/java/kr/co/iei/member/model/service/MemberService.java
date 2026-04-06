@@ -220,5 +220,9 @@ public class MemberService {
         return memberDao.updateAddress(member);
     }
 
+	public int checkActiveOrder(String memberId) {
+		return memberDao.checkActiveOrder(memberId);
+	}
+
 
 }
