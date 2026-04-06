@@ -41,5 +41,7 @@ public interface StoreDao {
 		);
 	int getTotalCarbonPoint(String memberId);
 
+	Integer getStoreId(String memberId);
+
 
 }

@@ -84,4 +84,9 @@ public class StoreService {
 	    return storeDao.searchOrderList(memberId);
 	}
 
+	public Integer getStoreId(String memberId) {
+		Integer storeId = storeDao.getStoreId(memberId);
+		return storeId;
+	}
+
 }

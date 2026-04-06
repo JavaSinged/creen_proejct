@@ -24,6 +24,7 @@ public class StoreController {
     @Autowired
     private StoreService storeService;
 
+    
     @GetMapping
     public ResponseEntity<?> getStores() {
         List<Store> list = storeService.selectAllStore();
@@ -72,5 +73,11 @@ public class StoreController {
     public ResponseEntity<?> searchOrderList(@PathVariable String memberId){
         List<OrderResponse> list = storeService.searchOrderList(memberId);
         return ResponseEntity.ok(list);
+    }
+    @GetMapping("/myStore")
+    public ResponseEntity<?> getStoreId(@RequestParam("memberId") String memberId){
+    	Integer storeId = storeService.getStoreId(memberId);
+    	System.out.println(storeId);
+    	return ResponseEntity.ok(storeId);
     }
 }

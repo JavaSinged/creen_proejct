@@ -23,7 +23,7 @@ const ManagerMenuList = () => {
 
     axios
       .get(
-        `${import.meta.env.VITE_BACKSERVER}/store/myStore?memberId=${memberId}`,
+        `${import.meta.env.VITE_BACKSERVER}/stores/myStore?memberId=${memberId}`,
       )
       .then((Res) => {
         const fetchedStoreId = Res.data.storeId;

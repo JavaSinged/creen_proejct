@@ -210,4 +210,9 @@
         WHERE o.member_id = #{memberId}
         ORDER BY o.order_id DESC
     </select>
+    <select id="getStoreId" parameterType="String">
+    	select store_id from store_tbl where member_id= #{memberId}
+    </select>
+    
+    
 </mapper>
