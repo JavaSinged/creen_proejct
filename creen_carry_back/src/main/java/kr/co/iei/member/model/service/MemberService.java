@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +15,8 @@ import kr.co.iei.member.model.dao.MemberDao;
 
 import kr.co.iei.member.model.vo.Member;
 import kr.co.iei.utils.EmailSender;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 public class MemberService {
@@ -26,6 +28,12 @@ public class MemberService {
 
 	@Autowired
 	private EmailSender emailSender;
+
+	@Value("${naver.geocode.client.id}")
+	private String naverClientId;
+
+	@Value("${naver.geocode.client.secret}")
+	private String naverClientSecret;
 
 	public Member loginMember(Member member) {
 		// 1. 아이디 + 등급으로 DB 조회
@@ -203,16 +211,53 @@ public class MemberService {
 		}
 		memberDao.deleteMember(memberId);
 	}
+
 	public int getTotalCarbonPoint(String memberId) {
 	    return memberDao.getTotalCarbonPoint(memberId);
 	}
+
 	public int getCommunityTotalCarbon() {
 	    return memberDao.getCommunityTotalCarbon();
 	}
 
     public int updateAddress(Member member) {
-        return memberDao.updateAddress(member);
+		setCoordinatesFromAddress(member);
+		return memberDao.updateAddress(member);
     }
 
+	// 네이버 API 호출 로직 (private으로 분리해서 깔끔하게 관리)
+	private void setCoordinatesFromAddress(Member member) {
+		String address = member.getMemberAddr();
+		System.out.println("ID 체크: " + (naverClientId != null ? naverClientId.substring(0, 3) : "NULL"));
+		System.out.println("Secret 체크: " + (naverClientSecret != null ? naverClientSecret.substring(0, 3) : "NULL"));
+		if (address == null || address.trim().isEmpty()) return;
+
+		try {
+			String encodedAddress = java.net.URLEncoder.encode(address, "UTF-8");
+			String url = "https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=" + encodedAddress;
+
+			org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+			headers.set("X-NCP-APIGW-API-KEY-ID", naverClientId);
+			headers.set("X-NCP-APIGW-API-KEY", naverClientSecret);
+
+			org.springframework.http.HttpEntity<String> entity = new org.springframework.http.HttpEntity<>(headers);
+			org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
+
+			org.springframework.http.ResponseEntity<String> response =
+					restTemplate.exchange(url, org.springframework.http.HttpMethod.GET, entity, String.class);
+
+			ObjectMapper objectMapper = new ObjectMapper();
+			JsonNode root = objectMapper.readTree(response.getBody());
+			JsonNode addresses = root.path("addresses");
+
+			if (addresses.isArray() && addresses.size() > 0) {
+				JsonNode firstResult = addresses.get(0);
+				member.setLongitude(firstResult.path("x").asDouble());
+				member.setLatitude(firstResult.path("y").asDouble());
+			}
+		} catch (Exception e) {
+			e.printStackTrace(); // 에러 로그 확인용
+		}
+	}
 
 }
