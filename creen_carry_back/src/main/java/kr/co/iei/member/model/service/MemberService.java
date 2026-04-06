@@ -163,6 +163,12 @@ public class MemberService {
 	}
 	@Transactional
 	public int insertUser(Member member) {
+		String rawPw = member.getMemberPw();
+		
+		String encPw = passwordEncoder.encode(rawPw);
+		
+		member.setMemberPw(encPw);
+		
 		int result = memberDao.insertUser(member);
 		return result;
 	}
