@@ -1,19 +1,22 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import styles from "./UserOrderList.module.css";
+import ReviewModal from "../../../components/layout/ReviewModal"; // 🌟 1. 모달 컴포넌트 임포트
 
 const UserOrderListPage = () => {
-  const navigate = useNavigate();
   const [orderList, setOrderList] = useState([]);
   const memberId = localStorage.getItem("memberId");
+
+  // 🌟 2. 모달 제어를 위한 상태 추가
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   useEffect(() => {
     axios
       .get(`${import.meta.env.VITE_BACKSERVER}/stores/orders/${memberId}`)
       .then((res) => {
         console.log(res.data);
-        setOrderList(res.data ?? []);
+        setOrderList(res.data);
       })
       .catch((err) => {
         console.log(err);
@@ -32,30 +35,45 @@ const UserOrderListPage = () => {
   const totalRecentCarbon = useMemo(() => {
     return sortedOrders
       .slice(0, 5)
-      .reduce((sum, order) => sum + Number(order.orderCarbon ?? 0), 0);
+      .reduce((sum, order) => sum + Number(order.getPoint ?? 0), 0);
   }, [sortedOrders]);
 
-  const canWriteReview = (orderDate) => {
-    if (!orderDate) return false;
+  // 🌟 3. 리뷰 작성 조건 정교화 (배달완료 + 3일이내 + 리뷰 미작성)
+  const canWriteReview = (order) => {
+    // console.log(`주문번호 ${order.orderId}의 데이터:`, order);
 
+    // 1. 배달완료(5)가 아니면 불가
+    if (order.orderStatus !== 5) return false;
+
+    // 2. 이미 리뷰를 썼다면 불가
+    if (order.hasReview && order.hasReview > 0) return false;
+
+    // --- 🚨 여기가 핵심! 날짜 계산 통째로 무시하기 🚨 ---
+    /*
+    if (!order.orderDate) return false;
     const now = new Date();
-    const orderedAt = new Date(orderDate);
+    const orderedAt = new Date(order.orderDate);
     const diff = now.getTime() - orderedAt.getTime();
     const threeDays = 3 * 24 * 60 * 60 * 1000;
 
     return diff >= 0 && diff <= threeDays;
+    */
+
+    // 3. 배달완료(5)이고 리뷰 안 썼으면 무조건 띄우기!
+    return true;
   };
 
-  const moveReviewPage = (orderId) => {
-    navigate(`/review/write?orderId=${orderId}`);
+  // 🌟 4. 페이지 이동 대신 모달 열기 함수로 변경
+  const openReviewModal = (order) => {
+    setSelectedOrder(order);
+    setIsModalOpen(true);
   };
-
   return (
     <div className={styles.page}>
       <div className={styles.topSummary}>
         <p className={styles.summaryLabel}>총 탄소 절감량</p>
         <h2 className={styles.summaryValue}>
-          {(totalRecentCarbon / 1000).toFixed(3)} kg CO2
+          {totalRecentCarbon.toFixed(1)} g CO2
         </h2>
         <p className={styles.summaryDesc}>
           지난 5건의 주문으로 절감한 탄소량 입니다
@@ -64,7 +82,8 @@ const UserOrderListPage = () => {
 
       <div className={styles.orderListWrap}>
         {sortedOrders.map((order) => {
-          const reviewVisible = canWriteReview(order.orderDate);
+          // 파라미터를 order 객체 전체로 변경
+          const reviewVisible = canWriteReview(order);
 
           return (
             <div key={order.orderId} className={styles.orderCard}>
@@ -91,12 +110,21 @@ const UserOrderListPage = () => {
                     {getOrderStatusText(order.orderStatus)}
                   </span>
 
+                  {/* 🌟 5. 조건에 맞춰 리뷰 버튼 렌더링 */}
                   {reviewVisible ? (
                     <button
                       className={styles.reviewBtn}
-                      onClick={() => moveReviewPage(order.orderId)}
+                      onClick={() => openReviewModal(order)}
                     >
                       리뷰 작성 (3일 이내)
+                    </button>
+                  ) : order.hasReview > 0 ? (
+                    <button
+                      className={styles.reviewBtn}
+                      disabled
+                      style={{ backgroundColor: "#ccc", cursor: "not-allowed" }}
+                    >
+                      리뷰 작성 완료
                     </button>
                   ) : null}
                 </div>
@@ -106,8 +134,8 @@ const UserOrderListPage = () => {
                 <div className={styles.infoBlock}>
                   <p className={styles.infoTitle}>주문 정보</p>
                   <p>
-                    {order.quantity}개{" "}
-                    {Number(order.price ?? 0).toLocaleString()}원
+                    {order.totalCount}개{" "}
+                    {Number(order.totalPrice ?? 0).toLocaleString()}원
                   </p>
                 </div>
 
@@ -139,7 +167,7 @@ const UserOrderListPage = () => {
 
                 <div className={styles.carbonValueWrap}>
                   <strong className={styles.carbonValue}>
-                    {(Number(order.orderCarbon ?? 0) / 1000).toFixed(3)} kg
+                    {Number(order.getPoint ?? 0).toFixed(1)} g
                   </strong>
                   <span>CO2</span>
                 </div>
@@ -148,23 +176,37 @@ const UserOrderListPage = () => {
           );
         })}
       </div>
+
+      {/* 🌟 6. 모달 컴포넌트 마운트 (isModalOpen이 true일 때만 렌더링) */}
+      {isModalOpen && selectedOrder && (
+        <ReviewModal
+          order={selectedOrder}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
     </div>
   );
 };
 
 export default UserOrderListPage;
 
-// 주문상태 텍스트
+// 🛠️ 새로 알려주신 주문상태 코드로 완벽 업데이트!
 const getOrderStatusText = (status) => {
   switch (status) {
     case 0:
-      return "주문접수";
+      return "결제대기";
     case 1:
-      return "조리중";
+      return "접수대기";
     case 2:
-      return "배달중";
+      return "주문접수";
     case 3:
+      return "조리중";
+    case 4:
+      return "배달중";
+    case 5:
       return "배달완료";
+    case 9:
+      return "주문취소";
     default:
       return "상태확인중";
   }

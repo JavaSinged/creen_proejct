@@ -21,7 +21,10 @@ const PaymentPage = () => {
   const phone = /^010-\d{4}-\d{4}$/;
   const [availableEcoPoint, setAvailableEcoPoint] = useState(0);
   const cartList = useCartStore((state) => state.cart);
-  const totalCarbon = cartList.reduce((sum, item) => sum + item.carbonSaved, 0);
+  const deliveryType = deliveryPrice === 0 ? 1 : deliveryPrice === 1000 ? 2 : 3;
+  const deliveryCarbon = deliveryType === 3 ? 0 : 300;
+  const totalCarbon =
+    cartList.reduce((sum, item) => sum + item.carbonSaved, 0) + deliveryCarbon;
   const { setSuperTotalPrice, setDeilveryPrice } = useCartStore();
   const memberId = localStorage.getItem("memberId");
   const storeId = useCartStore((state) => state.storeId);
@@ -44,7 +47,7 @@ const PaymentPage = () => {
     memberId: memberId, // 로그인 정보에서 가져오기
     storeId: storeId, // 현재 상점 ID
     usedPoint: ecoPoint,
-    deliveryType: deliveryPrice === 0 ? 1 : deliveryPrice === 1000 ? 2 : 3,
+    deliveryType: deliveryType,
     items: cartList.map((item) => ({
       menuId: Number(item.menuId),
       quantity: item.quantity,
