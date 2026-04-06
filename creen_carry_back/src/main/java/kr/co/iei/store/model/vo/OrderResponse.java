@@ -1,5 +1,6 @@
 package kr.co.iei.store.model.vo;
 
+import java.sql.Date;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class OrderResponse {
+
 	// 1. 기본 주문 정보
 	private Integer orderId;
 	private String orderDate;
@@ -23,10 +25,16 @@ public class OrderResponse {
 	private Integer extraCount; // "메뉴명 외 N건"의 N
 
 	// 3. 🌟 포인트 및 배달 정보
+
+	private String storeName;
+	private Integer orderId;
+	private Integer totalPrice;
+
 	private Integer usedPoint;
 	private Integer getPoint;
 	private Integer deliveryPrice;
 	private Integer deliveryType;
+
 
 	// 4. 🌟 메뉴 상세 정보 (리뷰 모달 및 목록용)
 	private String menuName; // 대표 메뉴 이름
@@ -41,5 +49,11 @@ public class OrderResponse {
 
 	// 6. 리뷰 정보
 	private Integer hasReview; // 리뷰 작성 여부 (0 또는 1)
+
+	private List<OrderItem> items;
+	private Integer orderStatus;
+	private String orderDate;
+	private Double totalReduceCarbon;
+
 
 }
