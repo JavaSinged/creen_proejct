@@ -106,10 +106,11 @@
 		where member_email=#{memberEmail}
 	</select>
 
-	<delete id="deleteMember">
-		DELETE FROM MEMBER_TBL
+	<update id="deleteMember">
+		update member_tbl
+		set member_status = 2
 		WHERE MEMBER_ID = #{memberId}
-	</delete>
+	</update>
 	<select id="getTotalCarbonPoint" parameterType="string" resultType="int">
     	SELECT 
         NVL(SUM(get_point), 0) 
