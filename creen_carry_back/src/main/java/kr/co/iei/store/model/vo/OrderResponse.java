@@ -1,5 +1,6 @@
 package kr.co.iei.store.model.vo;
 
+import java.sql.Date;
 import java.util.List;
 
 import lombok.AllArgsConstructor;

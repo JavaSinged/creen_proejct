@@ -4,6 +4,7 @@ import kr.co.iei.store.model.vo.Menu;
 import kr.co.iei.store.model.vo.MenuOption;
 import kr.co.iei.store.model.vo.Order;
 import kr.co.iei.store.model.vo.OrderItem;
+import kr.co.iei.store.model.vo.OrderListObject;
 import kr.co.iei.store.model.vo.OrderListResponse;
 import kr.co.iei.store.model.vo.OrderResponse;
 import kr.co.iei.store.model.vo.Store;
@@ -40,6 +41,24 @@ public interface StoreDao {
 		    @Param("orderId") int orderId
 		);
 	int getTotalCarbonPoint(String memberId);
+
+	Integer selectMemberPoint(String memberId);
+
+	int updatePoint(Order order);
+
+	int updateOrderStatus(Integer orderId);
+
+	int addReduceCarbon(Integer orderId);
+
+	Menu selectAllMenu(Integer menuId);
+
+	Menu selectMenu(Integer menuId);
+
+	int cancelOrder(Integer orderId);
+
+	OrderListObject selectOrderListObject(String memberId);
+
+	int[] selectOrderList(String memberId);
 
 
 }
