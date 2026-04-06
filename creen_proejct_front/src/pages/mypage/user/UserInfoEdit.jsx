@@ -265,7 +265,9 @@ export default function UserInfoEdit() {
       );
 
       if (response.status === 200) {
+        // 서버 응답이 성공(200)일 때
         Swal.fire("성공", "주소지가 성공적으로 변경되었습니다!", "success");
+
         setMemberInfo((prev) => ({
           ...prev,
           memberAddrcode: newAddress.memberAddrCode,
@@ -280,7 +282,10 @@ export default function UserInfoEdit() {
         setopenAddSet(false);
       }
     } catch (error) {
+      // 4. 에러 처리
       console.error("주소 업데이트 에러:", error);
+
+      // 서버가 에러 메시지를 보냈다면 해당 메시지 출력, 없다면 기본 메시지 출력
       const errorMsg =
         error.response?.data?.message || "주소 변경 중 오류가 발생했습니다.";
       Swal.fire("에러", errorMsg, "error");
@@ -289,8 +294,6 @@ export default function UserInfoEdit() {
 
   // 🌟 회원 탈퇴 핸들러 (Swal 적용)
   const handleDeleteClick = () => {
-    navigate("/mypage/user/deleteMember");
-
     Swal.fire({
       title: "정말 떠나시겠어요? 😢",
       text: "회원 탈퇴 시 모든 데이터는 복구할 수 없습니다.",
