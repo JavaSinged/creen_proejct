@@ -7,6 +7,10 @@ const ManagerOrderList = () => {
   const [orderList, setOrderList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // 🌟 [추가] 페이지네이션 상태
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10; // 한 페이지에 보여줄 주문 개수
+
   const storeId = localStorage.getItem("storeId") || 1;
 
   const fetchStoreOrders = () => {
@@ -109,11 +113,24 @@ const ManagerOrderList = () => {
     (a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime(),
   );
 
+  // 🌟 [추가] 현재 페이지 주문 계산 로직
+  const totalPages = Math.ceil(sortedOrders.length / itemsPerPage);
+  const currentOrders = sortedOrders.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
+
   return (
     <div className={styles.page}>
       <div className={styles.headerArea}>
         <h2 className={styles.pageTitle}>📦 매장 주문 관리</h2>
-        <button className={styles.refreshBtn} onClick={fetchStoreOrders}>
+        <button
+          className={styles.refreshBtn}
+          onClick={() => {
+            fetchStoreOrders();
+            setCurrentPage(1); // 새로고침 시 1페이지로
+          }}
+        >
           새로고침 🔄
         </button>
       </div>
@@ -121,8 +138,8 @@ const ManagerOrderList = () => {
       <div className={styles.orderListWrap}>
         {isLoading ? (
           <p className={styles.loadingText}>주문을 불러오는 중입니다...</p>
-        ) : sortedOrders.length > 0 ? (
-          sortedOrders.map((order) => {
+        ) : currentOrders.length > 0 ? (
+          currentOrders.map((order) => {
             const isCompleted = order.orderStatus === 5;
             const isCanceled = order.orderStatus === 9;
             const isNewOrder = order.orderStatus === 1;
@@ -130,10 +147,8 @@ const ManagerOrderList = () => {
             return (
               <div
                 key={`store-order-${order.orderId}`}
-                // 🌟 [수정] 취소된 주문이면 canceledCard 스타일 추가
                 className={`${styles.orderCard} ${isNewOrder ? styles.newOrder : ""} ${isCanceled ? styles.canceledCard : ""}`}
               >
-                {/* 🌟 [추가] 취소 워터마크 도장 */}
                 {isCanceled && (
                   <div className={styles.canceledWatermark}>취소된 주문</div>
                 )}
@@ -161,7 +176,7 @@ const ManagerOrderList = () => {
                       {order.extraCount > 0 && `외 ${order.extraCount}건`}
                     </h3>
                     <p className={styles.price}>
-                      결제금액: {/* 🌟 [수정] 취소된 경우 가격에 취소선 */}
+                      결제금액:{" "}
                       <strong
                         className={isCanceled ? styles.strikeThrough : ""}
                       >
@@ -193,7 +208,7 @@ const ManagerOrderList = () => {
 
                 <div className={styles.orderFooter}>
                   <div className={styles.statusDisplay}>
-                    상태: {/* 🌟 [수정] 취소 상태면 빨간 뱃지 표시 */}
+                    상태:{" "}
                     <span
                       className={`${styles.statusBadge} ${isCanceled ? styles.canceledBadge : styles[`status_${order.orderStatus}`]}`}
                     >
@@ -237,6 +252,37 @@ const ManagerOrderList = () => {
           <div className={styles.emptyMsg}>현재 들어온 주문이 없습니다.</div>
         )}
       </div>
+
+      {/* 🌟 [추가] 페이지네이션 UI */}
+      {totalPages > 1 && (
+        <div className={styles.pagination}>
+          <button
+            className={styles.pageBtn}
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+          >
+            &lt;
+          </button>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              className={`${styles.pageBtn} ${currentPage === page ? styles.activePage : ""}`}
+              onClick={() => setCurrentPage(page)}
+            >
+              {page}
+            </button>
+          ))}
+
+          <button
+            className={styles.pageBtn}
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+          >
+            &gt;
+          </button>
+        </div>
+      )}
     </div>
   );
 };

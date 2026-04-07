@@ -16,6 +16,10 @@ const UserOrderListPage = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
+  // 🌟 [추가] 페이지네이션 상태
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // 한 페이지에 보여줄 주문 개수 (원하는 대로 수정 가능)
+
   const fetchOrders = () => {
     if (!memberId) return;
     axios
@@ -41,6 +45,11 @@ const UserOrderListPage = () => {
     };
   }, [memberId]);
 
+  // 🌟 [추가] 필터 날짜가 변경되면 무조건 1페이지로 이동
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [startDate, endDate]);
+
   const cancelOrder = (orderId) => {
     Swal.fire({
       title: "주문 취소",
@@ -56,7 +65,7 @@ const UserOrderListPage = () => {
           .patch(
             `${import.meta.env.VITE_BACKSERVER}/stores/order/${orderId}/status`,
             {
-              status: 9, // 9: 주문취소 상태
+              status: 9,
             },
           )
           .then(() => {
@@ -65,7 +74,7 @@ const UserOrderListPage = () => {
               "주문이 정상적으로 취소되었습니다.",
               "success",
             );
-            fetchOrders(); // 목록 새로고침
+            fetchOrders();
           })
           .catch((err) => {
             console.error(err);
@@ -96,6 +105,13 @@ const UserOrderListPage = () => {
     );
   }, [orderList, startDate, endDate]);
 
+  // 🌟 [추가] 현재 페이지에 해당하는 주문들만 잘라내기 로직
+  const totalPages = Math.ceil(filteredAndSortedOrders.length / itemsPerPage);
+  const currentOrders = filteredAndSortedOrders.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
+
   const totalRecentCarbon = useMemo(() => {
     return filteredAndSortedOrders
       .slice(0, 5)
@@ -110,6 +126,7 @@ const UserOrderListPage = () => {
   const resetFilter = () => {
     setStartDate("");
     setEndDate("");
+    setCurrentPage(1); // 🌟 [추가] 초기화 시 1페이지로
   };
 
   const goToCheckoutPage = (order) => {
@@ -153,8 +170,9 @@ const UserOrderListPage = () => {
       </div>
 
       <div className={styles.orderListWrap}>
-        {filteredAndSortedOrders.length > 0 ? (
-          filteredAndSortedOrders.map((order, index) => {
+        {/* 🌟 [수정] filteredAndSortedOrders 대신 currentOrders로 매핑 */}
+        {currentOrders.length > 0 ? (
+          currentOrders.map((order, index) => {
             const isCompleted = order.orderStatus === 5;
             const isCanceled = order.orderStatus === 9;
             const isNotReviewed = Number(order.reviewStatus) === 0;
@@ -198,8 +216,9 @@ const UserOrderListPage = () => {
                   </div>
 
                   <div className={styles.rightInfo}>
-                    <span className={styles.statusBadge}>
-                      {/* 🌟 [수정] 픽업/배달 구분을 위해 deliveryType 파라미터 추가 */}
+                    <span
+                      className={`${styles.statusBadge} ${isCanceled ? styles.canceledBadge : ""}`}
+                    >
                       {getOrderStatusText(
                         order.orderStatus,
                         order.deliveryType,
@@ -210,7 +229,7 @@ const UserOrderListPage = () => {
                       <button
                         className={styles.cancelBtn}
                         onClick={(e) => {
-                          e.stopPropagation(); // 페이지 이동 방지
+                          e.stopPropagation();
                           cancelOrder(order.orderId);
                         }}
                       >
@@ -218,7 +237,6 @@ const UserOrderListPage = () => {
                       </button>
                     )}
 
-                    {/* 완료(배달완료/픽업완료) + 리뷰 조건 로직 */}
                     {isCompleted &&
                       (isAlreadyReviewed ? (
                         <button className={styles.reviewBtnDisabled} disabled>
@@ -228,7 +246,7 @@ const UserOrderListPage = () => {
                         <button
                           className={styles.reviewBtn}
                           onClick={(e) => {
-                            e.stopPropagation(); // 모달 열 때 페이지 이동 방지
+                            e.stopPropagation();
                             openReviewModal(order);
                           }}
                         >
@@ -245,7 +263,7 @@ const UserOrderListPage = () => {
                 <div className={styles.orderMiddle}>
                   <div className={styles.infoBlock}>
                     <p className={styles.infoTitle}>주문 정보</p>
-                    <p>
+                    <p className={isCanceled ? styles.strikeThrough : ""}>
                       {order.totalCount}개 |{" "}
                       {Number(order.totalPrice ?? 0).toLocaleString()}원
                     </p>
@@ -261,7 +279,6 @@ const UserOrderListPage = () => {
                     </p>
                   </div>
                   <div className={styles.infoBlock}>
-                    {/* 🌟 [수정] 픽업일 경우 '배달 주소' 대신 '수령 방식' 출력 */}
                     <p className={styles.infoTitle}>
                       {order.deliveryType === 1 ? "수령 방식" : "배달 주소"}
                     </p>
@@ -283,8 +300,13 @@ const UserOrderListPage = () => {
                     </p>
                   </div>
                   <div className={styles.carbonValueWrap}>
-                    <strong className={styles.carbonValue}>
-                      {Number(order.getPoint ?? 0).toFixed(1)} g
+                    <strong
+                      className={`${styles.carbonValue} ${isCanceled ? styles.strikeThrough : ""}`}
+                    >
+                      {isCanceled
+                        ? "0.0"
+                        : Number(order.getPoint ?? 0).toFixed(1)}{" "}
+                      g
                     </strong>
                     <span>CO2</span>
                   </div>
@@ -299,6 +321,37 @@ const UserOrderListPage = () => {
         )}
       </div>
 
+      {/* 🌟 [추가] 페이지네이션 UI (총 페이지가 1보다 클 때만 렌더링) */}
+      {totalPages > 1 && (
+        <div className={styles.pagination}>
+          <button
+            className={styles.pageBtn}
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+          >
+            &lt;
+          </button>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              className={`${styles.pageBtn} ${currentPage === page ? styles.activePage : ""}`}
+              onClick={() => setCurrentPage(page)}
+            >
+              {page}
+            </button>
+          ))}
+
+          <button
+            className={styles.pageBtn}
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+          >
+            &gt;
+          </button>
+        </div>
+      )}
+
       {isModalOpen && selectedOrder && (
         <ReviewModal
           order={selectedOrder}
@@ -312,7 +365,6 @@ const UserOrderListPage = () => {
 
 export default UserOrderListPage;
 
-// 🌟 [수정] 사장님 페이지와 동일하게 deliveryType 파라미터를 받아 분기 처리
 const getOrderStatusText = (status, deliveryType) => {
   const isPickup = deliveryType === 1;
   const statusMap = {

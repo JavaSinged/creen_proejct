@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import api from "../../../utils/accessToken";
 import styles from "./UserReviewList.module.css";
 import Swal from "sweetalert2";
@@ -7,6 +7,10 @@ const UserReviewList = () => {
   const [reviews, setReviews] = useState([]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+
+  // 🌟 [추가] 페이지네이션 상태
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // 한 페이지에 보여줄 리뷰 개수
 
   const backHost = import.meta.env.VITE_BACKSERVER;
 
@@ -25,6 +29,11 @@ const UserReviewList = () => {
   useEffect(() => {
     getMyReviews();
   }, []);
+
+  // 🌟 [추가] 필터 변경 시 1페이지로 리셋
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [startDate, endDate]);
 
   const deleteReview = (orderId) => {
     Swal.fire({
@@ -57,15 +66,20 @@ const UserReviewList = () => {
 
   const filteredReviews = reviews.filter((review) => {
     if (!review.reviewDate) return true;
-
     const reviewMonth = review.reviewDate.substring(0, 7);
-
     if (startDate && !endDate) return reviewMonth >= startDate;
     if (!startDate && endDate) return reviewMonth <= endDate;
     if (startDate && endDate)
       return reviewMonth >= startDate && reviewMonth <= endDate;
     return true;
   });
+
+  // 🌟 [추가] 현재 페이지 리뷰 계산 로직
+  const totalPages = Math.ceil(filteredReviews.length / itemsPerPage);
+  const currentReviews = filteredReviews.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
 
   return (
     <div className={styles.container}>
@@ -84,8 +98,9 @@ const UserReviewList = () => {
       </div>
 
       <div className={styles.review_list}>
-        {filteredReviews.length > 0 ? (
-          filteredReviews.map((review) => (
+        {/* 🌟 [수정] filteredReviews 대신 currentReviews 사용 */}
+        {currentReviews.length > 0 ? (
+          currentReviews.map((review) => (
             <div key={review.orderId} className={styles.review_card}>
               <div className={styles.card_header}>
                 <div className={styles.store_info}>
@@ -193,6 +208,37 @@ const UserReviewList = () => {
           </div>
         )}
       </div>
+
+      {/* 🌟 [추가] 페이지네이션 UI */}
+      {totalPages > 1 && (
+        <div className={styles.pagination}>
+          <button
+            className={styles.pageBtn}
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+          >
+            &lt;
+          </button>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              className={`${styles.pageBtn} ${currentPage === page ? styles.activePage : ""}`}
+              onClick={() => setCurrentPage(page)}
+            >
+              {page}
+            </button>
+          ))}
+
+          <button
+            className={styles.pageBtn}
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+          >
+            &gt;
+          </button>
+        </div>
+      )}
     </div>
   );
 };
