@@ -76,4 +76,6 @@ public interface StoreDao {
 	int addReduceCarbon(int orderId);
 
 	int updateOrderStatus(Integer orderId);
+
+    Store findStoreByMemberId(String memberId);
 }

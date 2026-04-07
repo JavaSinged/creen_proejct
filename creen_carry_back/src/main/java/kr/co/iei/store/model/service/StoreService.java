@@ -181,4 +181,7 @@ public class StoreService {
 	    return 1;
 	}
 
+	public Store getStoreByMemberId(String memberId) {
+		return storeDao.findStoreByMemberId(memberId);
+	}
 }

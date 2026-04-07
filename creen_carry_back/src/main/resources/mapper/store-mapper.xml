@@ -31,6 +31,12 @@
         FROM STORE_TBL
         WHERE store_id = #{storeId}
     </select>
+    
+    <select id="findStoreByMemberId" resultType="store">
+        select store_id from store_tbl
+        where member_id = (select member_id from member_tbl
+                           where member_id = #{memberId})
+    </select>
 
     <select id="selectAllMenu" resultType="menu">
         SELECT menu_id,
