@@ -24,8 +24,8 @@ const CheckoutPage = () => {
   const [storeName, setStoreName] = useState("");
 
   // 상태 관리를 위한 State
-  const [orderState, setOrderState] = useState(0); // UI 프로그레스바용
-  const [rawOrderStatus, setRawOrderStatus] = useState(0); // 실제 백엔드 상태(0~9) 저장용
+  const [orderState, setOrderState] = useState(0);
+  const [rawOrderStatus, setRawOrderStatus] = useState(0);
   const [orderDate, setOrderDate] = useState("");
   const [totalCarbon, setTotalCarbon] = useState(0);
 
@@ -47,10 +47,17 @@ const CheckoutPage = () => {
         // 배달 방식 저장
         setDeliveryType(res.data.deliveryType ?? 0);
 
-        setRawOrderStatus(res.data.orderStatus ?? 0);
-        setOrderState((res.data.orderStatus ?? 2) - 2);
+        const status = res.data.orderStatus ?? 0;
+        setRawOrderStatus(status);
         setOrderDate(res.data.orderDate);
         setTotalCarbon(res.data.totalReduceCarbon);
+
+        // 우주 돌파 방지 로직
+        if (status === 9 || status < 2) {
+          setOrderState(-1);
+        } else {
+          setOrderState(status - 2);
+        }
       })
       .catch((err) => {
         console.error("주문 정보 갱신 실패:", err);
@@ -165,10 +172,8 @@ const CheckoutPage = () => {
     }
   }, [mapLoaded]);
 
-  // 픽업 여부 변수 (1이면 픽업)
   const isPickup = deliveryType === 1;
 
-  // 🌟 [추가] 상태별로 안내 메시지를 반환하는 함수
   const getStatusMessage = (status, isPickup) => {
     if (status === 9) return "주문이 아쉽게도 취소되었습니다.";
     if (status === 0 || status === 1)
@@ -194,12 +199,28 @@ const CheckoutPage = () => {
     <div className={styles.page}>
       <main className={styles.main}>
         <section className={styles.completeCard}>
-          <div className={styles.completeIcon}>✓</div>
-          <h1 className={styles.completeTitle}>주문이 완료되었습니다!</h1>
+          {/* 🌟 [수정] 취소 상태일 때 아이콘 변경 */}
+          <div
+            className={styles.completeIcon}
+            style={{ backgroundColor: rawOrderStatus === 9 ? "#ff4757" : "" }}
+          >
+            {rawOrderStatus === 9 ? "✕" : "✓"}
+          </div>
+
+          {/* 🌟 [수정] 취소 상태일 때 제목 변경 */}
+          <h1 className={styles.completeTitle}>
+            {rawOrderStatus === 9
+              ? "주문이 취소되었습니다."
+              : "주문이 완료되었습니다!"}
+          </h1>
+
+          {/* 🌟 [수정] 취소 상태일 때 안내 문구 분기 */}
           <p className={styles.completeDesc}>
-            {isPickup
-              ? "매장 방문 픽업을 선택해 주셔서 감사합니다."
-              : "친환경 배달을 선택해 주셔서 감사합니다."}
+            {rawOrderStatus === 9
+              ? "결제하신 금액은 카드사에 따라 영업일 기준 2~3일 내로 환불될 예정입니다."
+              : isPickup
+                ? "매장 방문 픽업을 선택해 주셔서 감사합니다."
+                : "친환경 배달을 선택해 주셔서 감사합니다."}
           </p>
 
           <button
@@ -220,7 +241,9 @@ const CheckoutPage = () => {
             <div className={styles.progressBar}>
               <div
                 className={styles.progressFill}
-                style={{ width: `${(orderState / 3) * 100}%` }}
+                style={{
+                  width: `${Math.max(0, Math.min(100, (orderState / 3) * 100))}%`,
+                }}
               >
                 <span className={styles.seed}>🌱</span>
               </div>
@@ -254,7 +277,6 @@ const CheckoutPage = () => {
           </div>
 
           <p className={styles.statusMessage}>
-            {/* 🌟 [수정] 안내 메시지 함수 적용 */}
             {getStatusMessage(rawOrderStatus, isPickup)}
           </p>
         </section>
@@ -320,7 +342,15 @@ const CheckoutPage = () => {
 
               <div className={styles.totalRow}>
                 <span>총 결제 금액</span>
-                <strong>{finalPrice.toLocaleString()} 원</strong>
+                <strong
+                  style={{
+                    color: rawOrderStatus === 9 ? "#999" : "",
+                    textDecoration:
+                      rawOrderStatus === 9 ? "line-through" : "none",
+                  }}
+                >
+                  {finalPrice.toLocaleString()} 원
+                </strong>
               </div>
             </div>
 

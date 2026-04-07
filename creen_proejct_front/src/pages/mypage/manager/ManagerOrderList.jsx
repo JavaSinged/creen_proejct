@@ -7,8 +7,7 @@ const ManagerOrderList = () => {
   const [orderList, setOrderList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 사장님의 storeId를 가져옴 (로그인 로직에 맞게 수정 필요)
-  const storeId = localStorage.getItem("storeId") || 1; // 임시 기본값 1
+  const storeId = localStorage.getItem("storeId") || 1;
 
   const fetchStoreOrders = () => {
     if (!storeId) return;
@@ -31,10 +30,9 @@ const ManagerOrderList = () => {
     fetchStoreOrders();
   }, [storeId]);
 
-  // 🌟 [수정] 주문 상태 변경 함수 (deliveryType을 받아서 픽업/배달 분기 처리)
   const updateOrderStatus = (orderId, currentStatus, deliveryType) => {
     const nextStatus = currentStatus + 1;
-    const isPickup = deliveryType === 1; // 1이면 픽업
+    const isPickup = deliveryType === 1;
     let confirmMsg = "";
 
     if (currentStatus === 1) confirmMsg = "주문을 접수하시겠습니까?";
@@ -67,7 +65,7 @@ const ManagerOrderList = () => {
           )
           .then(() => {
             Swal.fire("완료", "주문 상태가 변경되었습니다.", "success");
-            fetchStoreOrders(); // 상태 변경 후 목록 새로고침
+            fetchStoreOrders();
           })
           .catch((err) => {
             console.error(err);
@@ -92,7 +90,7 @@ const ManagerOrderList = () => {
           .patch(
             `${import.meta.env.VITE_BACKSERVER}/stores/order/${orderId}/status`,
             {
-              status: 9, // 취소 상태
+              status: 9,
             },
           )
           .then(() => {
@@ -132,34 +130,51 @@ const ManagerOrderList = () => {
             return (
               <div
                 key={`store-order-${order.orderId}`}
-                className={`${styles.orderCard} ${isNewOrder ? styles.newOrder : ""}`}
+                // 🌟 [수정] 취소된 주문이면 canceledCard 스타일 추가
+                className={`${styles.orderCard} ${isNewOrder ? styles.newOrder : ""} ${isCanceled ? styles.canceledCard : ""}`}
               >
+                {/* 🌟 [추가] 취소 워터마크 도장 */}
+                {isCanceled && (
+                  <div className={styles.canceledWatermark}>취소된 주문</div>
+                )}
+
                 <div className={styles.orderHeader}>
                   <div className={styles.headerLeft}>
-                    <span className={styles.orderNo}>
+                    <span
+                      className={`${styles.orderNo} ${isCanceled ? styles.strikeThrough : ""}`}
+                    >
                       주문번호 #{order.orderId}
                     </span>
-                    {isNewOrder && <span className={styles.newBadge}>NEW</span>}
+                    {isNewOrder && !isCanceled && (
+                      <span className={styles.newBadge}>NEW</span>
+                    )}
                   </div>
                   <span className={styles.orderDate}>{order.orderDate}</span>
                 </div>
 
                 <div className={styles.orderBody}>
                   <div className={styles.menuInfo}>
-                    <h3 className={styles.menuName}>
+                    <h3
+                      className={`${styles.menuName} ${isCanceled ? styles.strikeThrough : ""}`}
+                    >
                       {order.menuName}{" "}
                       {order.extraCount > 0 && `외 ${order.extraCount}건`}
                     </h3>
                     <p className={styles.price}>
-                      결제금액:{" "}
-                      <strong>
-                        {Number(order.totalPrice).toLocaleString()}원
+                      결제금액: {/* 🌟 [수정] 취소된 경우 가격에 취소선 */}
+                      <strong
+                        className={isCanceled ? styles.strikeThrough : ""}
+                      >
+                        {isCanceled
+                          ? "0"
+                          : Number(order.totalPrice).toLocaleString()}
+                        원
                       </strong>
                     </p>
                   </div>
 
                   <div className={styles.deliveryInfo}>
-                    <p>
+                    <p className={isCanceled ? styles.strikeThrough : ""}>
                       <strong>배달 방식:</strong>{" "}
                       {order.deliveryType === 1
                         ? "픽업"
@@ -167,7 +182,9 @@ const ManagerOrderList = () => {
                           ? "도보/자전거"
                           : "오토바이"}
                     </p>
-                    <p className={styles.address}>
+                    <p
+                      className={`${styles.address} ${isCanceled ? styles.strikeThrough : ""}`}
+                    >
                       <strong>주소:</strong>{" "}
                       {order.deliveryAddress || "주소 정보 없음"}
                     </p>
@@ -176,11 +193,10 @@ const ManagerOrderList = () => {
 
                 <div className={styles.orderFooter}>
                   <div className={styles.statusDisplay}>
-                    상태:{" "}
+                    상태: {/* 🌟 [수정] 취소 상태면 빨간 뱃지 표시 */}
                     <span
-                      className={`${styles.statusBadge} ${styles[`status_${order.orderStatus}`]}`}
+                      className={`${styles.statusBadge} ${isCanceled ? styles.canceledBadge : styles[`status_${order.orderStatus}`]}`}
                     >
-                      {/* 🌟 [수정] 상태 텍스트에 deliveryType 전달 */}
                       {getOrderStatusText(
                         order.orderStatus,
                         order.deliveryType,
@@ -193,7 +209,6 @@ const ManagerOrderList = () => {
                       <button
                         className={styles.nextStepBtn}
                         onClick={() =>
-                          /* 🌟 [수정] 상태 변경 함수에 deliveryType 전달 */
                           updateOrderStatus(
                             order.orderId,
                             order.orderStatus,
@@ -201,7 +216,6 @@ const ManagerOrderList = () => {
                           )
                         }
                       >
-                        {/* 🌟 [수정] 버튼 텍스트에 deliveryType 전달 */}
                         {getActionText(order.orderStatus, order.deliveryType)}
                       </button>
                     )}
@@ -229,7 +243,6 @@ const ManagerOrderList = () => {
 
 export default ManagerOrderList;
 
-// 🌟 [수정] 상태 맵핑: 픽업(1)일 경우 4번과 5번의 텍스트가 바뀜
 const getOrderStatusText = (status, deliveryType) => {
   const isPickup = deliveryType === 1;
   const map = {
@@ -244,14 +257,13 @@ const getOrderStatusText = (status, deliveryType) => {
   return map[status] || "확인중";
 };
 
-// 🌟 [수정] 버튼 텍스트: 픽업(1)일 경우 다음 액션 텍스트가 바뀜
 const getActionText = (status, deliveryType) => {
   const isPickup = deliveryType === 1;
   const map = {
     1: "주문 수락하기",
     2: "조리 시작하기",
-    3: isPickup ? "픽업 준비 완료하기" : "배달 출발하기", // 조리중일 때 누를 버튼
-    4: isPickup ? "픽업 완료처리" : "배달 완료처리", // 픽업대기/배달중일 때 누를 버튼
+    3: isPickup ? "픽업 준비 완료하기" : "배달 출발하기",
+    4: isPickup ? "픽업 완료처리" : "배달 완료처리",
   };
   return map[status] || "";
 };

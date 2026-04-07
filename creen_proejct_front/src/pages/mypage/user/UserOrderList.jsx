@@ -155,8 +155,8 @@ const UserOrderListPage = () => {
       <div className={styles.orderListWrap}>
         {filteredAndSortedOrders.length > 0 ? (
           filteredAndSortedOrders.map((order, index) => {
-            // 🌟 [수정] 완료 상태인지 확인 (배달완료 or 픽업완료 둘 다 5번)
             const isCompleted = order.orderStatus === 5;
+            const isCanceled = order.orderStatus === 9;
             const isNotReviewed = Number(order.reviewStatus) === 0;
             const isAlreadyReviewed = Number(order.reviewStatus) === 1;
 
@@ -173,16 +173,20 @@ const UserOrderListPage = () => {
             return (
               <div
                 key={itemKey}
-                className={styles.orderCard}
+                className={`${styles.orderCard} ${isCanceled ? styles.canceledCard : ""}`}
                 onClick={() => goToCheckoutPage(order)}
                 style={{ cursor: "pointer" }}
               >
+                {isCanceled && (
+                  <div className={styles.canceledWatermark}>취소된 주문</div>
+                )}
+
                 <div className={styles.orderTop}>
                   <div className={styles.leftInfo}>
                     <img
                       src={order.menuImage || "/img/no-image.png"}
                       alt={order.menuName || "메뉴"}
-                      className={styles.menuThumb}
+                      className={`${styles.menuThumb} ${isCanceled ? styles.canceledImg : ""}`}
                     />
                     <div className={styles.mainInfo}>
                       <h3 className={styles.storeName}>{order.storeName}</h3>

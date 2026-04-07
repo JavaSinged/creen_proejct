@@ -233,3 +233,46 @@
 .cancelBtn:hover {
   background-color: #fff0f1;
 }
+.canceledCard {
+  opacity: 0.6;
+  background-color: #fdfdfd;
+  position: relative;
+  overflow: hidden; /* 워터마크가 카드 밖으로 나가지 않게 */
+  border: 1px solid #e0e0e0;
+}
+
+/* 2. 음식 사진 흑백 처리 */
+.canceledImg {
+  filter: grayscale(100%);
+  opacity: 0.7;
+}
+
+/* 3. 취소선 그어주기 (가격, 탄소 절감량 등) */
+.strikeThrough {
+  text-decoration: line-through;
+  color: #999;
+}
+
+/* 4. 붉은색 상태 뱃지 (주문취소 전용) */
+.canceledBadge {
+  background-color: #ffeaea;
+  color: #ff4757;
+  border: 1px solid #ff4757;
+}
+
+/* 5. 가운데 크게 찍히는 '취소된 주문' 워터마크 도장 */
+.canceledWatermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-15deg);
+  font-size: 36px;
+  font-weight: 900;
+  color: rgba(255, 71, 87, 0.4); /* 연한 빨간색 */
+  border: 6px solid rgba(255, 71, 87, 0.4);
+  padding: 12px 28px;
+  border-radius: 16px;
+  letter-spacing: 4px;
+  pointer-events: none; /* 클릭을 방해하지 않음 */
+  z-index: 10; /* 글씨 위로 띄움 */
+}

@@ -241,3 +241,41 @@
     justify-content: flex-end;
   }
 }
+.canceledCard {
+  opacity: 0.55;
+  background-color: #fafafa;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  box-shadow: none; /* 그림자 제거로 밋밋하게 */
+}
+
+/* 2. 글씨에 취소선 그어주기 */
+.strikeThrough {
+  text-decoration: line-through;
+  color: #a0a0a0 !important;
+}
+
+/* 3. 취소 상태 전용 붉은색 뱃지 */
+.canceledBadge {
+  background-color: #fff0f0;
+  color: #ff4757;
+  border: 1px solid #ff4757;
+}
+
+/* 4. 화면 중앙에 찍히는 거대한 '취소된 주문' 도장 워터마크 */
+.canceledWatermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-10deg);
+  font-size: 42px;
+  font-weight: 900;
+  color: rgba(255, 71, 87, 0.25); /* 투명한 빨간색 */
+  border: 8px solid rgba(255, 71, 87, 0.25);
+  padding: 16px 36px;
+  border-radius: 20px;
+  letter-spacing: 6px;
+  pointer-events: none; /* 클릭을 방해하지 않게 */
+  z-index: 10;
+}
