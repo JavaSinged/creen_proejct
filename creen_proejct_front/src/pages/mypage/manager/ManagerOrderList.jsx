@@ -33,6 +33,9 @@ const ManagerOrderList = () => {
   useEffect(() => {
     fetchStoreOrders();
   }, [storeId]);
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentPage]);
 
   const updateOrderStatus = (orderId, currentStatus, deliveryType) => {
     const nextStatus = currentStatus + 1;

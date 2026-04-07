@@ -45,6 +45,10 @@ const UserOrderListPage = () => {
     };
   }, [memberId]);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentPage]);
+
   // 🌟 [추가] 필터 날짜가 변경되면 무조건 1페이지로 이동
   useEffect(() => {
     setCurrentPage(1);

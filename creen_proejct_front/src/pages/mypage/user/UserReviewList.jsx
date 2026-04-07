@@ -29,6 +29,9 @@ const UserReviewList = () => {
   useEffect(() => {
     getMyReviews();
   }, []);
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentPage]);
 
   // 🌟 [추가] 필터 변경 시 1페이지로 리셋
   useEffect(() => {

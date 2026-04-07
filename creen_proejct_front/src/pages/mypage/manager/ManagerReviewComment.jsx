@@ -6,8 +6,11 @@ import axios from "axios";
 
 const ManagerReviewComment = () => {
   const [reviews, setReviews] = useState([]);
-
   const [replyInputs, setReplyInputs] = useState({});
+
+  // 🌟 페이지네이션 관련 상태
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // 한 페이지에 보여줄 리뷰 개수
 
   const storeId = localStorage.getItem("storeId");
   const memberId = localStorage.getItem("memberId");
@@ -15,13 +18,7 @@ const ManagerReviewComment = () => {
   const fetchReviews = async () => {
     try {
       const backHost = import.meta.env.VITE_BACKSERVER;
-      console.log(
-        `🚀 백엔드로 요청 보냄: ${backHost}/stores/reviews/${storeId}`,
-      );
-
       const res = await axios.get(`${backHost}/stores/reviews/${storeId}`);
-
-      console.log("✅ 백엔드에서 받아온 데이터:", res.data);
       setReviews(res.data ?? []);
     } catch (err) {
       console.error("❌ 리뷰 목록 로드 실패!");
@@ -30,10 +27,19 @@ const ManagerReviewComment = () => {
   };
 
   useEffect(() => {
-    console.log("🚀 현재 로컬스토리지의 storeId:", storeId);
-
     if (storeId) fetchReviews();
   }, [storeId]);
+
+  // 🌟 페이지 변경 시 최상단으로 부드럽게 스크롤 이동
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentPage]);
+
+  // 🌟 현재 페이지에 해당하는 데이터 계산
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = reviews.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(reviews.length / itemsPerPage);
 
   const handleInputChange = (orderId, text) => {
     setReplyInputs((prev) => ({ ...prev, [orderId]: text }));
@@ -41,7 +47,6 @@ const ManagerReviewComment = () => {
 
   const submitReply = async (orderId) => {
     const content = replyInputs[orderId];
-
     if (!content || content.trim().length < 5) {
       return Swal.fire("알림", "답글을 5자 이상 작성해주세요.", "warning");
     }
@@ -55,7 +60,6 @@ const ManagerReviewComment = () => {
       };
 
       const res = await api.post("/stores/review/comment", payload);
-
       if (res.data === "SUCCESS") {
         Swal.fire("성공", "사장님 답글이 등록되었습니다! 🌱", "success");
         setReplyInputs((prev) => ({ ...prev, [orderId]: "" }));
@@ -66,6 +70,7 @@ const ManagerReviewComment = () => {
       Swal.fire("실패", "답글 등록 중 서버 오류가 발생했습니다.", "error");
     }
   };
+
   const deleteReview = (orderId) => {
     Swal.fire({
       title: "리뷰를 삭제하시겠습니까?",
@@ -104,99 +109,135 @@ const ManagerReviewComment = () => {
         {reviews.length === 0 ? (
           <p className={styles.noData}>아직 등록된 리뷰가 없습니다.</p>
         ) : (
-          reviews.map((review) => (
-            <div
-              key={review.orderId}
-              className={styles.reviewCard}
-              style={{ position: "relative" }}
-            >
-              <button
-                className={styles.deleteBtn}
-                onClick={() => deleteReview(review.orderId)}
-                title="리뷰 삭제"
+          <>
+            {/* 🌟 전체 리스트가 아닌 현재 페이지의 아이템(currentItems)만 출력 */}
+            {currentItems.map((review) => (
+              <div
+                key={review.orderId}
+                className={styles.reviewCard}
+                style={{ position: "relative" }}
               >
-                삭제
-              </button>
-              {/* 고객 리뷰 영역 */}
-              <div className={styles.customerSection}>
-                {/* 🌟 고객 프로필 헤더 추가 */}
-                <div className={styles.userInfo}>
-                  <img
-                    src={
-                      review.memberProfile
-                        ? `${import.meta.env.VITE_BACKSERVER}${review.memberProfile}`
-                        : "/img/default-user.png" // 기본 프로필 이미지
-                    }
-                    alt="profile"
-                    className={styles.userAvatar}
-                  />
-                  <div className={styles.userNameArea}>
-                    <span className={styles.userName}>
-                      {review.memberId} 고객님
-                    </span>
-                    <div className={styles.stars}>
-                      {"★".repeat(review.reviewRating)}
-                      {"☆".repeat(5 - review.reviewRating)}
+                <button
+                  className={styles.deleteBtn}
+                  onClick={() => deleteReview(review.orderId)}
+                  title="리뷰 삭제"
+                >
+                  삭제
+                </button>
+
+                {/* 고객 리뷰 영역 */}
+                <div className={styles.customerSection}>
+                  <div className={styles.userInfo}>
+                    <img
+                      src={
+                        review.memberProfile
+                          ? `${import.meta.env.VITE_BACKSERVER}${review.memberProfile}`
+                          : "/img/default-user.png"
+                      }
+                      alt="profile"
+                      className={styles.userAvatar}
+                    />
+                    <div className={styles.userNameArea}>
+                      <span className={styles.userName}>
+                        {review.memberId} 고객님
+                      </span>
+                      <div className={styles.stars}>
+                        {"★".repeat(review.reviewRating)}
+                        {"☆".repeat(5 - review.reviewRating)}
+                      </div>
                     </div>
+                    <span className={styles.date}>{review.reviewDate}</span>
                   </div>
-                  <span className={styles.date}>{review.reviewDate}</span>
+
+                  <p className={styles.menuName}>
+                    주문 메뉴: {review.menuName}
+                  </p>
+                  <p className={styles.content}>{review.reviewContent}</p>
+
+                  {review.reviewThumb && (
+                    <img
+                      src={
+                        review.reviewThumb.startsWith("/")
+                          ? `${import.meta.env.VITE_BACKSERVER}${review.reviewThumb}`
+                          : `${import.meta.env.VITE_BACKSERVER}/uploads/review/${review.reviewThumb}`
+                      }
+                      alt="리뷰사진"
+                      className={styles.reviewImg}
+                      onError={(e) => {
+                        e.target.src = "/img/no-image.png";
+                      }}
+                    />
+                  )}
                 </div>
 
-                <p className={styles.menuName}>주문 메뉴: {review.menuName}</p>
-                <p className={styles.content}>{review.reviewContent}</p>
-
-                {review.reviewThumb && (
-                  <img
-                    src={
-                      review.reviewThumb.startsWith("/")
-                        ? `${import.meta.env.VITE_BACKSERVER}${review.reviewThumb}`
-                        : `${import.meta.env.VITE_BACKSERVER}/uploads/review/${review.reviewThumb}`
-                    }
-                    alt="리뷰사진"
-                    className={styles.reviewImg}
-                    onError={(e) => {
-                      e.target.src = "/img/no-image.png";
-                    }}
-                  />
-                )}
-              </div>
-
-              {/* 사장님 답글 영역 */}
-              <div className={styles.bossSection}>
-                {review.reviewCommentContent ? (
-                  <div className={styles.replyCompleted}>
-                    <p className={styles.bossTitle}>↳ 사장님 답글</p>
-                    <p className={styles.replyContent}>
-                      {review.reviewCommentContent}
-                    </p>
-                    <span className={styles.replyDate}>
-                      {review.reviewCommentDate}
-                    </span>
-                  </div>
-                ) : (
-                  <div className={styles.replyForm}>
-                    <p className={styles.bossTitle}>↳ 답글 작성</p>
-                    <div className={styles.inputWrap}>
-                      <textarea
-                        className={styles.textarea}
-                        placeholder="고객님께 감사 인사를 남겨주세요. (최소 5자)"
-                        value={replyInputs[review.orderId] || ""}
-                        onChange={(e) =>
-                          handleInputChange(review.orderId, e.target.value)
-                        }
-                      />
-                      <button
-                        className={styles.submitBtn}
-                        onClick={() => submitReply(review.orderId)}
-                      >
-                        등록
-                      </button>
+                {/* 사장님 답글 영역 */}
+                <div className={styles.bossSection}>
+                  {review.reviewCommentContent ? (
+                    <div className={styles.replyCompleted}>
+                      <p className={styles.bossTitle}>↳ 사장님 답글</p>
+                      <p className={styles.replyContent}>
+                        {review.reviewCommentContent}
+                      </p>
+                      <span className={styles.replyDate}>
+                        {review.reviewCommentDate}
+                      </span>
                     </div>
-                  </div>
-                )}
+                  ) : (
+                    <div className={styles.replyForm}>
+                      <p className={styles.bossTitle}>↳ 답글 작성</p>
+                      <div className={styles.inputWrap}>
+                        <textarea
+                          className={styles.textarea}
+                          placeholder="고객님께 감사 인사를 남겨주세요. (최소 5자)"
+                          value={replyInputs[review.orderId] || ""}
+                          onChange={(e) =>
+                            handleInputChange(review.orderId, e.target.value)
+                          }
+                        />
+                        <button
+                          className={styles.submitBtn}
+                          onClick={() => submitReply(review.orderId)}
+                        >
+                          등록
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
+            ))}
+
+            {/* 🌟 페이지네이션 UI 추가 */}
+            <div className={styles.pagination}>
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className={styles.pageBtn}
+              >
+                &lt;
+              </button>
+
+              {[...Array(totalPages)].map((_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => setCurrentPage(i + 1)}
+                  className={`${styles.pageNumber} ${currentPage === i + 1 ? styles.activePage : ""}`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className={styles.pageBtn}
+              >
+                &gt;
+              </button>
             </div>
-          ))
+          </>
         )}
       </div>
     </div>
