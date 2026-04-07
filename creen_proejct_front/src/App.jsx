@@ -40,7 +40,10 @@ import AdminContainerManagement from "./pages/mypage/admin/AdminContainerManagem
 import ProtectedRoute from "./context/ProtectedRoute";
 import ManagerDelAccount from "./pages/mypage/deleteMember/ManagerDelAccount";
 import UserOrderList from "./pages/mypage/user/UserOrderList";
+
 import ManagerDashboard from "./pages/mypage/manager/ManagerDashBoard";
+
+import UserReviewList from "./pages/mypage/user/UserReviewList";
 
 const BasicLayout = () => {
   return (
@@ -88,6 +91,7 @@ function App() {
               {/* 마이페이지 사이드바(UserLayout)가 적용되는 페이지 */}
               <Route path="/mypage/user" element={<UserLayout />}>
                 <Route index element={<UserProfile />} />
+                <Route path="reviews" element={<UserReviewList />} />
                 <Route path="profile" element={<UserInfoEdit />} />
                 <Route path="userCS" element={<UserCS />} />
                 <Route path="orderList" element={<UserOrderList />} />
