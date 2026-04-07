@@ -10,6 +10,10 @@ const UserOrderListPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
+  // 날짜 필터링 상태 (기본값: 빈 문자열)
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
   const fetchOrders = () => {
     if (!memberId) return;
     axios
@@ -27,22 +31,42 @@ const UserOrderListPage = () => {
     fetchOrders();
   }, [memberId]);
 
-  const sortedOrders = useMemo(() => {
-    return [...orderList].sort(
+  // 날짜 필터링 + 최신순 정렬
+  const filteredAndSortedOrders = useMemo(() => {
+    let filtered = [...orderList];
+
+    if (startDate) {
+      filtered = filtered.filter(
+        (order) => new Date(order.orderDate) >= new Date(startDate),
+      );
+    }
+
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      filtered = filtered.filter((order) => new Date(order.orderDate) <= end);
+    }
+
+    return filtered.sort(
       (a, b) =>
         new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime(),
     );
-  }, [orderList]);
+  }, [orderList, startDate, endDate]);
 
   const totalRecentCarbon = useMemo(() => {
-    return sortedOrders
+    return filteredAndSortedOrders
       .slice(0, 5)
       .reduce((sum, order) => sum + Number(order.getPoint ?? 0), 0);
-  }, [sortedOrders]);
+  }, [filteredAndSortedOrders]);
 
   const openReviewModal = (order) => {
     setSelectedOrder(order);
     setIsModalOpen(true);
+  };
+
+  const resetFilter = () => {
+    setStartDate("");
+    setEndDate("");
   };
 
   return (
@@ -53,16 +77,45 @@ const UserOrderListPage = () => {
           {totalRecentCarbon.toFixed(1)} g CO2
         </h2>
         <p className={styles.summaryDesc}>
-          지난 5건의 주문으로 절감한 탄소량 입니다 🌱
+          목록 상단 5건의 주문으로 절감한 탄소량 입니다 🌱
         </p>
       </div>
 
+      <div className={styles.filterContainer}>
+        <div className={styles.dateInputs}>
+          <input
+            type="date"
+            className={styles.dateInput}
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
+          <span className={styles.dateSeparator}>~</span>
+          <input
+            type="date"
+            className={styles.dateInput}
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
+        </div>
+        <button className={styles.resetBtn} onClick={resetFilter}>
+          초기화
+        </button>
+      </div>
+
       <div className={styles.orderListWrap}>
-        {sortedOrders.length > 0 ? (
-          sortedOrders.map((order, index) => {
+        {filteredAndSortedOrders.length > 0 ? (
+          filteredAndSortedOrders.map((order, index) => {
             const isDelivered = order.orderStatus === 5;
             const isNotReviewed = Number(order.reviewStatus) === 0;
             const isAlreadyReviewed = Number(order.reviewStatus) === 1;
+
+            // 🌟 [추가] 3일 이내 작성 여부 계산 로직
+            const orderDateObj = new Date(order.orderDate);
+            const now = new Date();
+            // 시간 차이를 일(day) 단위로 변환
+            const diffDays =
+              (now.getTime() - orderDateObj.getTime()) / (1000 * 60 * 60 * 24);
+            const isWithin3Days = diffDays <= 3;
 
             const itemKey = order.orderId
               ? `order-${order.orderId}`
@@ -73,7 +126,7 @@ const UserOrderListPage = () => {
                 <div className={styles.orderTop}>
                   <div className={styles.leftInfo}>
                     <img
-                      src={order.menuImage}
+                      src={order.menuImage || "/img/no-image.png"}
                       alt={order.menuName || "메뉴"}
                       className={styles.menuThumb}
                     />
@@ -91,19 +144,24 @@ const UserOrderListPage = () => {
                       {getOrderStatusText(order.orderStatus)}
                     </span>
 
+                    {/* 🌟 [수정] 배달완료 + 3일 이내 조건 적용 */}
                     {isDelivered &&
-                      (isNotReviewed ? (
+                      (isAlreadyReviewed ? (
+                        <button className={styles.reviewBtnDisabled} disabled>
+                          작성 완료
+                        </button>
+                      ) : isNotReviewed && isWithin3Days ? (
                         <button
                           className={styles.reviewBtn}
                           onClick={() => openReviewModal(order)}
                         >
                           리뷰 작성 (3일 이내)
                         </button>
-                      ) : isAlreadyReviewed ? (
+                      ) : (
                         <button className={styles.reviewBtnDisabled} disabled>
-                          작성 완료
+                          작성 기한 만료
                         </button>
-                      ) : null)}
+                      ))}
                   </div>
                 </div>
 
@@ -153,7 +211,9 @@ const UserOrderListPage = () => {
             );
           })
         ) : (
-          <div className={styles.emptyMsg}>주문 내역이 없습니다.</div>
+          <div className={styles.emptyMsg}>
+            해당 기간에 주문 내역이 없습니다.
+          </div>
         )}
       </div>
 
