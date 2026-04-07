@@ -135,8 +135,7 @@ const CheckoutPage = () => {
 
           <button className={styles.orderCheckBtn}>주문내역 확인</button>
           <p className={styles.orderNumber}>
-            ECO-{orderDate}
-            {orderId}
+            ECO-{orderDate}-{orderId}
           </p>
         </section>
 

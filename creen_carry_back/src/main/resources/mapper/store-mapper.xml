@@ -29,7 +29,8 @@
 		longitude AS LONGITUDE,
 		store_thumb AS storeThumb
 		FROM STORE_TBL
-		WHERE store_id = #{storeId}
+		WHERE
+		store_id = #{storeId}
 	</select>
 
 	<select id="selectAllMenu" resultType="menu">
@@ -44,7 +45,8 @@
 		FROM MENU_TBL
 		WHERE store_id = #{storeId}
 		AND menu_status = 1
-		ORDER BY menu_category ASC, menu_id ASC
+		ORDER BY
+		menu_category ASC, menu_id ASC
 	</select>
 
 	<select id="getMenuOptions" parameterType="long"
@@ -98,9 +100,11 @@
 		UPDATE member_tbl
 		SET total_carbon_reduce =
 		NVL(total_carbon_reduce, 0) + (SELECT NVL(SUM(total_carbon), 0)
-		FROM order_detail
+		FROM
+		order_detail
 		WHERE order_id = #{orderId})
-		WHERE member_id = (SELECT member_id
+		WHERE member_id = (SELECT
+		member_id
 		FROM order_tbl
 		WHERE order_id = #{orderId})
 	</update>
@@ -113,7 +117,8 @@
 		option_string,
 		total_carbon,
 		quantity)
-		SELECT ORDER_DETAIL_SEQ.NEXTVAL,
+		SELECT
+		ORDER_DETAIL_SEQ.NEXTVAL,
 		#{orderId},
 		m.menu_id,
 		#{orderItem.price},
@@ -135,7 +140,8 @@
 		update order_tbl
 		set order_status = 1
 		where order_id
-		= #{orderId}
+		=
+		#{orderId}
 	</update>
 
 	<select id="searchOrderItems" parameterType="int"
@@ -145,7 +151,8 @@
 		od.quantity,
 		od.price,
 		od.option_string AS optionString
-		FROM order_detail od
+		FROM order_detail
+		od
 		JOIN menu_tbl m
 		ON od.menu_id = m.menu_id
 		WHERE od.order_id =
@@ -155,22 +162,22 @@
 
 	<select id="searchOrderInfo" parameterType="int"
 		resultType="orderResponse">
-		SELECT s.store_name AS storeName,
+		SELECT
+		s.store_name AS storeName,
 		o.order_id AS orderId,
 		o.used_point AS usedPoint,
 		o.get_point AS getPoint,
 		CASE
-		WHEN
-		o.delivery_type = 1 THEN 0
+		WHEN o.delivery_type = 1 THEN 0
 		WHEN o.delivery_type = 2 THEN 1000
 		ELSE 2000
 		END AS deliveryPrice,
 		o.delivery_type AS deliveryType,
-		o.order_status AS
-		orderStatus
+		o.order_status AS orderStatus,
+		TO_CHAR(olm.reg_date, 'YYYYMMDD') AS orderDate
 		FROM order_tbl o
-		JOIN store_tbl s
-		ON o.store_id = s.store_id
+		JOIN store_tbl s ON o.store_id = s.store_id
+		JOIN order_list_map olm ON o.order_id = olm.order_id
 		WHERE o.order_id = #{orderId}
 	</select>
 
@@ -183,70 +190,73 @@
 
 	<select id="searchOrderList" parameterType="string"
 		resultType="orderResponse">
-SELECT 
-        o.order_id AS orderId,
-        o.store_id AS storeId,
-        s.store_name AS storeName,
-        o.order_status AS orderStatus,
-        o.get_point AS getPoint,               o.review_status AS reviewStatus,       TO_CHAR(olm.reg_date, 'YYYY-MM-DD') AS orderDate,
+		SELECT
+		o.order_id AS orderId,
+		o.store_id AS storeId,
+		s.store_name AS storeName,
+		o.order_status AS orderStatus,
+		o.get_point AS getPoint, o.review_status AS reviewStatus, TO_CHAR(olm.reg_date,
+		'YYYY-MM-DD') AS orderDate,
 
-        -- 1. 합계 정보
-        od_sum.totalPrice AS totalPrice,
-        od_sum.totalCount AS totalCount,
-        od_sum.orderCarbon AS orderCarbon,
-        (od_sum.totalCount - 1) AS extraCount,
+		-- 1. 합계 정보
+		od_sum.totalPrice AS totalPrice,
+		od_sum.totalCount AS totalCount,
+		od_sum.orderCarbon AS orderCarbon,
+		(od_sum.totalCount - 1) AS extraCount,
 
-        -- 2. 대표 메뉴 정보
-        md.menu_name AS menuName,
-        md.menu_image AS menuImage,
+		-- 2. 대표 메뉴 정보
+		md.menu_name AS menuName,
+		md.menu_image AS menuImage,
 
-        -- 3. 배달 및 주소 정보
-        o.delivery_type AS deliveryType,
-        CASE
-            WHEN o.delivery_type = 1 THEN 0
-            WHEN o.delivery_type = 2 THEN 1000
-            ELSE 2000
-        END AS deliveryPrice,
-        s.store_address AS storeAddress,
-        m.member_addr AS deliveryAddress
+		-- 3. 배달 및 주소 정보
+		o.delivery_type AS deliveryType,
+		CASE
+		WHEN o.delivery_type = 1 THEN 0
+		WHEN o.delivery_type = 2 THEN 1000
+		ELSE 2000
+		END AS deliveryPrice,
+		s.store_address AS storeAddress,
+		m.member_addr AS deliveryAddress
 
-        -- 🌟 기존 (SELECT COUNT(*) FROM review_tbl...) 코드는 삭제해도 됩니다.
-        -- 이제 o.review_status (0 또는 1)만 보면 되니까요!
+		-- 🌟 기존 (SELECT COUNT(*) FROM review_tbl...) 코드는 삭제해도 됩니다.
+		-- 이제 o.review_status (0 또는 1)만 보면 되니까요!
 
-    FROM order_tbl o
-    JOIN store_tbl s ON o.store_id = s.store_id
-    JOIN order_list_map olm ON o.order_id = olm.order_id
-    JOIN member_tbl m ON o.member_id = m.member_id
+		FROM order_tbl o
+		JOIN store_tbl s ON o.store_id = s.store_id
+		JOIN order_list_map olm ON o.order_id = olm.order_id
+		JOIN member_tbl m ON o.member_id = m.member_id
 
-    -- 상세 합산 서브쿼리
-    JOIN (
-        SELECT order_id,
-               SUM(quantity) AS totalCount,
-               SUM(price * quantity) AS totalPrice,
-               SUM(total_carbon * quantity) AS orderCarbon
-        FROM order_detail
-        GROUP BY order_id
-    ) od_sum ON o.order_id = od_sum.order_id
+		-- 상세 합산 서브쿼리
+		JOIN (
+		SELECT order_id,
+		SUM(quantity) AS totalCount,
+		SUM(price * quantity) AS totalPrice,
+		SUM(total_carbon * quantity) AS orderCarbon
+		FROM order_detail
+		GROUP BY order_id
+		) od_sum ON o.order_id = od_sum.order_id
 
-    -- 대표 메뉴 서브쿼리
-    JOIN (
-        SELECT od1.*
-        FROM order_detail od1
-        JOIN (
-            SELECT order_id, MIN(order_detail_id) AS min_detail_id
-            FROM order_detail
-            GROUP BY order_id
-        ) x ON od1.order_id = x.order_id AND od1.order_detail_id = x.min_detail_id
-    ) od_first ON o.order_id = od_first.order_id
+		-- 대표 메뉴 서브쿼리
+		JOIN (
+		SELECT od1.*
+		FROM order_detail od1
+		JOIN (
+		SELECT order_id, MIN(order_detail_id) AS min_detail_id
+		FROM order_detail
+		GROUP BY order_id
+		) x ON od1.order_id = x.order_id AND od1.order_detail_id =
+		x.min_detail_id
+		) od_first ON o.order_id = od_first.order_id
 
-    JOIN menu_tbl md ON od_first.menu_id = md.menu_id
+		JOIN menu_tbl md ON od_first.menu_id = md.menu_id
 
-    WHERE o.member_id = #{memberId}
-    ORDER BY o.order_id DESC
+		WHERE o.member_id = #{memberId}
+		ORDER BY o.order_id DESC
 	</select>
 
 	<insert id="insertReviewComment" parameterType="reviewComment">
-		INSERT INTO review_comment_tbl (
+		INSERT INTO
+		review_comment_tbl (
 		order_id,
 		store_id,
 		member_id,
@@ -265,27 +275,36 @@ SELECT
 		resultType="storeReviewResponse">
 		SELECT
 		r.order_id AS orderId,
-		r.review_rating AS reviewRating,
-		TO_CHAR(r.review_date, 'YYYY-MM-DD HH24:MI') AS reviewDate,
+		r.review_rating AS
+		reviewRating,
+		TO_CHAR(r.review_date, 'YYYY-MM-DD HH24:MI') AS
+		reviewDate,
 		r.review_content AS reviewContent,
-		r.review_thumb AS reviewThumb,
-		m.member_id AS memberId,       m.member_thumb AS memberProfile,
+		r.review_thumb AS
+		reviewThumb,
+		m.member_id AS memberId, m.member_thumb AS memberProfile,
 
 		-- 사장님 답글 정보 (LEFT JOIN이므로 없으면 null로 들어감)
-		rc.review_comment_content AS reviewCommentContent,
-		TO_CHAR(rc.review_comment_date, 'YYYY-MM-DD HH24:MI') AS reviewCommentDate,
+		rc.review_comment_content AS
+		reviewCommentContent,
+		TO_CHAR(rc.review_comment_date, 'YYYY-MM-DD
+		HH24:MI') AS reviewCommentDate,
 
 		-- 대표 메뉴명 하나만 서브쿼리로 쏙 가져오기
-		(SELECT md.menu_name
+		(SELECT
+		md.menu_name
 		FROM order_detail od
-		JOIN menu_tbl md ON od.menu_id = md.menu_id
+		JOIN menu_tbl md ON od.menu_id =
+		md.menu_id
 		WHERE od.order_id = r.order_id
 		AND ROWNUM = 1) AS menuName
 
 		FROM review_tbl r
 		JOIN member_tbl m ON r.member_id = m.member_id
-		LEFT JOIN review_comment_tbl rc ON r.order_id = rc.order_id
-		WHERE r.store_id = #{storeId}
+		LEFT
+		JOIN review_comment_tbl rc ON r.order_id = rc.order_id
+		WHERE r.store_id
+		= #{storeId}
 		ORDER BY r.review_date DESC
 	</select>
 </mapper>
