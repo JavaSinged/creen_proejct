@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import kr.co.iei.member.model.dao.MemberDao;
 import kr.co.iei.member.model.vo.Member;
+import kr.co.iei.member.model.vo.PointHistory;
 import kr.co.iei.member.model.vo.Review;
 import kr.co.iei.utils.EmailSender;
 import tools.jackson.databind.JsonNode;
@@ -313,6 +314,10 @@ public boolean deleteReview(int orderId) {
 
 	public int checkActiveOrder(String memberId) {
 		return memberDao.checkActiveOrder(memberId);
+	}
+
+	public List<PointHistory> selectPointHistory(String memberId) {
+		return memberDao.selectPointHistory(memberId);
 	}
 
 
