@@ -3,6 +3,16 @@ import styles from "./managerChart.module.css";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
 const OrderStatsChart = ({ data }) => {
+  if (!data || data.length === 0) {
+    return (
+      <div className={styles.noData}>당월 주문 데이터가 존재하지 않습니다.</div>
+    );
+  }
+
+  const series = data.map((item) => item.percent); // 배달수단 비중
+  const labels = data.map((item) => item.label); // 배달수단 카테고리
+  const totalAmount = data.reduce((sum, item) => sum + item.seriesAmount, 0); // 총매출
+
   const options = {
     chart: {
       type: "donut", // 차트 종류를 donut으로 설정
@@ -33,7 +43,12 @@ const OrderStatsChart = ({ data }) => {
               label: "당월 주문 금액", // 중앙 상단 텍스트 (이미지 그대로)
               fontSize: "14px",
               color: "#666",
-              formatter: () => data.totalAmount.toLocaleString() + "원", // 중앙 하단 숫자 (이미지 그대로)
+              formatter: () => {
+                if (totalAmount !== undefined && totalAmount !== null) {
+                  return totalAmount.toLocaleString() + "원";
+                }
+                return "0원";
+              },
             },
           },
         },
@@ -41,7 +56,7 @@ const OrderStatsChart = ({ data }) => {
     },
 
     colors: ["#ffb300", "#2e8147", "#c0e0b0"],
-    labels: ["포장", "도보 & 자전거", "오토바이"],
+    labels: labels,
     dataLabels: {
       enabled: false, // 차트 조각 위에 데이터를 직접 표시하지 않음 (이미지처럼)
     },
@@ -55,9 +70,6 @@ const OrderStatsChart = ({ data }) => {
     },
   };
 
-  //임시 데이터
-  const tempSeries = [35, 55, 15];
-
   return (
     <div className={styles.chartContainer}>
       <div className={styles.cardHeader}>
@@ -69,11 +81,14 @@ const OrderStatsChart = ({ data }) => {
       </div>
 
       <div className={styles.mainValue}>
-        {data.totalAmount.toLocaleString()}원
+        {totalAmount !== undefined && totalAmount !== null
+          ? totalAmount.toLocaleString()
+          : 0}
+        원
       </div>
 
       {/* 차트 타입을 donut으로 명시하고 height를 적절히 조절 */}
-      <Chart options={options} series={tempSeries} type="donut" height={350} />
+      <Chart options={options} series={series} type="donut" height={350} />
     </div>
   );
 };

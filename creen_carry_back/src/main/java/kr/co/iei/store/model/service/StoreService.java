@@ -9,7 +9,10 @@ import kr.co.iei.store.model.vo.OrderItem;
 import kr.co.iei.store.model.vo.OrderListObject;
 import kr.co.iei.store.model.vo.OrderListResponse;
 import kr.co.iei.store.model.vo.OrderResponse;
+import kr.co.iei.store.model.vo.StatsOrderInfo;
 import kr.co.iei.store.model.vo.Store;
+import kr.co.iei.store.model.vo.StoreIdResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -181,4 +184,45 @@ public class StoreService {
 	    return 1;
 	}
 
+	public StoreIdResponse selectStoreId(String memberId) {
+		StoreIdResponse storeId = storeDao.selectStoreId(memberId); 
+		return storeId;
+	}
+
+	public List<StatsOrderInfo> selectStatsOrderInfo(Integer storeId, String yearMonth) {
+		List<StatsOrderInfo> list = storeDao.selectStatsOrderInfo(storeId,yearMonth);
+		
+		if(list == null || list.isEmpty()) {
+			return list;
+		}
+		long totalAmount = list.stream().mapToLong(StatsOrderInfo::getSeriesAmount).sum();
+		System.out.println(totalAmount);// 결과 예시: 1,178,909 
+		
+		for (StatsOrderInfo order : list) {
+            // 배달 수단 코드에 따라 이름(label) 설정 (프로젝트 규칙에 맞게 수정)
+            switch (order.getDeliveryType()) {
+                case 1: order.setLabel("오토바이"); break; 
+                case 2: order.setLabel("도보 & 자전거"); break; 
+                case 3: order.setLabel("포장"); break; 
+            }
+
+            // 퍼센트 계산 (총 금액 대비 비율)
+            if (totalAmount > 0) {
+                double percent = (double) order.getSeriesAmount() / totalAmount * 100;
+                // 소수점 첫째 자리까지 반올림 (예: 90.0)
+                order.setPercent(Math.round(percent * 10) / 10.0);
+            } else {
+                order.setPercent(0.0);
+            }
+        }
+		return list;
+    
+		
+		
+		
+		
+	}
+
+	
+	
 }

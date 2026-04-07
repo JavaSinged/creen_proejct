@@ -8,7 +8,10 @@ import kr.co.iei.store.model.vo.Order;
 import kr.co.iei.store.model.vo.OrderItem;
 import kr.co.iei.store.model.vo.OrderListResponse;
 import kr.co.iei.store.model.vo.OrderResponse;
+import kr.co.iei.store.model.vo.StatsOrderInfo;
 import kr.co.iei.store.model.vo.Store;
+import kr.co.iei.store.model.vo.StoreIdResponse;
+
 import org.apache.ibatis.type.Alias;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -121,5 +124,27 @@ public class StoreController {
         }
         return ResponseEntity.ok(menu); // 있으면 200 OK와 함께 데이터 리턴
     }
+    
+    
+    //대시보드용 (memberId 로 storeId조회)
+    @GetMapping(value="/id")
+    public ResponseEntity<?> selectStoreId(@RequestParam String memberId){
+    	StoreIdResponse storeId = storeService.selectStoreId(memberId);
+    	if (storeId != null && storeId.getStoreId() != null) {
+    		return ResponseEntity.ok(storeId);
+          } else {
+            return ResponseEntity.notFound().build();
+          }
+    }
    
+    @GetMapping(value="/stats/order")
+    public ResponseEntity<?> selectStatsOrderInfo(@RequestParam Integer storeId,@RequestParam String yearMonth ){
+    	System.out.println("주문 통계 요청 - 상점ID: " + storeId + ", 조회월: " + yearMonth);
+    	List<StatsOrderInfo> list = storeService.selectStatsOrderInfo(storeId,yearMonth );
+    	if (list != null && !list.isEmpty()) {
+            return ResponseEntity.ok(list); 
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+    }
 }

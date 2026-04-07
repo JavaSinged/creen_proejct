@@ -1,18 +1,19 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styles from "../ManagerDashboard.module.css";
 import OrderStatsChart from "./managerCharts/OrderStatsChart";
 import ReviewStatsChart from "./managerCharts/ReviewStatsChart";
 import DeliveryPathStats from "./managerCharts/DeliveryPathStats";
+import { AuthContext } from "../../../../context/AuthContext";
+import axios from "axios";
 
-export default function StoreStats() {
-  // 1. 차트 데이터를 저장할 상태 (초기값은 더미 데이터 형태)
-  const [orderStatsData, setOrderStatsData] = useState({
-    totalAmount: 1178909,
-    currentMonthAmount: 1178909,
-    // Radial Bar를 위한 데이터 비율
-    series: [40, 55, 15],
-  });
+const StoreStats = () => {
+  const { user } = useContext(AuthContext);
 
+  const [storeId, setStoreId] = useState(null); //조회된 storeId 저장용
+  const [orderStatsData, setOrderStatsData] = useState([]); // 1. 차트에 표시할 데이터 저장용
+  const [isLoading, setIsLoading] = useState(true); //데이터 로딩 상태관리(가져왔는지 아직인지 확인용)
+
+  ////////////////////////리뷰차트영역///////////////////////////
   const [reviewStatsData, setReviewStatsData] = useState({
     totalCount: 140,
     changePercent: 4.5, // +4.5% 지난 주보다
@@ -26,32 +27,57 @@ export default function StoreStats() {
     series: [40, 30, 35, 15], // 5점, 4점, 3점, 1점 비율
   });
 
-  const [deliveryPathData, setDeliveryPathData] = useState([
-    { type: "포장", percent: 35, color: "#ffb300" },
-    { type: "도보 & 자전거", percent: 55, color: "#2e8147" },
-    { type: "오토바이", percent: 15, color: "#c0e0b0" },
-  ]);
+  const getYearMonth = () => {
+    const today = new Date();
+    const year = today.getFullYear(); // 4자리 연도 추출 (예: 2026)
+    const month = String(today.getMonth() + 1).padStart(2, "0"); // 월은 0부터 시작하므로 +1, 2자리 숫자로 맞춤 (예: 4 -> '04')
+    return `${year}-${month}`; // 👈 예: '2026-04'
+  };
 
-  // 2. 초기 데이터 로드 (API 호출 부분 명시)
+  // 아이디로 스토어번호 조회
   useEffect(() => {
-    /* TODO: Axios를 사용하여 실제 데이터를 가져옵니다.
-      예시:
-      const fetchData = async () => {
-        try {
-          const response = await axios.get(`${import.meta.env.VITE_BACKSERVER}/manager/dashboard/stats`);
-          const data = response.data;
-
-          // 데이터를 컴포넌트 형식에 맞게 변환하여 상태 업데이트
-          // setOrderStatsData({ ... });
-          // setReviewStatsData({ ... });
-          // setDeliveryPathData([ ... ]);
-        } catch (error) {
-          console.error("데이터 불러오기 실패:", error);
-        }
-      };
-      fetchData();
-    */
-  }, []);
+    if (user && user.memberId && user.memberGrade === 2) {
+      setIsLoading(true); // 요청 시작 시 로딩 상태 true로 설정
+      axios
+        .get(`${import.meta.env.VITE_BACKSERVER}/stores/id`, {
+          params: {
+            memberId: user.memberId,
+          },
+        })
+        .then((res) => {
+          console.log(res.data);
+          const fetchedStoreId = res.data.storeId;
+          setStoreId(fetchedStoreId);
+          if (fetchedStoreId) {
+            return axios.get(
+              `${import.meta.env.VITE_BACKSERVER}/stores/stats/order`,
+              {
+                params: {
+                  storeId: fetchedStoreId,
+                  yearMonth: getYearMonth(), // '2026-04' 같은 현재 날짜 함수
+                },
+              },
+            );
+          }
+        })
+        .then((statsRes) => {
+          // statsRes는 두 번째 axios 요청의 결과입니다.
+          if (statsRes) {
+            console.log("주문 통계 데이터:", statsRes.data);
+            setOrderStatsData(statsRes.data);
+          }
+        })
+        .catch((err) => {
+          console.error("통신 에러:", err);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    } else {
+      setIsLoading(false);
+      setError(new Error("인증 정보가 없거나 가맹점 매니저 권한이 없습니다."));
+    }
+  }, [user]);
 
   return (
     <div className={styles.statsLayout}>
@@ -62,7 +88,7 @@ export default function StoreStats() {
           <div className={styles.centeredSubTitleGroup}>
             <h3 className={styles.sectionSubTitle}>배달 경로</h3>
           </div>
-          <DeliveryPathStats data={deliveryPathData} />
+          <DeliveryPathStats data={orderStatsData} />
         </div>
       </div>
 
@@ -72,4 +98,5 @@ export default function StoreStats() {
       </div>
     </div>
   );
-}
+};
+export default StoreStats;

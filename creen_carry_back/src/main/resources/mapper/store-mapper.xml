@@ -241,4 +241,29 @@
         WHERE o.member_id = #{memberId}
         ORDER BY o.order_id DESC
     </select>
+    
+    
+    <select id="selectStoreId" resultType="storeIdResponse">
+    SELECT
+    	store_id AS storeId
+  	FROM order_tbl
+  	WHERE member_id = #{memberId}
+    </select>
+    
+    <select id="selectStatsOrderInfo" resultType="statsOrderInfo">
+    SELECT
+      o.DELIVERY_TYPE AS deliveryType,
+      SUM(od.PRICE * od.QUANTITY) AS seriesAmount
+    FROM order_list_map m  JOIN order_tbl o ON m.order_id = o.order_id
+    
+    JOIN order_detail od ON o.order_id = od.order_id
+    WHERE o.store_id = #{storeId}
+      AND o.order_status = 5
+      AND TO_CHAR(m.reg_date, 'YYYY-MM') = #{yearMonth} 
+    GROUP BY o.delivery_type
+    ORDER BY o.delivery_type ASC
+    </select>
+    
+    
+    
 </mapper>
