@@ -321,6 +321,7 @@ public boolean deleteReview(int orderId) {
 
 	public List<PointHistory> selectPointHistory(String memberId) {
 		return memberDao.selectPointHistory(memberId);
+	}
 	public String getEnrollDate(String memberId) {
 		return memberDao.getEnrollDate(memberId);
 	}
