@@ -83,4 +83,8 @@ public interface StoreDao {
 	List<StoreReviewResponse> selectStoreReviews(int storeId);
 
 	int insertReviewComment(ReviewComment comment);
+
+	List<OrderResponse> getOrdersByStoreId(int storeId);
+
+	int changeOrderStatus(int orderId, int status);
 }

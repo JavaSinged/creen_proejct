@@ -154,5 +154,30 @@ public class StoreController {
             return ResponseEntity.internalServerError().body("SERVER_ERROR");
         }
     }
+    
+ // 사장님(매장) 주문 목록 불러오기 API
+    @GetMapping("/owner/orders/{storeId}")
+    public ResponseEntity<List<OrderResponse>> getStoreOrders(@PathVariable int storeId) {
+        List<OrderResponse> list = storeService.getOrdersByStoreId(storeId);
+        return ResponseEntity.ok(list);
+    }
+
+    // 주문 상태 변경 API (접수, 조리중, 취소 등)
+    @PatchMapping("/order/{orderId}/status")
+    public ResponseEntity<String> changeOrderStatus(
+            @PathVariable int orderId, 
+            @RequestBody Map<String, Integer> requestBody) {
+        
+        // 프론트에서 보낸 { status: 2 } 등의 값을 꺼냅니다
+        int status = requestBody.get("status"); 
+        
+        int result = storeService.changeOrderStatus(orderId, status);
+        
+        if(result > 0) {
+            return ResponseEntity.ok("success");
+        } else {
+            return ResponseEntity.badRequest().body("fail");
+        }
+    }
    
 }

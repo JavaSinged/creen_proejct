@@ -14,6 +14,7 @@ import kr.co.iei.store.model.vo.Store;
 import kr.co.iei.store.model.vo.StoreReviewResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -193,5 +194,15 @@ public class StoreService {
     public int insertReviewComment(ReviewComment comment) {
         return storeDao.insertReviewComment(comment);
     }
+
+	public List<OrderResponse> getOrdersByStoreId(int storeId) {
+		List<OrderResponse> list = storeDao.getOrdersByStoreId(storeId);
+        return list;
+	}
+
+	public int changeOrderStatus(int orderId, int status) {
+		int result = storeDao.changeOrderStatus(orderId, status);
+		return result;
+	}
 
 }
