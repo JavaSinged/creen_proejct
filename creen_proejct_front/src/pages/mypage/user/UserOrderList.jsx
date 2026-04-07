@@ -97,7 +97,7 @@ const UserOrderListPage = () => {
                           className={styles.reviewBtn}
                           onClick={() => openReviewModal(order)}
                         >
-                          리뷰 작성하기
+                          리뷰 작성 (3일 이내)
                         </button>
                       ) : isAlreadyReviewed ? (
                         <button className={styles.reviewBtnDisabled} disabled>
@@ -118,6 +118,12 @@ const UserOrderListPage = () => {
                   <div className={styles.infoBlock}>
                     <p className={styles.infoTitle}>주문 날짜</p>
                     <p>{formatDate(order.orderDate)}</p>
+                  </div>
+                  <div className={styles.infoBlock}>
+                    <p className={styles.infoTitle}>매장 위치</p>
+                    <p className={styles.addressText}>
+                      {order.storeAddress || "정보 없음"}
+                    </p>
                   </div>
                   <div className={styles.infoBlock}>
                     <p className={styles.infoTitle}>배달 주소</p>
