@@ -185,6 +185,9 @@
   width: 20px;
   height: 20px;
 }
+.desc_section p {
+  font-size: 15px;
+}
 .last_check_box {
   display: flex;
   text-align: center;
