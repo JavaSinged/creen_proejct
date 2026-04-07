@@ -1,23 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import styles from './ManagerMenuList.module.css';
-import Pagination from '../../../components/commons/Pagination'; // 분리하신 컴포넌트 임포트
 
 // MUI Icons
 import SearchIcon from '@mui/icons-material/Search';
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 const ManagerMenuList = () => {
-  const [menus, setMenus] = useState([]);
+  const [menus, setMenus] = useState([]); // 전체 메뉴 원본 데이터
   const [searchKeyword, setSearchKeyword] = useState('');
-
-  // 페이지네이션 관련 상태
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const itemsPerPage = 6; // 한 페이지에 보여줄 개수 (이미지상 6개)
   const [storeId, setStoreId] = useState('');
 
-  // 1. 가게 정보 가져오기 (마운트 시 1회)
+  // 페이지네이션 상태
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+
+  // 1. 가게 정보 가져오기
   useEffect(() => {
     const memberId = localStorage.getItem('memberId');
     if (!memberId) return;
@@ -32,66 +32,126 @@ const ManagerMenuList = () => {
       .catch((err) => console.error('가게 정보 조회 실패:', err));
   }, []);
 
-  // 2. 메뉴 정보 가져오기 (storeId가 생기거나 변경될 때만!)
+  // 2. 메뉴 정보 전체 가져오기
   useEffect(() => {
-    // 🌟 이 부분이 핵심입니다: storeId가 없으면 아예 axios 요청을 보내지 않음
     if (!storeId) return;
 
     axios
       .get(`${import.meta.env.VITE_BACKSERVER}/stores/${storeId}/menus`)
       .then((res) => {
-        console.log('🚀 fetchMenus ~ res:', res.data);
-        setMenus(res.data); // 메뉴 상태에 저장 (그래야 화면에 나옵니다)
+        setMenus(res.data); // 전체 데이터를 한 번에 저장
       })
-      .catch((err) => {
-        console.error('메뉴 로딩 실패:', err);
-      });
-  }, [storeId]); // storeId가 업데이트될 때만 감시해서 실행
+      .catch((err) => console.error('메뉴 로딩 실패:', err));
+  }, [storeId]);
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-    window.scrollTo(0, 0); // 페이지 변경 시 상단으로 이동
+  // 📌 3. 데이터 가공 파이프라인 (검색어 필터링)
+  const filteredMenus = useMemo(() => {
+    let result = menus;
+    if (searchKeyword) {
+      result = result.filter((menu) =>
+        menu.menuName.toLowerCase().includes(searchKeyword.toLowerCase()),
+      );
+    }
+    return result;
+  }, [menus, searchKeyword]);
+
+  // 📌 4. 페이지네이션 계산 로직
+  const totalPages = Math.ceil(filteredMenus.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  // 현재 페이지에 보여줄 6개만 추출
+  const currentMenus = filteredMenus.slice(indexOfFirstItem, indexOfLastItem);
+
+  // 페이지 이동 핸들러
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+  const handlePageClick = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo(0, 0);
+  };
+
+  // 검색어 입력 시 페이지 리셋
+  const handleSearchChange = (e) => {
+    setSearchKeyword(e.target.value);
+    setCurrentPage(1);
   };
 
   return (
     <div className={styles.container}>
-      {/* 상단 검색바 */}
+      {/* 상단 헤더 및 검색바 */}
       <div className={styles.header}>
-        <div className={styles.search_box}>
+        <h2 className={styles.title}>상점 메뉴 리스트</h2>
+        <div className={styles.search_wrap}>
           <input
-            type="text"
-            placeholder="메뉴 이름"
+            type="search"
+            className={styles.search_input}
+            placeholder="메뉴 이름 검색"
             value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)}
+            onChange={handleSearchChange}
           />
           <SearchIcon className={styles.search_icon} />
         </div>
+
+        <button className={styles.addButton}>메뉴 추가</button>
       </div>
 
       {/* 메뉴 리스트 (Grid) */}
       <div className={styles.grid_container}>
-        {menus.map((menu) => (
-          <div key={menu.menuId} className={styles.menu_card}>
-            <div className={styles.image_placeholder}>
-              <ImageOutlinedIcon sx={{ fontSize: 60, color: '#bdbdbd' }} />
+        {currentMenus.length > 0 ? (
+          currentMenus.map((menu) => (
+            <div key={menu.menuId} className={styles.menu_card}>
+              <div className={styles.image_placeholder}>
+                {/* 만약 이미지 URL이 있다면 img 태그로 교체 가능 */}
+                <ImageOutlinedIcon sx={{ fontSize: 60, color: '#bdbdbd' }} />
+              </div>
+              <div className={styles.menu_info}>
+                <p className={styles.menu_name}>{menu.menuName}</p>
+                <p className={styles.menu_price}>
+                  {menu.menuPrice?.toLocaleString()}원
+                </p>
+              </div>
             </div>
-            <div className={styles.menu_info}>
-              <p className={styles.menu_name}>{menu.menuName}</p>
-              <p className={styles.menu_price}>
-                {menu.menuPrice.toLocaleString()}원
-              </p>
-            </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <div className={styles.no_result}>검색 결과가 없습니다.</div>
+        )}
       </div>
 
-      {/* 페이지네이션 컴포넌트 호출 */}
-      <div className={styles.pagination_wrapper}>
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
+      {/* 페이지네이션 영역 (관리자 페이지와 동일한 스타일 적용) */}
+      <div className={styles.pagination}>
+        <button
+          className={styles.page_btn_nav}
+          onClick={handlePrevPage}
+          disabled={currentPage === 1}
+        >
+          <ChevronLeftIcon /> 이전
+        </button>
+
+        <div className={styles.page_numbers}>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+            <div
+              key={num}
+              className={`${styles.page_num} ${
+                currentPage === num ? styles.active : ''
+              }`}
+              onClick={() => handlePageClick(num)}
+            >
+              {num < 10 ? `0${num}` : num}
+            </div>
+          ))}
+        </div>
+
+        <button
+          className={styles.page_btn_nav}
+          onClick={handleNextPage}
+          disabled={currentPage === totalPages || totalPages === 0}
+        >
+          다음 <ChevronRightIcon />
+        </button>
       </div>
     </div>
   );
