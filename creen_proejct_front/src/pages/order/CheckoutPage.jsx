@@ -22,43 +22,82 @@ const CheckoutPage = () => {
   const paymentOrderId = params.get("orderId");
   const orderId = paymentOrderId ? Number(paymentOrderId.split("_")[1]) : null;
   const [storeName, setStoreName] = useState("");
-  const [orderState, setOrderState] = useState(0);
+
+  // 상태 관리를 위한 State
+  const [orderState, setOrderState] = useState(0); // UI 프로그레스바용
+  const [rawOrderStatus, setRawOrderStatus] = useState(0); // 🌟 [추가] 실제 백엔드 상태(0~9) 저장용
   const [orderDate, setOrderDate] = useState("");
   const [totalCarbon, setTotalCarbon] = useState(0);
-  const [cancel, setCancel] = useState(0);
-  const cancleOrder = () => {
-    axios
-      .patch(`${import.meta.env.VITE_BACKSERVER}/stores/order/${orderId}`)
-      .then((res) => {
-        console.log(res);
-        setCancel(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-  useEffect(() => {
-    console.log(cartList);
+
+  // 🌟 [수정] 1. 주문 정보를 불러오는 함수를 분리
+  const fetchOrderDetails = () => {
     if (!orderId) return;
 
     axios
       .get(`${import.meta.env.VITE_BACKSERVER}/stores/order/${orderId}`)
       .then((res) => {
-        console.log(res.data);
-
         setOrderList(res.data.items ?? []);
         setUsedPoint(Number(res.data.usedPoint ?? 0));
         setGetPoint(Number(res.data.getPoint ?? 0));
         setDeliveryPrice(Number(res.data.deliveryPrice ?? 0));
         setStoreName(res.data.storeName);
-        setOrderState(res.data.orderStatus - 2 ?? 0);
+
+        // 상태 업데이트
+        setRawOrderStatus(res.data.orderStatus ?? 0); // 실제 상태 저장
+        setOrderState((res.data.orderStatus ?? 2) - 2); // UI 바 상태
         setOrderDate(res.data.orderDate);
         setTotalCarbon(res.data.totalReduceCarbon);
       })
       .catch((err) => {
-        console.log(err);
+        console.error("주문 정보 갱신 실패:", err);
       });
-  }, [orderId, cartList]);
+  };
+
+  // 🌟 [추가] 2. 10초마다 자동 새로고침(폴링) 적용
+  useEffect(() => {
+    fetchOrderDetails(); // 첫 진입 시 즉시 실행
+
+    const intervalId = setInterval(() => {
+      fetchOrderDetails(); // 10초마다 반복 실행
+    }, 5000);
+
+    return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 타이머 정리
+  }, [orderId]);
+
+  // 🌟 [수정] 3. 주문 취소 함수 (SweetAlert 적용 및 백엔드 일치)
+  const cancelOrder = () => {
+    Swal.fire({
+      title: "주문 취소",
+      text: "정말 주문을 취소하시겠습니까?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      confirmButtonText: "취소 확정",
+      cancelButtonText: "돌아가기",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios
+          .patch(
+            `${import.meta.env.VITE_BACKSERVER}/stores/order/${orderId}/status`,
+            { status: 9 }, // 상태를 9(취소)로 변경
+          )
+          .then(() => {
+            Swal.fire(
+              "취소 완료",
+              "주문이 정상적으로 취소되었습니다.",
+              "success",
+            ).then(() => {
+              navigate("/"); // 취소 성공 후 홈이나 주문내역으로 이동
+            });
+          })
+          .catch((err) => {
+            console.error(err);
+            Swal.fire("오류", "주문 취소를 실패했습니다.", "error");
+          });
+      }
+    });
+  };
+
   useEffect(() => {
     const total = orderList.reduce((sum, item) => {
       return sum + Number(item.price ?? 0) * Number(item.quantity ?? 0);
@@ -66,6 +105,7 @@ const CheckoutPage = () => {
 
     setOrderAmount(total);
   }, [orderList]);
+
   useEffect(() => {
     const paymentAmount = Math.max(
       0,
@@ -135,7 +175,7 @@ const CheckoutPage = () => {
 
           <button className={styles.orderCheckBtn}>주문내역 확인</button>
           <p className={styles.orderNumber}>
-            ECO-{orderDate}-{orderId}
+            ECO-{orderDate ? orderDate.replace(/-/g, "") : ""}-{orderId}
           </p>
         </section>
 
@@ -177,7 +217,9 @@ const CheckoutPage = () => {
           </div>
 
           <p className={styles.statusMessage}>
-            정성껏 음식을 준비하고 있습니다.
+            {rawOrderStatus === 9
+              ? "주문이 취소되었습니다."
+              : "정성껏 음식을 준비하고 있습니다."}
           </p>
         </section>
 
@@ -276,27 +318,18 @@ const CheckoutPage = () => {
             <button
               className={styles.primaryBtn}
               onClick={() => {
-                navigate("/");
+                navigate("/mypage/user/orderList"); // 목록으로 가기
               }}
             >
-              주문 내역보기
+              주문 목록 보기
             </button>
 
-            <button
-              className={styles.secondaryBtn}
-              onClick={() => {
-                cancleOrder();
-                if (cancel == 1) {
-                  Swal.fire("완료", "주문이 취소 되었습니다.", "success");
-                  navigate("/");
-                } else {
-                  Swal.fire("실패", "주문을 취소 할 수 없습니다.", "error");
-                }
-                // navigate("/");
-              }}
-            >
-              주문 취소
-            </button>
+            {/* 🌟 [수정] 4. 결제대기(0), 접수대기(1)일 때만 주문 취소 버튼 표시 */}
+            {(rawOrderStatus === 0 || rawOrderStatus === 1) && (
+              <button className={styles.secondaryBtn} onClick={cancelOrder}>
+                주문 취소
+              </button>
+            )}
           </aside>
         </div>
       </main>

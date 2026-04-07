@@ -2,9 +2,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import styles from "./UserOrderList.module.css";
 import ReviewModal from "../../../components/layout/ReviewModal";
-import Swal from "sweetalert2"; // 🌟 [추가] 알림창을 위한 Swal 임포트
+import Swal from "sweetalert2"; //
+import { useNavigate } from "react-router-dom";
 
 const UserOrderListPage = () => {
+  const navigate = useNavigate();
   const [orderList, setOrderList] = useState([]);
   const memberId = localStorage.getItem("memberId");
 
@@ -111,6 +113,13 @@ const UserOrderListPage = () => {
     setEndDate("");
   };
 
+  const goToCheckoutPage = (order) => {
+    const tossStyleOrderId = `ORDER_${order.orderId}_${new Date().getTime()}`;
+    const amount = order.totalPrice || 0;
+
+    navigate(`/checkoutPage?orderId=${tossStyleOrderId}&amount=${amount}`);
+  };
+
   return (
     <div className={styles.page}>
       <div className={styles.topSummary}>
@@ -162,7 +171,12 @@ const UserOrderListPage = () => {
               : `idx-${index}`;
 
             return (
-              <div key={itemKey} className={styles.orderCard}>
+              <div
+                key={itemKey}
+                className={styles.orderCard}
+                onClick={() => goToCheckoutPage(order)}
+                style={{ cursor: "pointer" }}
+              >
                 <div className={styles.orderTop}>
                   <div className={styles.leftInfo}>
                     <img
@@ -184,11 +198,13 @@ const UserOrderListPage = () => {
                       {getOrderStatusText(order.orderStatus)}
                     </span>
 
-                    {/* 🌟 [추가] 결제대기(0) 또는 접수대기(1)일 때만 주문 취소 버튼 표시 */}
                     {(order.orderStatus === 0 || order.orderStatus === 1) && (
                       <button
                         className={styles.cancelBtn}
-                        onClick={() => cancelOrder(order.orderId)}
+                        onClick={(e) => {
+                          e.stopPropagation(); // 🌟 중요: 이 버튼을 누르면 페이지 이동 안 되게 막기
+                          cancelOrder(order.orderId);
+                        }}
                       >
                         주문 취소
                       </button>
