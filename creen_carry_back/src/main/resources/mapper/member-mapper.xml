@@ -250,6 +250,11 @@
 		m.reg_date DESC
 	</select>
 
+	<select id="getEnrollDate" parameterType="String" resultType="String">
+        SELECT TO_CHAR(enroll_date, 'YYYY-MM-DD')
+        FROM member_tbl 
+        WHERE member_id = #{memberId}
+    </select>
 
 
 
