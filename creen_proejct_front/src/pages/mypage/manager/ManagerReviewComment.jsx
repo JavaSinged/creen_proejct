@@ -119,10 +119,25 @@ const ManagerReviewComment = () => {
               </button>
               {/* 고객 리뷰 영역 */}
               <div className={styles.customerSection}>
-                <div className={styles.reviewHeader}>
-                  <div className={styles.stars}>
-                    {"★".repeat(review.reviewRating)}
-                    {"☆".repeat(5 - review.reviewRating)}
+                {/* 🌟 고객 프로필 헤더 추가 */}
+                <div className={styles.userInfo}>
+                  <img
+                    src={
+                      review.memberProfile
+                        ? `${import.meta.env.VITE_BACKSERVER}${review.memberProfile}`
+                        : "/img/default-user.png" // 기본 프로필 이미지
+                    }
+                    alt="profile"
+                    className={styles.userAvatar}
+                  />
+                  <div className={styles.userNameArea}>
+                    <span className={styles.userName}>
+                      {review.memberId} 고객님
+                    </span>
+                    <div className={styles.stars}>
+                      {"★".repeat(review.reviewRating)}
+                      {"☆".repeat(5 - review.reviewRating)}
+                    </div>
                   </div>
                   <span className={styles.date}>{review.reviewDate}</span>
                 </div>

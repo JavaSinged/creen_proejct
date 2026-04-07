@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class StoreReviewResponse {
     // 고객 리뷰 정보
+	private String memberId;
+	private String memberProfile;
     private Integer orderId;
     private Integer reviewRating;
     private String reviewDate;

@@ -266,6 +266,7 @@
 		TO_CHAR(r.review_date, 'YYYY-MM-DD HH24:MI') AS reviewDate,
 		r.review_content AS reviewContent,
 		r.review_thumb AS reviewThumb,
+		m.member_id AS memberId,       m.member_thumb AS memberProfile,
 
 		-- 사장님 답글 정보 (LEFT JOIN이므로 없으면 null로 들어감)
 		rc.review_comment_content AS reviewCommentContent,
@@ -279,6 +280,7 @@
 		AND ROWNUM = 1) AS menuName
 
 		FROM review_tbl r
+		JOIN member_tbl m ON r.member_id = m.member_id
 		LEFT JOIN review_comment_tbl rc ON r.order_id = rc.order_id
 		WHERE r.store_id = #{storeId}
 		ORDER BY r.review_date DESC
