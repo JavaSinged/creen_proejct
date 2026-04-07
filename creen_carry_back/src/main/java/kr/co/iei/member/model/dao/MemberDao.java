@@ -62,4 +62,6 @@ public interface MemberDao {
 
 	List<PointHistory> selectPointHistory(String memberId);
 
+	void updateReviewStatus(int orderId);
+
 }

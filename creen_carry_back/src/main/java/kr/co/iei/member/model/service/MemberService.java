@@ -291,6 +291,9 @@ public class MemberService {
 		if (result > 0) {
 			// (선택) 에코 포인트 지급 로직 추가
 			// memberDao.addEcoPoint(review.getMemberId(), 100);
+			if (result > 0) {
+		        memberDao.updateReviewStatus(review.getOrderId());
+		    }
 		} else {
 			throw new RuntimeException("리뷰 등록에 실패했습니다.");
 		}

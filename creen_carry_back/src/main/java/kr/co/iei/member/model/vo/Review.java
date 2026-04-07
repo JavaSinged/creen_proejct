@@ -20,6 +20,7 @@ public class Review {
     private String reviewDate;   // 작성일
     private int storeId;
     private String memberProfile;
+    private int reviewStatus;
     
     
     private String storeName;    // 상점 이름
