@@ -42,6 +42,7 @@ public class OrderResponse {
 
 	// 6. 리뷰 정보
 	private Integer hasReview; // 리뷰 작성 여부 (0 또는 1)
+	private int reviewStatus;
 
 
 	private Double totalReduceCarbon;
