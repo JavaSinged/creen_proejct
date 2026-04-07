@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import styles from "./UserOrderList.module.css";
 import ReviewModal from "../../../components/layout/ReviewModal";
-import Swal from "sweetalert2"; //
+import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 
 const UserOrderListPage = () => {
@@ -41,7 +41,6 @@ const UserOrderListPage = () => {
     };
   }, [memberId]);
 
-  // 🌟 [추가] 유저용 주문 취소 함수
   const cancelOrder = (orderId) => {
     Swal.fire({
       title: "주문 취소",
@@ -156,7 +155,8 @@ const UserOrderListPage = () => {
       <div className={styles.orderListWrap}>
         {filteredAndSortedOrders.length > 0 ? (
           filteredAndSortedOrders.map((order, index) => {
-            const isDelivered = order.orderStatus === 5;
+            // 🌟 [수정] 완료 상태인지 확인 (배달완료 or 픽업완료 둘 다 5번)
+            const isCompleted = order.orderStatus === 5;
             const isNotReviewed = Number(order.reviewStatus) === 0;
             const isAlreadyReviewed = Number(order.reviewStatus) === 1;
 
@@ -195,14 +195,18 @@ const UserOrderListPage = () => {
 
                   <div className={styles.rightInfo}>
                     <span className={styles.statusBadge}>
-                      {getOrderStatusText(order.orderStatus)}
+                      {/* 🌟 [수정] 픽업/배달 구분을 위해 deliveryType 파라미터 추가 */}
+                      {getOrderStatusText(
+                        order.orderStatus,
+                        order.deliveryType,
+                      )}
                     </span>
 
                     {(order.orderStatus === 0 || order.orderStatus === 1) && (
                       <button
                         className={styles.cancelBtn}
                         onClick={(e) => {
-                          e.stopPropagation(); // 🌟 중요: 이 버튼을 누르면 페이지 이동 안 되게 막기
+                          e.stopPropagation(); // 페이지 이동 방지
                           cancelOrder(order.orderId);
                         }}
                       >
@@ -210,8 +214,8 @@ const UserOrderListPage = () => {
                       </button>
                     )}
 
-                    {/* 배달완료 + 리뷰 조건 로직 */}
-                    {isDelivered &&
+                    {/* 완료(배달완료/픽업완료) + 리뷰 조건 로직 */}
+                    {isCompleted &&
                       (isAlreadyReviewed ? (
                         <button className={styles.reviewBtnDisabled} disabled>
                           작성 완료
@@ -219,7 +223,10 @@ const UserOrderListPage = () => {
                       ) : isNotReviewed && isWithin3Days ? (
                         <button
                           className={styles.reviewBtn}
-                          onClick={() => openReviewModal(order)}
+                          onClick={(e) => {
+                            e.stopPropagation(); // 모달 열 때 페이지 이동 방지
+                            openReviewModal(order);
+                          }}
                         >
                           리뷰 작성 (3일 이내)
                         </button>
@@ -250,9 +257,14 @@ const UserOrderListPage = () => {
                     </p>
                   </div>
                   <div className={styles.infoBlock}>
-                    <p className={styles.infoTitle}>배달 주소</p>
+                    {/* 🌟 [수정] 픽업일 경우 '배달 주소' 대신 '수령 방식' 출력 */}
+                    <p className={styles.infoTitle}>
+                      {order.deliveryType === 1 ? "수령 방식" : "배달 주소"}
+                    </p>
                     <p className={styles.addressText}>
-                      {order.deliveryAddress}
+                      {order.deliveryType === 1
+                        ? "매장 방문 픽업"
+                        : order.deliveryAddress}
                     </p>
                   </div>
                 </div>
@@ -263,7 +275,7 @@ const UserOrderListPage = () => {
                       이 주문으로 절감한 탄소량
                     </p>
                     <p className={styles.carbonDesc}>
-                      친환경 포장재 및 로컬 배송
+                      친환경 포장재 및 로컬 배송/픽업
                     </p>
                   </div>
                   <div className={styles.carbonValueWrap}>
@@ -296,14 +308,16 @@ const UserOrderListPage = () => {
 
 export default UserOrderListPage;
 
-const getOrderStatusText = (status) => {
+// 🌟 [수정] 사장님 페이지와 동일하게 deliveryType 파라미터를 받아 분기 처리
+const getOrderStatusText = (status, deliveryType) => {
+  const isPickup = deliveryType === 1;
   const statusMap = {
     0: "결제대기",
     1: "접수대기",
     2: "주문접수",
     3: "조리중",
-    4: "배달중",
-    5: "배달완료",
+    4: isPickup ? "픽업대기" : "배달중",
+    5: isPickup ? "픽업완료" : "배달완료",
     9: "주문취소",
   };
   return statusMap[status] || "확인중";

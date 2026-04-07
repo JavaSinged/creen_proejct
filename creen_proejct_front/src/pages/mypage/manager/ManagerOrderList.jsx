@@ -31,16 +31,23 @@ const ManagerOrderList = () => {
     fetchStoreOrders();
   }, [storeId]);
 
-  // 🌟 주문 상태를 다음 단계(+1)로 넘기는 함수
-  const updateOrderStatus = (orderId, currentStatus) => {
+  // 🌟 [수정] 주문 상태 변경 함수 (deliveryType을 받아서 픽업/배달 분기 처리)
+  const updateOrderStatus = (orderId, currentStatus, deliveryType) => {
     const nextStatus = currentStatus + 1;
+    const isPickup = deliveryType === 1; // 1이면 픽업
     let confirmMsg = "";
 
     if (currentStatus === 1) confirmMsg = "주문을 접수하시겠습니까?";
     else if (currentStatus === 2) confirmMsg = "조리를 시작하시겠습니까?";
-    else if (currentStatus === 3) confirmMsg = "배달을 출발시키겠습니까?";
-    else if (currentStatus === 4) confirmMsg = "배달 완료 처리하시겠습니까?";
-    else return;
+    else if (currentStatus === 3) {
+      confirmMsg = isPickup
+        ? "조리를 완료하고 픽업 대기 상태로 변경하시겠습니까?"
+        : "배달을 출발시키겠습니까?";
+    } else if (currentStatus === 4) {
+      confirmMsg = isPickup
+        ? "고객이 상품을 수령하여 픽업 완료 처리하시겠습니까?"
+        : "배달 완료 처리하시겠습니까?";
+    } else return;
 
     Swal.fire({
       title: "상태 변경",
@@ -70,7 +77,6 @@ const ManagerOrderList = () => {
     });
   };
 
-  // 🌟 주문 취소(거절) 함수 -> 상태를 9로 변경
   const cancelOrder = (orderId) => {
     Swal.fire({
       title: "주문 취소",
@@ -121,7 +127,7 @@ const ManagerOrderList = () => {
           sortedOrders.map((order) => {
             const isCompleted = order.orderStatus === 5;
             const isCanceled = order.orderStatus === 9;
-            const isNewOrder = order.orderStatus === 1; // 1: 접수대기 (신규 주문)
+            const isNewOrder = order.orderStatus === 1;
 
             return (
               <div
@@ -174,24 +180,32 @@ const ManagerOrderList = () => {
                     <span
                       className={`${styles.statusBadge} ${styles[`status_${order.orderStatus}`]}`}
                     >
-                      {getOrderStatusText(order.orderStatus)}
+                      {/* 🌟 [수정] 상태 텍스트에 deliveryType 전달 */}
+                      {getOrderStatusText(
+                        order.orderStatus,
+                        order.deliveryType,
+                      )}
                     </span>
                   </div>
 
                   <div className={styles.actionButtons}>
-                    {/* 상태가 1~4일 때만 다음 단계 버튼 표시 */}
                     {order.orderStatus >= 1 && order.orderStatus < 5 && (
                       <button
                         className={styles.nextStepBtn}
                         onClick={() =>
-                          updateOrderStatus(order.orderId, order.orderStatus)
+                          /* 🌟 [수정] 상태 변경 함수에 deliveryType 전달 */
+                          updateOrderStatus(
+                            order.orderId,
+                            order.orderStatus,
+                            order.deliveryType,
+                          )
                         }
                       >
-                        {getActionText(order.orderStatus)}
+                        {/* 🌟 [수정] 버튼 텍스트에 deliveryType 전달 */}
+                        {getActionText(order.orderStatus, order.deliveryType)}
                       </button>
                     )}
 
-                    {/* 🌟 수정 부분: 접수대기(1) 상태일 때만 '주문 거절' 버튼 표시 */}
                     {order.orderStatus === 1 && (
                       <button
                         className={styles.cancelBtn}
@@ -215,27 +229,29 @@ const ManagerOrderList = () => {
 
 export default ManagerOrderList;
 
-// 🌟 유저님이 주신 상태 맵핑
-const getOrderStatusText = (status) => {
+// 🌟 [수정] 상태 맵핑: 픽업(1)일 경우 4번과 5번의 텍스트가 바뀜
+const getOrderStatusText = (status, deliveryType) => {
+  const isPickup = deliveryType === 1;
   const map = {
     0: "결제대기",
     1: "접수대기",
     2: "주문접수",
     3: "조리중",
-    4: "배달중",
-    5: "배달완료",
+    4: isPickup ? "픽업대기" : "배달중",
+    5: isPickup ? "픽업완료" : "배달완료",
     9: "주문취소",
   };
   return map[status] || "확인중";
 };
 
-// 🌟 상태별 버튼 텍스트 (현재 상태에서 다음으로 넘어갈 때의 행동)
-const getActionText = (status) => {
+// 🌟 [수정] 버튼 텍스트: 픽업(1)일 경우 다음 액션 텍스트가 바뀜
+const getActionText = (status, deliveryType) => {
+  const isPickup = deliveryType === 1;
   const map = {
-    1: "주문 수락하기", // 접수대기 -> 주문접수
-    2: "조리 시작하기", // 주문접수 -> 조리중
-    3: "배달 출발하기", // 조리중 -> 배달중
-    4: "배달 완료처리", // 배달중 -> 배달완료
+    1: "주문 수락하기",
+    2: "조리 시작하기",
+    3: isPickup ? "픽업 준비 완료하기" : "배달 출발하기", // 조리중일 때 누를 버튼
+    4: isPickup ? "픽업 완료처리" : "배달 완료처리", // 픽업대기/배달중일 때 누를 버튼
   };
   return map[status] || "";
 };
