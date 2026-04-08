@@ -47,6 +47,7 @@ import ManagerDashboard from "./pages/mypage/manager/ManagerDashBoard";
 import UserReviewList from "./pages/mypage/user/UserReviewList";
 import ManagerReviewComment from "./pages/mypage/manager/ManagerReviewComment";
 import ManagerOrderList from "./pages/mypage/manager/ManagerOrderList";
+import ManagerCS from "./pages/mypage/manager/ManagerCS";
 
 const BasicLayout = () => {
   return (
@@ -115,6 +116,7 @@ function App() {
                 <Route path="deleteMember" element={<ManagerDelAccount />} />
                 <Route path="reviews" element={<ManagerReviewComment />} />
                 <Route path="orders" element={<ManagerOrderList />} />
+                <Route path="managerCS" element={<ManagerCS />} />
               </Route>
             </Route>
             {/* ---------------------------------------------------- */}

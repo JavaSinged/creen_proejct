@@ -51,7 +51,7 @@ export default function ManagerLayout() {
           </li>
           <li>
             <NavLink
-              to="/mypage/profile"
+              to="/mypage/manager/managerCS"
               className={({ isActive }) => (isActive ? styles.activeMenu : "")}
             >
               고객센터
