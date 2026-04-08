@@ -1,4 +1,4 @@
-/* 1. 대시보드 공통 레이아웃 (제공해주신 코드와 동일) */
+/* 1. 대시보드 공통 레이아웃 */
 .dashboardContainer {
   background-color: var(--color-bg);
   border: none;
@@ -10,7 +10,7 @@
   min-height: 100vh;
 }
 
-/*상단 슬라이드 탭 메뉴 (제공해주신 코드와 동일)*/
+/*상단 슬라이드 탭 메뉴 */
 .tabContainer {
   position: relative;
   display: flex;

@@ -55,7 +55,7 @@ const OrderStatsChart = ({ data }) => {
       },
     },
 
-    colors: ["#ffb300", "#2e8147", "#c0e0b0"],
+    colors: ["var(--color-point)", "var(--color-brand)", "var(--color-info)"],
     labels: labels,
     dataLabels: {
       enabled: false, // 차트 조각 위에 데이터를 직접 표시하지 않음 (이미지처럼)

@@ -17,7 +17,7 @@ public class TotalAmount {
     private Integer memberGrade;
     private String orderId;
     private Integer deliveryType;
-    private Integer pricePlusOption;
+    private Integer price;
     private Integer quantity;
     private String date;
     

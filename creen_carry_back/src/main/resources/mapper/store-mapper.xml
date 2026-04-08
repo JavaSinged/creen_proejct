@@ -244,10 +244,9 @@
     
     
     <select id="selectStoreId" resultType="storeIdResponse">
-    SELECT
-    	store_id AS storeId
-  	FROM order_tbl
-  	WHERE member_id = #{memberId}
+    SELECT store_id 
+	FROM store_tbl 
+	WHERE member_id = #{memberId}
     </select>
     
     <select id="selectStatsOrderInfo" resultType="statsOrderInfo">

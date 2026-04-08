@@ -195,15 +195,16 @@ public class StoreService {
 		if(list == null || list.isEmpty()) {
 			return list;
 		}
+		System.out.println("list확인: "+ list);
 		long totalAmount = list.stream().mapToLong(StatsOrderInfo::getSeriesAmount).sum();
 		System.out.println(totalAmount);// 결과 예시: 1,178,909 
 		
 		for (StatsOrderInfo order : list) {
             // 배달 수단 코드에 따라 이름(label) 설정 (프로젝트 규칙에 맞게 수정)
             switch (order.getDeliveryType()) {
-                case 1: order.setLabel("오토바이"); break; 
+                case 1: order.setLabel("포장"); break; 
                 case 2: order.setLabel("도보 & 자전거"); break; 
-                case 3: order.setLabel("포장"); break; 
+                case 3: order.setLabel("오토바이"); break; 
             }
 
             // 퍼센트 계산 (총 금액 대비 비율)
