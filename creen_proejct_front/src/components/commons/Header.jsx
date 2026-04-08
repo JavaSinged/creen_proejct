@@ -92,10 +92,10 @@ export default function Header() {
 
       <div className={styles.center_wrap}>
         <ParkIcon />
-        <h5>
+        <span>
           지금까지 함께 심은 나무, 총 <span className={styles.badge}>41</span>{" "}
           그루
-        </h5>
+        </span>
       </div>
 
       <div className={styles.button_wrap}>

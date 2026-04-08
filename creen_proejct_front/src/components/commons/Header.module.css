@@ -1,3 +1,10 @@
+@font-face {
+  font-family: "Paperozi";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-5Medium.woff2")
+    format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
 .header {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -42,20 +49,21 @@
   justify-self: center;
 }
 
-.center_wrap h5 {
+.center_wrap span {
   font-family: var(--font-sub);
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   margin: 0;
-  font-weight: normal;
   display: flex;
   align-items: center;
   gap: 8px;
+  letter-spacing: 0.02rem;
+  line-height: 1.5;
 }
 
 .badge {
   background-color: var(--color-point);
   color: #ffffff;
-  padding: 2px 10px;
+  padding: 1px 8px;
   border-radius: 8px;
   font-weight: bold;
   font-family: var(--font-body);
