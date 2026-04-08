@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 
 const UserOrderListPage = () => {
+  const backHost = import.meta.env.VITE_BACKSERVER;
   const navigate = useNavigate();
   const [orderList, setOrderList] = useState([]);
   const memberId = localStorage.getItem("memberId");
@@ -206,7 +207,11 @@ const UserOrderListPage = () => {
                 <div className={styles.orderTop}>
                   <div className={styles.leftInfo}>
                     <img
-                      src={order.menuImage || "/img/no-image.png"}
+                      src={
+                        order.menuImage
+                          ? `${backHost}/${order.storeThumb}`
+                          : "/img/no-image.png"
+                      }
                       alt={order.menuName || "메뉴"}
                       className={`${styles.menuThumb} ${isCanceled ? styles.canceledImg : ""}`}
                     />
