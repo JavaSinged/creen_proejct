@@ -210,6 +210,7 @@ const Login = () => {
           localStorage.setItem("LATITUDE", loginUser.latitude);
           localStorage.setItem("LONGITUDE", loginUser.longitude);
 
+          localStorage.setItem("memberPoint", loginUser.memberPoint || 0);
           if (loginUser.storeId) {
             localStorage.setItem("storeId", loginUser.storeId);
           }

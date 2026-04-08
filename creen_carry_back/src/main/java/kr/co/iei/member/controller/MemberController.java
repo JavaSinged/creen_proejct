@@ -403,4 +403,17 @@ public class MemberController {
     return ResponseEntity.ok(enrollDate);
     }
     
+    @GetMapping("/{memberId}")
+    public ResponseEntity<?> getMemberDetail(@PathVariable String memberId) {
+        System.out.println("최신 멤버 정보 조회 요청 ID: " + memberId);
+        
+        Member member = memberService.selectOneMember(memberId);
+        
+        if (member != null) {
+            return ResponseEntity.ok(member); // 여기서 memberPoint를 포함한 전체 정보가 프론트로 넘어갑니다.
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("회원 정보를 찾을 수 없습니다.");
+        }
+    }
+    
 }

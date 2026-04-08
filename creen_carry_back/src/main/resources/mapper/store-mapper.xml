@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="kr.co.iei.store.model.dao.StoreDao">
+
 	<select id="selectAllStore">
 		select *
 		from store_tbl
@@ -11,8 +12,7 @@
 		resultType="store">
 		SELECT store_id AS storeId,
 		member_id AS memberId,
-		store_name
-		AS storeName,
+		store_name AS storeName,
 		store_address AS storeAddress,
 		store_phone AS
 		storePhone,
@@ -29,13 +29,16 @@
 		longitude AS LONGITUDE,
 		store_thumb AS storeThumb
 		FROM STORE_TBL
-		WHERE store_id = #{storeId}
+		WHERE
+		store_id = #{storeId}
 	</select>
 
 	<select id="findStoreByMemberId" resultType="store">
-		select store_id from store_tbl
+		select store_id from
+		store_tbl
 		where member_id = (select member_id from member_tbl
-		where member_id = #{memberId})
+		where
+		member_id = #{memberId})
 	</select>
 
 	<select id="selectAllMenu" resultType="menu">
@@ -50,7 +53,8 @@
 		menu_status
 		FROM MENU_TBL
 		WHERE store_id = #{storeId}
-		ORDER BY menu_category ASC, menu_id ASC
+		ORDER BY
+		menu_category ASC, menu_id ASC
 	</select>
 
 	<select id="getMenuOptions" parameterType="long"
@@ -68,7 +72,6 @@
 	</select>
 
 	<insert id="insertOrder" parameterType="order">
-
 		<selectKey keyProperty="orderId" resultType="int"
 			order="BEFORE">
 			SELECT order_seq.NEXTVAL FROM DUAL
@@ -102,15 +105,16 @@
 
 	<update id="addReduceCarbon">
 		UPDATE member_tbl
-		SET total_carbon_reduce =
-		NVL(total_carbon_reduce, 0) + (SELECT NVL(SUM(total_carbon), 0)
-		FROM
-		order_detail
-		WHERE order_id = #{orderId})
-		WHERE member_id = (SELECT
-		member_id
+		SET total_carbon_reduce = NVL(total_carbon_reduce, 0) + (
+		SELECT NVL(get_point, 0) / 1000
 		FROM order_tbl
-		WHERE order_id = #{orderId})
+		WHERE order_id = #{orderId}
+		)
+		WHERE member_id = (
+		SELECT member_id
+		FROM order_tbl
+		WHERE order_id = #{orderId}
+		)
 	</update>
 
 	<insert id="insertOrderDetail">
@@ -133,18 +137,16 @@
 		WHERE m.menu_id =
 		#{orderItem.menuId}
 	</insert>
+
 	<insert id="insertOrderHistory">
-		INSERT INTO order_list_map (order_id,
-		member_id)
-		VALUES (#{orderId},
-		#{memberId})
+		INSERT INTO order_list_map (order_id, member_id)
+		VALUES (#{orderId}, #{memberId})
 	</insert>
 
 	<update id="updateOrderStatus">
 		update order_tbl
 		set order_status = 1
-		where order_id
-		=
+		where order_id =
 		#{orderId}
 	</update>
 
@@ -168,25 +170,41 @@
 		resultType="orderResponse">
 		SELECT
 		s.store_name AS storeName,
+		s.store_thumb AS
+		storeThumb,
 		o.order_id AS orderId,
 		o.used_point AS usedPoint,
+		m.total_carbon_reduce AS totalReduceCarbon,
 		o.get_point AS getPoint,
+		o.expected_time AS expectedTime,
+		TO_CHAR(o.confirm_date, 'YYYY-MM-DD
+		HH24:MI:SS') AS confirmDate,
+		TO_CHAR(o.complete_date, 'YYYY-MM-DD
+		HH24:MI') AS completeDate,
 		CASE
 		WHEN
 		o.delivery_type = 1 THEN 0
-		WHEN o.delivery_type = 2 THEN 1000
-		ELSE 2000
+		WHEN
+		o.delivery_type = 2 THEN 1000
+		ELSE
+		2000
 		END AS deliveryPrice,
 		o.delivery_type AS deliveryType,
 		o.order_status AS
 		orderStatus,
-		TO_CHAR(olm.reg_date, 'YYYY-MM-DD HH24:MI') AS orderDate
+		TO_CHAR(olm.reg_date, 'YYYY-MM-DD
+		HH24:MI') AS orderDate
 		FROM
 		order_tbl o
-		JOIN store_tbl s ON o.store_id = s.store_id
+		JOIN store_tbl s ON o.store_id =
+		s.store_id
+		JOIN member_tbl m ON
+		o.member_id = m.member_id
 		JOIN
-		order_list_map olm ON o.order_id = olm.order_id
-		WHERE o.order_id =
+		order_list_map olm ON o.order_id =
+		olm.order_id
+		WHERE
+		o.order_id =
 		#{orderId}
 	</select>
 
@@ -203,54 +221,61 @@
 		o.order_id AS orderId,
 		o.store_id AS storeId,
 		s.store_name AS storeName,
-		o.order_status AS orderStatus,
-		o.get_point AS
-		getPoint, o.review_status AS reviewStatus, TO_CHAR(olm.reg_date,
-		'YYYY-MM-DD HH24:MI') AS orderDate,
+		s.store_thumb AS storeThumb,
+		o.order_status
+		AS orderStatus,
+		o.get_point AS getPoint,
+		o.review_status AS
+		reviewStatus,
+		TO_CHAR(olm.reg_date, 'YYYY-MM-DD HH24:MI') AS orderDate,
 
 		-- 1. 합계 정보
 		od_sum.totalPrice AS
 		totalPrice,
-		od_sum.totalCount AS totalCount,
+		od_sum.totalCount AS
+		totalCount,
 		od_sum.orderCarbon AS
 		orderCarbon,
-		(od_sum.totalCount - 1) AS extraCount,
+		(od_sum.totalCount - 1) AS
+		extraCount,
 
 		-- 2. 대표 메뉴 정보
-		md.menu_name AS
-		menuName,
-		md.menu_image AS menuImage,
+		md.menu_name AS menuName,
+		md.menu_image AS
+		menuImage,
 
 		-- 3. 배달 및 주소 정보
-		o.delivery_type AS
-		deliveryType,
+		o.delivery_type AS deliveryType,
 		CASE
-		WHEN o.delivery_type = 1 THEN 0
-		WHEN o.delivery_type =
-		2 THEN 1000
+		WHEN
+		o.delivery_type = 1 THEN 0
+		WHEN o.delivery_type = 2 THEN 1000
 		ELSE 2000
 		END AS deliveryPrice,
-		s.store_address AS
-		storeAddress,
-		m.member_addr AS deliveryAddress
-
-
+		s.store_address AS storeAddress,
+		m.member_addr AS
+		deliveryAddress
 
 		FROM
 		order_tbl o
-		JOIN store_tbl s ON o.store_id = s.store_id
+		JOIN store_tbl s ON o.store_id =
+		s.store_id
 		JOIN
 		order_list_map olm ON o.order_id = olm.order_id
-		JOIN member_tbl m ON
+		JOIN
+		member_tbl m ON
 		o.member_id = m.member_id
 
 		-- 상세 합산 서브쿼리
 		JOIN (
-		SELECT order_id,
+		SELECT
+		order_id,
 		SUM(quantity) AS totalCount,
-		SUM(price * quantity) AS totalPrice,
+		SUM(price * quantity) AS
+		totalPrice,
 		SUM(total_carbon * quantity) AS orderCarbon
-		FROM order_detail
+		FROM
+		order_detail
 		GROUP BY
 		order_id
 		) od_sum ON o.order_id = od_sum.order_id
@@ -260,10 +285,12 @@
 		SELECT od1.*
 		FROM order_detail od1
 		JOIN (
-		SELECT order_id,
+		SELECT
+		order_id,
 		MIN(order_detail_id) AS min_detail_id
 		FROM order_detail
-		GROUP BY
+		GROUP
+		BY
 		order_id
 		) x ON od1.order_id = x.order_id AND od1.order_detail_id =
 		x.min_detail_id
@@ -339,48 +366,52 @@
 		o.order_id AS orderId,
 		o.store_id AS storeId,
 		s.store_name AS storeName,
-		o.order_status AS orderStatus,
-		o.get_point AS
-		getPoint,
-		o.review_status AS reviewStatus,
-		TO_CHAR(olm.reg_date,
-		'YYYY-MM-DD HH24:MI') AS orderDate,
+		s.store_thumb AS storeThumb,
+		o.order_status
+		AS orderStatus,
+		o.get_point AS getPoint,
+		o.review_status AS
+		reviewStatus,
+		TO_CHAR(olm.reg_date, 'YYYY-MM-DD HH24:MI') AS orderDate,
 
 		od_sum.totalPrice AS totalPrice,
 		od_sum.totalCount AS totalCount,
 		od_sum.orderCarbon AS orderCarbon,
-		(od_sum.totalCount - 1) AS extraCount,
+		(od_sum.totalCount - 1) AS
+		extraCount,
 
 		md.menu_name AS menuName,
 		md.menu_image AS menuImage,
 
 		o.delivery_type AS deliveryType,
 		CASE
-		WHEN
-		o.delivery_type = 1 THEN 0
+		WHEN o.delivery_type = 1 THEN 0
 		WHEN o.delivery_type = 2 THEN 1000
 		ELSE 2000
 		END AS deliveryPrice,
 		s.store_address AS storeAddress,
-		m.member_addr AS
-		deliveryAddress
+		m.member_addr AS deliveryAddress
 
-		FROM order_tbl o
-		JOIN store_tbl s ON o.store_id =
-		s.store_id
-		JOIN order_list_map olm ON o.order_id = olm.order_id
+		FROM
+		order_tbl o
+		JOIN store_tbl s ON o.store_id = s.store_id
 		JOIN
-		member_tbl m ON o.member_id = m.member_id
+		order_list_map olm ON o.order_id = olm.order_id
+		JOIN member_tbl m ON
+		o.member_id = m.member_id
 
 		JOIN (
 		SELECT order_id,
-		SUM(quantity) AS totalCount,
+		SUM(quantity) AS
+		totalCount,
 		SUM(price * quantity) AS totalPrice,
-		SUM(total_carbon * quantity) AS orderCarbon
+		SUM(total_carbon *
+		quantity) AS orderCarbon
 		FROM order_detail
 		GROUP BY
 		order_id
-		) od_sum ON o.order_id = od_sum.order_id
+		) od_sum ON
+		o.order_id = od_sum.order_id
 
 		JOIN (
 		SELECT od1.*
@@ -388,13 +419,16 @@
 		JOIN (
 		SELECT order_id, MIN(order_detail_id) AS
 		min_detail_id
-		FROM order_detail
+		FROM
+		order_detail
 		GROUP BY order_id
 		) x ON od1.order_id =
-		x.order_id AND od1.order_detail_id =
+		x.order_id AND
+		od1.order_detail_id =
 		x.min_detail_id
 		) od_first ON
-		o.order_id = od_first.order_id
+		o.order_id =
+		od_first.order_id
 
 		JOIN menu_tbl md ON od_first.menu_id =
 		md.menu_id
@@ -407,9 +441,11 @@
 		UPDATE order_tbl
 		SET
 		order_status = #{status}
-		<if test="expectedTime != null">
-			, expected_time = #{expectedTime}
+		<if test="status == 2">
+			, confirm_date = SYSDATE
 		</if>
+		<if test="status == 5">, complete_date = SYSDATE </if>
+		<if test="expectedTime != null">, expected_time = #{expectedTime} </if>
 		WHERE order_id = #{orderId}
 	</update>
 

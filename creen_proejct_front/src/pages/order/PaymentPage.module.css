@@ -176,7 +176,7 @@ a {
   height: 42px;
   border: none;
   border-radius: 12px;
-  background-color: var(--color-brand);
+  background-color: red;
   color: #fff;
   font-weight: 700;
   cursor: pointer;
@@ -281,6 +281,13 @@ a {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+}
+.point-all-btn {
+  border-radius: 8px;
+  background-color: var(--color-brand);
+  color: var(--color-bg);
+  border: none;
+  padding: 8px;
 }
 
 .payment-method-btn {

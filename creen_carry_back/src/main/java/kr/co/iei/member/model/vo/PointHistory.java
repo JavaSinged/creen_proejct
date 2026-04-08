@@ -14,4 +14,6 @@ public class PointHistory {
     private String storeName;   
     private String orderDate;   
     private int pointAmount;   
+    private int getPoint;    
+    private int usedPoint;
 }

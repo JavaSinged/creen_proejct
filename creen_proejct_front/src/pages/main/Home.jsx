@@ -57,7 +57,7 @@ export default function Home() {
 
   console.log("홈에서 확인되는 유저 정보:", user);
 
-  const [isLoading, setLoading] = useState(true); // 로딩 상태 추가
+  const [isLoading, setLoading] = useState(true);
   const { storeId, setStoreId } = useCartStore();
   const [selectedCategory, setSelectedCategory] = useState("인기맛집");
   const [searchTerm, setSearchTerm] = useState("");
@@ -85,6 +85,7 @@ export default function Home() {
   };
 
   // 1. 서버에서 받아온 원본 리스트를 저장할 State
+
   const [storeList, setStoreList] = useState([]);
 
   // 🚀 서버 데이터 로드
@@ -95,6 +96,7 @@ export default function Home() {
       .then((res) => {
         console.log("서버 데이터 확인:", res.data);
         // 서버에서 넘어온 배열 데이터를 상태에 저장
+
         setStoreList(res.data);
         setLoading(false);
       })

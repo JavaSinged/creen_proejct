@@ -8,113 +8,69 @@ import CartBar from "../../components/layout/ui/CartBar";
 import useCartStore from "../../store/useCartStore";
 
 export default function StoreView() {
+  const backHost = import.meta.env.VITE_BACKSERVER;
   const location = useLocation();
   const storeId = location.state?.storeId || 1;
-  //store state
+
+  // 1. 가게 정보 상태 (썸네일 포함)
   const [storeInfo, setStoreInfo] = useState({
     storeId: "",
     storeIntro: "",
     storeName: "",
+    storeThumb: "",
   });
-  //menu state
+
+  // 2. 메뉴 정보 상태
   const [menuList, setMenuList] = useState([]);
   const [categories, setCategories] = useState(["전체"]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("전체");
   const [searchTerm, setSearchTerm] = useState("");
-  const storeName = useCartStore((state) => state.setStoreName);
-  const [reusable, setReusable] = useState(false);
+
+  const setGlobalStoreName = useCartStore((state) => state.setStoreName);
   const cartStoreId = useCartStore();
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    // 🚀 서버에서 메뉴 리스트 가져오기
-    axios
-      .get(`${import.meta.env.VITE_BACKSERVER}/stores/${storeId}/menus`)
-      .then((res) => {
-        console.log(res.data);
-        setMenuList(res.data);
 
+    // 🚀 [메뉴 로드] 판매중(menuStatus === 1)인 메뉴만 필터링
+    axios
+      .get(`${backHost}/stores/${storeId}/menus`)
+      .then((res) => {
+        const activeMenus = res.data.filter((item) => item.menuStatus === 1);
+        setMenuList(activeMenus);
+
+        // 카테고리도 판매중인 메뉴 목록에서만 추출
         const uniqueCategories = [
           "전체",
-          ...new Set(res.data.map((item) => item.menuCategory)),
+          ...new Set(activeMenus.map((item) => item.menuCategory)),
         ];
         setCategories(uniqueCategories);
       })
       .catch((err) => console.error("메뉴 로딩 실패:", err));
-    //상점 정보 호출
+
+    // 🚀 [상점 정보 로드] 썸네일 경로 포함
     axios
-      .get(`${import.meta.env.VITE_BACKSERVER}/stores/${storeId}`)
+      .get(`${backHost}/stores/${storeId}`)
       .then((res) => {
-        console.log(res.data);
-        storeName(res.data.storeName);
+        console.log("🔥 서버에서 받은 상점 정보:", res.data);
+
+        // 전역 스토어 이름 설정 (장바구니용)
+        if (res.data.storeName) setGlobalStoreName(res.data.storeName);
+
         setStoreInfo({
-          ...storeInfo,
+          storeId: res.data.storeId,
           storeIntro: res.data.storeIntro,
           storeName: res.data.storeName,
+          storeThumb: res.data.storeThumb, // 예: "uploads/store/main.jpg"
         });
       })
       .catch((err) => console.error("가게 로딩 실패:", err));
-  }, [storeId]);
+  }, [storeId, backHost, setGlobalStoreName]);
 
+  // 검색 및 카테고리 필터링 로직
   const filteredMenu = menuList.filter((item) => {
-    // import { useState } from "react";
-    // import { Link } from "react-router-dom";
-    // import styles from "./StoreView.module.css";
-    // import SearchIcon from "@mui/icons-material/Search";
-    // import MenuModal from "../../components/layout/MenuModal";
-    // import CartBar from "../../components/layout/ui/CartBar";
-
-    // // ✅ basePrice, description, carbonPer100g 등 상세 정보를 여기서 관리
-    // const MENU_DATA = [
-    //   {
-    //     id: 1,
-    //     name: "비건 샐러드",
-    //     basePrice: 12400,
-    //     category: "메인",
-    //     description: "제철 채소와 유기농 드레싱으로 만든 건강한 샐러드",
-    //     carbonPer100g: 80,
-    //   },
-    //   {
-    //     id: 2,
-    //     name: "두부 스테이크",
-    //     basePrice: 15000,
-    //     category: "메인",
-    //     description: "국산 두부를 직화로 구운 고단백 비건 스테이크",
-    //     carbonPer100g: 60,
-    //   },
-    //   {
-    //     id: 3,
-    //     name: "감자 튀김",
-    //     basePrice: 5000,
-    //     category: "사이드",
-    //     description: "바삭하게 튀긴 국내산 감자 튀김",
-    //     carbonPer100g: 40,
-    //   },
-    //   {
-    //     id: 4,
-    //     name: "콜라",
-    //     basePrice: 2000,
-    //     category: "음료",
-    //     description: "시원한 탄산음료",
-    //     carbonPer100g: 20,
-    //   },
-    // ];
-
-    // const CATEGORIES = ["전체", "메인", "사이드", "음료"];
-
-    // export default function StoreView() {
-    //   const [isModalOpen, setIsModalOpen] = useState(false);
-    //   const [selectedMenu, setSelectedMenu] = useState(null); // ✅ ID 대신 객체 전체 저장
-    //   const [selectedCategory, setSelectedCategory] = useState("전체");
-    //   const [searchTerm, setSearchTerm] = useState("");
-    //   // const { cart, clearCart } = useCartStore((state) => ({
-    //   //   cart: state.cart,
-    //   //   clearCart: state.clearCart
-    //   // }));
-    //   const filteredMenu = MENU_DATA.filter((item) => {
-
     const isCategoryMatch =
       selectedCategory === "전체" || item.menuCategory === selectedCategory;
     const isSearchMatch = item.menuName
@@ -127,34 +83,59 @@ export default function StoreView() {
     setSelectedMenu(menu);
     setIsModalOpen(true);
   };
-  console.log(cartStoreId);
+
   return (
     <div className={styles.page_container}>
-      {/* 상점 정보 영역 */}
+      {/* 상단: 상점 대표 정보 영역 */}
       <div className={styles.store_info_section}>
         <div className={styles.store_image_wrap}>
-          <div className={styles.image_placeholder}></div>
+          {storeInfo.storeThumb ? (
+            <img
+              /* 🌟 주소 결합 시 중간에 / 가 중복되거나 빠지지 않도록 처리 */
+              src={`${backHost}/${storeInfo.storeThumb}`}
+              alt={storeInfo.storeName}
+              className={styles.store_main_img}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+              onError={(e) => {
+                // 외부 사이트 접속 오류 방지를 위해 로컬 기본 이미지나 스타일 처리
+                console.log("썸네일 이미지 로드 실패");
+                e.target.style.display = "none";
+              }}
+            />
+          ) : (
+            /* 썸네일 데이터가 없을 때 보여줄 기본 박스 */
+            <div className={styles.image_placeholder}>
+              <span style={{ color: "#999" }}>사진 준비 중 🥘</span>
+            </div>
+          )}
         </div>
+
         <div className={styles.store_text_wrap}>
-          <h2 className={styles.store_name}>{storeInfo.storeName}</h2>
+          <h2 className={styles.store_name}>
+            {storeInfo.storeName || "로딩 중..."}
+          </h2>
           <Link
             to="/storeDetail"
             state={{ storeId: storeId }}
             className={styles.store_link}
           >
-            가게 정보, 원산지 정보
+            가게 정보, 원산지 정보 {">"}
           </Link>
           <p className={styles.store_desc}>{storeInfo.storeIntro}</p>
         </div>
       </div>
 
-      {/* 메뉴 리스트 영역 */}
+      {/* 하단: 메뉴 리스트 영역 */}
       <div className={styles.menu_section}>
         <div className={styles.menu_controls}>
           <div className={styles.search_wrap}>
             <input
               type="search"
-              placeholder="메뉴 이름"
+              placeholder="메뉴 이름 검색"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -182,48 +163,58 @@ export default function StoreView() {
               onClick={() => handleMenuClick(menu)}
             >
               <div className={styles.menu_image}>
-                {menu.menuImage && (
+                {menu.menuImage ? (
                   <img
-                    src={menu.menuImage}
+                    src={`${backHost}${menu.menuImage}`}
                     alt={menu.menuName}
                     style={{
                       width: "100%",
                       height: "100%",
                       objectFit: "cover",
                     }}
+                    onError={(e) => {
+                      e.target.src =
+                        "https://via.placeholder.com/150?text=No+Image";
+                    }}
                   />
+                ) : (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      backgroundColor: "#f5f5f5",
+                    }}
+                  ></div>
                 )}
               </div>
               <div className={styles.menu_info}>
                 <span className={styles.menu_title}>{menu.menuName}</span>
                 <p className={styles.menu_price}>
-                  {menu.menuPrice.toLocaleString()}원
+                  {menu.menuPrice?.toLocaleString()}원
                 </p>
                 {menu.menuInfo && (
-                  <p
-                    className={styles.menu_desc}
-                    style={{
-                      fontSize: "12px",
-                      color: "#666",
-                      margin: "4px 0",
-                    }}
-                  >
-                    {menu.menuInfo}
-                  </p>
+                  <p className={styles.menu_desc}>{menu.menuInfo}</p>
                 )}
               </div>
             </div>
           ))}
+
           {filteredMenu.length === 0 && (
-            <p
-              style={{ textAlign: "center", marginTop: "20px", color: "#888" }}
+            <div
+              style={{
+                width: "100%",
+                textAlign: "center",
+                padding: "50px 0",
+                color: "#888",
+              }}
             >
-              해당 메뉴가 없습니다.
-            </p>
+              현재 주문 가능한 메뉴가 없습니다.
+            </div>
           )}
         </div>
       </div>
 
+      {/* 모달 및 장바구니 바 */}
       <MenuModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

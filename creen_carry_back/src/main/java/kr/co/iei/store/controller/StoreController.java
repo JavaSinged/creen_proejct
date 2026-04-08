@@ -10,7 +10,11 @@ import kr.co.iei.store.model.vo.OrderListResponse;
 import kr.co.iei.store.model.vo.OrderResponse;
 import kr.co.iei.store.model.vo.StatsOrderInfo;
 import kr.co.iei.store.model.vo.Store;
+
 import kr.co.iei.store.model.vo.StoreIdResponse;
+
+import kr.co.iei.store.model.vo.StoreReviewResponse;
+
 
 import org.apache.ibatis.type.Alias;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +82,11 @@ public class StoreController {
         OrderResponse orderResponse = storeService.searchOrder(orderId);
         return ResponseEntity.ok(orderResponse);
     }
+    @GetMapping("/orders/owner/{storeId}")
+    public ResponseEntity<?> getStoreOrders(@PathVariable Integer storeId) {
+        List<OrderResponse> list = storeService.getOrdersByStoreId(storeId);
+        return ResponseEntity.ok(list);
+    }
     
     @GetMapping("/orders/{memberId}")
     public ResponseEntity<?> searchOrderList(@PathVariable String memberId){
@@ -109,6 +118,36 @@ public class StoreController {
             return ResponseEntity.ok(list); 
         } else {
             return ResponseEntity.noContent().build();
+        }
+    }
+}
+    @GetMapping("/reviews/{storeId}")
+    public ResponseEntity<?> getStoreReviews(@PathVariable Integer storeId) {
+        List<StoreReviewResponse> list = storeService.selectStoreReviews(storeId);
+        return ResponseEntity.ok(list);
+    }
+    
+    @PatchMapping("/order/{orderId}/status")
+    public ResponseEntity<?> changeOrderStatus(
+            @PathVariable Integer orderId, 
+            @RequestBody Map<String, Object> payload) {
+        
+        // 리액트에서 보낸 status와 expectedTime 꺼내기
+        int status = Integer.parseInt(payload.get("status").toString());
+        
+        // expectedTime은 수락 단계에서만 들어오므로 null 체크 필요
+        Integer expectedTime = null;
+        if (payload.get("expectedTime") != null) {
+            expectedTime = Integer.parseInt(payload.get("expectedTime").toString());
+        }
+
+        // 서비스 호출 (상태값과 예상 시간을 넘겨줍니다)
+        int result = storeService.changeOrderStatus(orderId, status, expectedTime);
+        
+        if (result > 0) {
+            return ResponseEntity.ok("상태 변경 성공");
+        } else {
+            return ResponseEntity.internalServerError().body("상태 변경 실패");
         }
     }
 }

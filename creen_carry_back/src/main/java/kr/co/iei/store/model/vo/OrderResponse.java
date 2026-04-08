@@ -30,6 +30,8 @@ public class OrderResponse {
 	private Integer deliveryPrice;
 	private Integer deliveryType;
 	private Integer expectedTime;
+	private String confirmDate;
+	private String completeDate;
 	
 
 	// 4. 🌟 메뉴 상세 정보 (리뷰 모달 및 목록용)
@@ -37,6 +39,7 @@ public class OrderResponse {
 	private String menuImage; // 대표 메뉴 이미지 경로
 	private String optionString; // 선택한 옵션 문자열
 	private List<OrderItem> items; // 전체 아이템 리스트 (필요 시)
+	private String storeThumb;
 
 	// 5. 🌟 탄소 및 주소 정보
 	private Double orderCarbon; // 탄소 절감량 (0.000kg 방지)

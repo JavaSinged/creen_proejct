@@ -271,3 +271,19 @@
   display: flex;
   align-items: center;
 }
+.plus_point {
+  color: #2e7d32; /* 초록색 */
+  font-weight: bold;
+}
+
+.minus_point {
+  color: #d32f2f; /* 빨간색 */
+  font-weight: bold;
+}
+
+.history_right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
