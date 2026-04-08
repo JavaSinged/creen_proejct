@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
   const logoutTimerRef = useRef(null);
   const isLoggingOut = useRef(false);
 
+  // SweetAlert2 커스텀 스타일 주입
   useEffect(() => {
     const style = document.createElement("style");
     style.innerHTML = `
@@ -73,20 +74,22 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
+  // 로컬 스토리지 데이터 초기화
   const clearAuthData = () => {
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken"); //
-    localStorage.removeItem("isAutoLogin"); //
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("isAutoLogin");
     localStorage.removeItem("memberId");
     localStorage.removeItem("memberName");
     localStorage.removeItem("memberGrade");
     localStorage.removeItem("memberThumb");
+    localStorage.removeItem("memberPoint"); // 🌟 [추가] 포인트 데이터 삭제
     localStorage.removeItem("storeId");
     setIsLogin(false);
     setUser(null);
   };
 
-  // 🌟 로그아웃 함수
+  // 로그아웃 처리
   const logout = (isExpired = false) => {
     if (logoutTimerRef.current) {
       clearTimeout(logoutTimerRef.current);
@@ -94,7 +97,6 @@ export const AuthProvider = ({ children }) => {
     }
 
     if (isExpired === true) {
-      console.log("자동 로그아웃 실행됨!");
       fireStyledSwal(
         "warning",
         "세션 만료",
@@ -110,12 +112,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // 앱 로드시 인증 상태 복구
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     const name = localStorage.getItem("memberName");
     const grade = localStorage.getItem("memberGrade");
     const id = localStorage.getItem("memberId");
     const thumb = localStorage.getItem("memberThumb");
+    const point = localStorage.getItem("memberPoint"); // 🌟 [추가] 포인트 로드
 
     const isAutoLogin = localStorage.getItem("isAutoLogin") === "true";
 
@@ -125,30 +129,27 @@ export const AuthProvider = ({ children }) => {
         const decodedPayload = JSON.parse(atob(payload));
         const currentTime = Math.floor(Date.now() / 1000);
 
+        // 🌟 전역 유저 객체 생성 (포인트 포함)
+        const userData = {
+          memberId: id,
+          memberName: name,
+          memberGrade: Number(grade),
+          memberThumb: thumb,
+          memberPoint: Number(point) || 0, // 숫자로 형변환
+        };
+
         if (decodedPayload.exp && decodedPayload.exp < currentTime) {
           if (!isAutoLogin) {
             logout(true);
           } else {
             setIsLogin(true);
-            setUser({
-              memberId: id,
-              memberName: name,
-              memberGrade: Number(grade),
-              memberThumb: thumb,
-            });
+            setUser(userData);
           }
         } else {
           setIsLogin(true);
-          setUser({
-            memberId: id,
-            memberName: name,
-            memberGrade: Number(grade),
-            memberThumb: thumb,
-          });
+          setUser(userData);
 
           if (!isAutoLogin) {
-            /*10초 테스트용*/
-            //const remainingTimeInMs = 10000;
             const remainingTimeInMs = (decodedPayload.exp - currentTime) * 1000;
 
             if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
@@ -161,9 +162,7 @@ export const AuthProvider = ({ children }) => {
               }, remainingTimeInMs);
             }
           } else {
-            console.log(
-              "자동 로그인 유저: 프론트 타이머를 비활성화하고 인터셉터 모드로 작동합니다.",
-            );
+            console.log("자동 로그인 유저: 인터셉터 모드로 작동합니다.");
             if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
           }
         }

@@ -12,9 +12,18 @@ import axios from "axios";
 
 const UserProfile = () => {
   const { user } = useContext(AuthContext);
-  const [point, setPoint] = useState(0);
+
+  // 🌟 1. 에코 포인트 (쓰면 깎이는 돈 - 로컬스토리지 연동)
+  const [point, setPoint] = useState(() => {
+    const savedPoint = localStorage.getItem("memberPoint");
+    return savedPoint ? Number(savedPoint) : 0;
+  });
+
+  // 🌟 2. 누적 탄소 절감량 (절대 안 깎이는 명예 점수 - 서버에서 가져옴)
+  const [totalCarbon, setTotalCarbon] = useState(0);
+
   const [communityPoint, setCommunityPoint] = useState(0);
-  const [pointHistory, setPointHistory] = useState([]); // 🌟 내역 리스트용 상태만 추가
+  const [pointHistory, setPointHistory] = useState([]);
 
   const [openEco, setOpenEco] = useState(false);
   const [openHistory, setOpenHistory] = useState(false);
@@ -25,37 +34,44 @@ const UserProfile = () => {
   const toggleEco = () => setOpenEco(!openEco);
   const toggleHistory = () => setOpenHistory(!openHistory);
 
-  const getEcoGrade = (currentPoint) => {
-    if (currentPoint < 1000) return { name: "꼬마 씨앗 🌰", next: 1000 };
-    if (currentPoint < 3000) return { name: "파릇파릇 새싹 🌱", next: 3000 };
-    if (currentPoint < 6600) return { name: "무럭무럭 묘목 🌿", next: 6600 };
-    if (currentPoint < 10000) return { name: "든든한 나무 🌳", next: 10000 };
+  // 등급 계산 로직
+  const getEcoGrade = (currentCarbon) => {
+    if (currentCarbon < 1000) return { name: "꼬마 씨앗 🌰", next: 1000 };
+    if (currentCarbon < 3000) return { name: "파릇파릇 새싹 🌱", next: 3000 };
+    if (currentCarbon < 6600) return { name: "무럭무럭 묘목 🌿", next: 6600 };
+    if (currentCarbon < 10000) return { name: "든든한 나무 🌳", next: 10000 };
     return { name: "울창한 숲 🌲", next: null };
   };
 
-  const myGradeInfo = getEcoGrade(point);
+  // 🌟 3. 내 등급은 '보유 포인트'가 아니라 '누적 탄소량' 기준으로 계산!
+  const myGradeInfo = getEcoGrade(totalCarbon);
 
   useEffect(() => {
+    // AuthContext의 user 객체가 변동되면 보유 포인트 최신화
+    if (user?.memberPoint !== undefined) {
+      setPoint(user.memberPoint);
+    }
+
     const fetchUserData = async () => {
       if (user?.memberId) {
         try {
           const token = localStorage.getItem("accessToken");
           const config = { headers: { Authorization: `Bearer ${token}` } };
 
-          // 1. 기존 포인트 로직 (절대 수정 금지)
-          const pointRes = await axios.get(`${backHost}/member/total-carbon`, {
+          // 🌟 4. 누적 탄소 절감량은 깎이면 안되므로 서버에서 진짜 누적값을 가져옵니다.
+          const carbonRes = await axios.get(`${backHost}/member/total-carbon`, {
             params: { memberId: user.memberId },
             ...config,
           });
-          setPoint(pointRes.data);
+          setTotalCarbon(carbonRes.data);
 
-          // 2. 커뮤니티 포인트 (기존 로직)
+          // 커뮤니티 포인트
           const commRes = await axios.get(
             `${backHost}/member/community-carbon`,
           );
           setCommunityPoint(commRes.data);
 
-          // 3. 🌟 새로 추가된 '내역' 리스트만 가져오기
+          // 내역 리스트
           const historyRes = await axios.get(
             `${backHost}/member/point-history/${user.memberId}`,
             config,
@@ -69,12 +85,13 @@ const UserProfile = () => {
     fetchUserData();
   }, [user, backHost]);
 
+  // 🌟 5. 경험치 바(게이지)도 누적 탄소량 기준으로 차오르게 수정!
   useEffect(() => {
     const targetPoint = 10000;
-    const calculatedPercent = Math.min((point / targetPoint) * 100, 100);
+    const calculatedPercent = Math.min((totalCarbon / targetPoint) * 100, 100);
     const timer = setTimeout(() => setProgress(calculatedPercent), 100);
     return () => clearTimeout(timer);
-  }, [point]);
+  }, [totalCarbon]);
 
   return (
     <div className={styles.right}>
@@ -88,7 +105,7 @@ const UserProfile = () => {
             <h2 className={styles.grade_name}>{myGradeInfo.name}</h2>
             <p className={styles.grade_subtitle}>
               {myGradeInfo.next
-                ? `다음 레벨까지 ${(myGradeInfo.next - point).toLocaleString()}g`
+                ? `다음 레벨까지 ${(myGradeInfo.next - totalCarbon).toLocaleString()}g`
                 : "🎉 최고 등급 달성!"}
             </p>
           </div>
@@ -100,9 +117,9 @@ const UserProfile = () => {
               <EnergySavingsLeafIcon />
             </div>
             <div className={styles.dashboard}>
-              <p className={styles.dashboard_title}>나의 탄소 절감량</p>
+              <p className={styles.dashboard_title}>나의 누적 탄소 절감량</p>
               <p className={styles.dashboard_value}>
-                {point.toLocaleString()}g
+                {totalCarbon.toLocaleString()}g {/* 🌟 누적량 표시 */}
               </p>
               <p className={styles.dashbboard_subtitle}>나의 총 실천 기록</p>
             </div>
@@ -127,7 +144,8 @@ const UserProfile = () => {
               ></div>
             </div>
             <div className={styles.gauge_info}>
-              <span>🌳 나무 {(point / 6600).toFixed(2)} 그루 상당</span>
+              <span>🌳 나무 {(totalCarbon / 6600).toFixed(2)} 그루 상당</span>{" "}
+              {/* 🌟 누적량 기준 */}
             </div>
           </div>
         </section>
@@ -136,7 +154,8 @@ const UserProfile = () => {
       <section className={styles.right_sub}>
         <div className={styles.my_point}>
           <span>에코 포인트</span>
-          <p>보유 포인트 : {point.toLocaleString()}P</p>
+          <p>보유 포인트 : {point.toLocaleString()}P</p>{" "}
+          {/* 🌟 보유 포인트 표시 */}
         </div>
 
         <div className={styles.collapse_wrapper}>
@@ -158,7 +177,6 @@ const UserProfile = () => {
           </Collapse>
         </div>
 
-        {/* 🌟 적립 내역 리스트 (포인트 로직은 건드리지 않고 출력만 수행) */}
         <div className={styles.collapse_wrapper}>
           <div className={styles.collapse_header} onClick={toggleHistory}>
             <p>
@@ -187,9 +205,18 @@ const UserProfile = () => {
                         </div>
                       </div>
                     </div>
-                    <span className={styles.plus_point}>
-                      +{item.pointAmount.toLocaleString()}P
-                    </span>
+                    <div className={styles.history_right}>
+                      {item.getPoint > 0 && (
+                        <span className={styles.plus_point}>
+                          +{item.getPoint.toLocaleString()}P
+                        </span>
+                      )}
+                      {item.usedPoint > 0 && (
+                        <span className={styles.minus_point}>
+                          -{item.usedPoint.toLocaleString()}P
+                        </span>
+                      )}
+                    </div>
                   </div>
                 ))
               ) : (

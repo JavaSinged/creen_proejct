@@ -1,102 +1,68 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./PaymentPage.module.css";
 import RoomIcon from "@mui/icons-material/Room";
 import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
 import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
 import { useNavigate } from "react-router-dom";
 import useCartStore from "../../store/useCartStore";
-import useAccountStore from "../../store/accountStore";
 import axios from "axios";
 import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
 
 const PaymentPage = () => {
   const { superTotalPrice, deliveryPrice, setUsingEcoPoint } = useCartStore();
   const navigate = useNavigate();
+
+  // 상태 관리
   const [storeRequest, setStoreRequest] = useState("");
   const [deliveryRequest, setDeliveryRequest] = useState("");
-  const [ecoPoint, setEcoPoint] = useState(0);
-  const [reducedCarbon, setReducedCarbon] = useState(300);
-  const [itemPrice, setItemPrice] = useState(superTotalPrice);
-  const totalPrice = itemPrice + deliveryPrice - ecoPoint;
-  const phone = /^010-\d{4}-\d{4}$/;
-  const [availableEcoPoint, setAvailableEcoPoint] = useState(3000);
+  const [ecoPoint, setEcoPoint] = useState(0); // 사용자가 입력한 사용 포인트
+  const [availableEcoPoint, setAvailableEcoPoint] = useState(0); // 🌟 로컬 스토리지에서 가져온 보유 포인트
+
+  const [itemPrice] = useState(superTotalPrice);
   const cartList = useCartStore((state) => state.cart);
+  const memberId = localStorage.getItem("memberId");
+  const storeId = useCartStore((state) => state.storeId);
+
+  // 배달 타입 및 탄소 계산
   const deliveryType = deliveryPrice === 0 ? 1 : deliveryPrice === 1000 ? 2 : 3;
   const deliveryCarbon = deliveryType === 3 ? 0 : 300;
   const totalCarbon =
-    cartList.reduce((sum, item) => sum + item.carbonSaved, 0) + deliveryCarbon;
-  const { setSuperTotalPrice, setDeilveryPrice } = useCartStore();
-  const memberId = localStorage.getItem("memberId");
-  const storeId = useCartStore((state) => state.storeId);
-  const [payInfo, setPayInfo] = useState({
-    totalPrice: totalPrice,
-    ecoPoint: ecoPoint,
-    deliveryPrice: deliveryPrice,
-    reducedCarbon: reducedCarbon,
-  });
+    cartList.reduce((sum, item) => sum + (item.carbonSaved || 0), 0) +
+    deliveryCarbon;
 
-  // const { orderTbl, setOrderTbl } = useState({
-  //   memberId: "",
-  //   storeId: "",
-  //   usedPoint: "",
-  //   getPoint: "",
-  // });
-  // const { orderDetail, setOrderDetail } = useState({
-  //   menuId: "",
-  //   price: "",
-  //   optionString: "",
-  //   totalCarbon: "",
-  //   quantity: "",
-  // });
-  // OrderPage.jsx 의 결제하기 버튼 클릭 핸들러 수정
-  const orderData = {
-    memberId: memberId, // 로그인 정보에서 가져오기
-    storeId: storeId, // 현재 상점 ID
-    usedPoint: ecoPoint,
-    deliveryType: deliveryType,
-    reviewStatus: 0,
-    items: cartList.map((item) => ({
-      menuId: Number(item.menuId),
-      quantity: item.quantity,
-      price: item.unitPrice,
-      optionString: item.options.map((o) => o.optionName).join(",") || "",
-    })),
-    totalPrice: totalPrice,
-    getPoint: totalCarbon,
-  };
+  // 🌟 최종 결제 금액 (실시간 계산)
+  const totalPrice = itemPrice + deliveryPrice - ecoPoint;
 
-  // const handlePayment = async () => { // 1
-  //   try {
-  //     // 1. 주문 데이터 생성 (우리 서버 전송용)
-  //     // cartList는 useCartStore에서 가져온 배열이라고 가정
-  //     // 2. 우리 백엔드에 주문 정보 임시 저장 요청 (POST)
-  //     const response = await axios.post(
-  //       `${import.meta.env.VITE_BACKSERVER}/stores/order`,
-  //       orderData,
-  //     );
-  //     console.log(response);
-  //     const savedOrderId = response.data; // 서버에서 생성된 ORDER_ID
-  //     // 3. 토스페이먼츠 객체 초기화 및 결제창 호출
-  //     const tossPayments = await loadTossPayments(
-  //       `${import.meta.env.VITE_TOSS_CLIENT_KEY}`,
-  //     );
-  //     await tossPayments.requestPayment("카드", {
-  //       amount: totalPrice,
-  //       orderId: `ORDER_${savedOrderId}_${new Date().getTime()}`, // 고유 orderId 생성
-  //       orderName: `${cartList[0].menuName} 외 ${cartList.length - 1}건`,
-  //       successUrl: `${window.location.origin}/payment/success?orderId=${savedOrderId}`,
-  //       failUrl: `${window.location.origin}/payment/fail`,
-  //     });
-  //   } catch (error) {
-  //     console.error("결제 준비 중 에러 발생:", error);
-  //     alert("주문 처리 중 오류가 발생했습니다.");
-  //   }
-  // };
+  // 🌟 [핵심] 페이지 로드 시 로컬 스토리지에서 포인트 바로 가져오기
+  useEffect(() => {
+    const savedPoint = localStorage.getItem("memberPoint");
+    if (savedPoint) {
+      setAvailableEcoPoint(Number(savedPoint));
+    }
+  }, []);
 
+  // 결제 요청 함수
   const handlePayment = async () => {
-    console.log(JSON.stringify(payInfo, null, 2));
+    console.log("주문하려는 매장 ID:", storeId);
+    // 🌟 결제 시점의 최신 데이터를 담은 orderData
+    const orderData = {
+      memberId: memberId,
+      storeId: storeId,
+      usedPoint: ecoPoint,
+      deliveryType: deliveryType,
+      reviewStatus: 0,
+      items: cartList.map((item) => ({
+        menuId: Number(item.menuId),
+        quantity: item.quantity,
+        price: item.unitPrice,
+        optionString: item.options?.map((o) => o.optionName).join(",") || "",
+      })),
+      totalPrice: totalPrice,
+      getPoint: totalCarbon,
+    };
+
     try {
-      // 1. 백엔드 주문 저장 시도
+      // 1. 우리 서버에 주문 데이터 임시 저장
       const response = await axios.post(
         `${import.meta.env.VITE_BACKSERVER}/stores/order`,
         orderData,
@@ -108,16 +74,12 @@ const PaymentPage = () => {
       const tossPayments = await loadTossPayments(
         import.meta.env.VITE_TOSS_CLIENT_KEY,
       );
+      const payment = tossPayments.payment({ customerKey: `user_${memberId}` });
 
-      const payment = tossPayments.payment({
-        customerKey: `user_${memberId}`,
-      });
-
-      // 주문명 처리 (1건일 때와 여러 건일 때 구분)
       const orderNameStr =
         cartList.length > 1
-          ? `${cartList[0].name} 외 ${cartList.length - 1}건`
-          : `${cartList[0].name}`;
+          ? `${cartList[0].menuName} 외 ${cartList.length - 1}건`
+          : `${cartList[0].menuName}`;
 
       await payment.requestPayment({
         method: "CARD",
@@ -126,43 +88,45 @@ const PaymentPage = () => {
           value: totalPrice,
         },
         orderId: `ORDER_${savedOrderId}_${Date.now()}`,
-        orderName: orderNameStr, // 수정된 부분 적용
-        successUrl: `${window.location.origin}/checkoutPage`,
+        orderName: orderNameStr,
+        successUrl: `${window.location.origin}/checkoutPage?orderId=ORDER_${savedOrderId}`,
         failUrl: `${window.location.origin}/payment/fail`,
         customerName: memberId,
       });
+
+      // Zustand 스토어에 사용 포인트 기록 (필요 시)
+      setUsingEcoPoint(ecoPoint);
     } catch (error) {
-      console.error("결제 준비 중 에러 발생:", error);
-      console.log(error.response?.data || error.message); // 에러 내용 더 자세히 보기
-      alert("주문 처리 중 오류가 발생했습니다.");
+      console.error("결제 중 에러 발생:", error);
+      alert("결제 처리 중 오류가 발생했습니다.");
     }
   };
-  // const callAxios = () => {
-  //   axios
-  //     .post(`${import.meta.env.VITE_BACKSERVER}/stores/order`, orderData)
-  //     .then((res) => {
-  //       console.log(orderData);
-  //     })
-  //     .catch((err) => {});
-  // };
+
+  // 포인트 입력 핸들러
+  const handlePointChange = (e) => {
+    const value = e.target.value.replace(/[^0-9]/g, "");
+    const num = value === "" ? 0 : Number(value);
+
+    // 보유량과 상품가격을 넘지 못하게 제어
+    const maxUsable = Math.min(availableEcoPoint, itemPrice);
+    setEcoPoint(Math.min(num, maxUsable));
+  };
+
   return (
     <div className={styles["payment-page"]}>
       <main className={styles["payment-main"]}>
         <div className={styles["payment-top-text"]}>
           <button
             className={styles["back-btn"]}
-            onClick={() => {
-              navigate("/shoppingCart");
-            }}
+            onClick={() => navigate("/shoppingCart")}
           >
-            {" "}
             장바구니로 돌아가기
           </button>
           <p>주문 정보를 확인하고 결제를 완료하세요</p>
         </div>
 
         <div className={styles["payment-content"]}>
-          {/* 왼쪽 영역 */}
+          {/* 왼쪽 섹션 */}
           <section className={styles["payment-left"]}>
             <div className={styles["info-card"]}>
               <div className={styles["card-title-row"]}>
@@ -172,14 +136,11 @@ const PaymentPage = () => {
                 </div>
                 <button
                   className={styles["text-btn"]}
-                  onClick={() => {
-                    navigate("/changeAddr");
-                  }}
+                  onClick={() => navigate("/changeAddr")}
                 >
                   주소 변경
                 </button>
               </div>
-
               <div className={styles["form-group"]}>
                 <label>배송 주소</label>
                 <input
@@ -188,7 +149,6 @@ const PaymentPage = () => {
                   readOnly
                 />
               </div>
-
               <div className={styles["form-group"]}>
                 <label>연락처</label>
                 <input type="text" value="010-0000-0000" readOnly />
@@ -198,105 +158,85 @@ const PaymentPage = () => {
             <div className={styles["info-card"]}>
               <div className={styles["card-title-row"]}>
                 <div className={styles["card-title-left"]}>
-                  <ChatBubbleIcon></ChatBubbleIcon>
+                  <ChatBubbleIcon />
                   <h2>요청사항</h2>
                 </div>
               </div>
-
               <div className={styles["form-group"]}>
                 <label>가게 요청사항</label>
                 <input
                   type="text"
-                  placeholder="요청사항을 선택해주세요"
+                  placeholder="예: 땅콩 알레르기가 있어요"
                   value={storeRequest}
                   onChange={(e) => setStoreRequest(e.target.value)}
                 />
               </div>
-
               <div className={styles["form-group"]}>
                 <label>배달 요청사항</label>
-                <div className={styles["select-wrap"]}>
-                  <select
-                    value={deliveryRequest}
-                    onChange={(e) => setDeliveryRequest(e.target.value)}
-                  >
-                    <option value="">요청사항을 선택해주세요</option>
-                    <option value="door">문 앞에 두고 가주세요</option>
-                    <option value="call">도착 후 전화 주세요</option>
-                    <option value="safe">경비실에 맡겨주세요</option>
-                  </select>
-                </div>
+                <select
+                  value={deliveryRequest}
+                  onChange={(e) => setDeliveryRequest(e.target.value)}
+                >
+                  <option value="">요청사항 선택</option>
+                  <option value="door">문 앞에 두고 벨 눌러주세요</option>
+                  <option value="call">도착하면 전화주세요</option>
+                  <option value="safe">경비실에 맡겨주세요</option>
+                </select>
               </div>
             </div>
 
             <div className={styles["info-card"]}>
               <div className={styles["card-title-row"]}>
                 <div className={styles["card-title-left"]}>
-                  <CardGiftcardIcon></CardGiftcardIcon>
+                  <CardGiftcardIcon />
                   <h2>에코 포인트 사용 및 적립</h2>
                 </div>
               </div>
-
               <div className={styles["form-group"]}>
                 <label>에코 포인트 사용</label>
                 <div className={styles["point-row"]}>
                   <input
                     type="text"
+                    placeholder="0"
                     value={ecoPoint === 0 ? "" : ecoPoint}
-                    onChange={(e) => {
-                      const value = e.target.value;
-
-                      // 숫자만 허용
-                      if (!/^[0-9]*$/.test(value)) return;
-
-                      // 최대 사용 가능 포인트
-                      const maxPoint = Math.min(
-                        availableEcoPoint ?? 0,
-                        itemPrice ?? 0,
-                      );
-
-                      // 빈값이면 0 처리
-                      const num =
-                        value === "" ? 0 : Math.min(Number(value), maxPoint);
-
-                      setEcoPoint(num);
-                      setPayInfo((prev) => ({
-                        ...prev,
-                        totalPrice: totalPrice ?? 0,
-                        ecoPoint: num,
-                      }));
-                    }}
+                    onChange={handlePointChange}
                   />
                   <button
-                    className={styles["point-cancel-btn"]}
-                    onClick={() => {
-                      setEcoPoint(0);
-                    }}
+                    className={styles["point-all-btn"]}
+                    onClick={() =>
+                      setEcoPoint(Math.min(availableEcoPoint, itemPrice))
+                    }
+                    style={{ marginLeft: "10px", cursor: "pointer" }}
                   >
-                    사용취소
+                    전액사용
+                  </button>
+                  <button
+                    className={styles["point-cancel-btn"]}
+                    onClick={() => setEcoPoint(0)}
+                  >
+                    취소
                   </button>
                 </div>
                 <p className={styles["point-desc"]}>
-                  보유 : {availableEcoPoint.toLocaleString()} 점(원)
+                  보유 포인트:{" "}
+                  <strong>{availableEcoPoint.toLocaleString()}</strong> P
                 </p>
               </div>
-
               <div className={styles["form-group"]}>
-                <label>이번 주문으로 받을 에코포인트</label>
+                <label>이번 주문으로 받을 포인트(절감 탄소량)</label>
                 <input
                   type="text"
-                  value={totalCarbon.toLocaleString()}
+                  value={totalCarbon.toLocaleString() + " g"}
                   readOnly
                 />
               </div>
             </div>
           </section>
 
-          {/* 오른쪽 */}
+          {/* 오른쪽 섹션 (결제 요약) */}
           <aside className={styles["payment-right"]}>
             <div className={styles["summary-card"]}>
               <h2 className={styles["summary-title"]}>결제 정보</h2>
-
               <div className={styles["price-list"]}>
                 <div className={styles["price-row"]}>
                   <span>상품합계</span>
@@ -307,42 +247,29 @@ const PaymentPage = () => {
                   <span>{deliveryPrice.toLocaleString()}원</span>
                 </div>
                 <div className={styles["price-row"]}>
-                  <span>에코포인트 사용</span>
-                  <span>-{ecoPoint}P</span>
+                  <span>포인트 사용</span>
+                  <span style={{ color: "#ff4757" }}>
+                    -{ecoPoint.toLocaleString()}원
+                  </span>
                 </div>
               </div>
-
               <div className={styles["total-row"]}>
                 <span>최종 결제 금액</span>
-                <strong>{totalPrice}원</strong>
+                <strong>{totalPrice.toLocaleString()}원</strong>
               </div>
-
               <div className={styles["carbon-card"]}>
-                <p className={styles["carbon-title"]}>이 주문의 탄소 절감</p>
+                <p className={styles["carbon-title"]}>🌱 탄소 절감 효과</p>
                 <strong className={styles["carbon-value"]}>
                   {totalCarbon.toLocaleString()}g
                 </strong>
-                <p className={styles["carbon-desc"]}>
-                  이번 주문으로 나무 가지 하나를 틔웠습니다!
-                </p>
               </div>
-
-              <button
-                className={styles["pay-btn"]}
-                onClick={() => {
-                  handlePayment();
-                  console.log(orderData);
-                  setUsingEcoPoint(ecoPoint);
-                  setPayInfo({ ...payInfo, totalPrice: totalPrice });
-                }}
-              >
+              <button className={styles["pay-btn"]} onClick={handlePayment}>
                 {totalPrice.toLocaleString()}원 결제하기
               </button>
-
               <p className={styles["pay-notice"]}>
-                결제 진행 시 주문이 확정되며
+                결제 시 주문이 확정되며
                 <br />
-                취소는 가게 승인 전까지 가능합니다.
+                가게 승인 전까지만 취소가 가능합니다.
               </p>
             </div>
           </aside>

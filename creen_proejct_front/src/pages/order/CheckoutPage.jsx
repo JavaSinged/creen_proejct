@@ -4,8 +4,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import useCartStore from "../../store/useCartStore";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { AuthContext } from "../../context/AuthContext";
 
 const CheckoutPage = () => {
+  const { user, setUser } = useContext(AuthContext);
   const cartList = useCartStore((state) => state.cart);
   const navigate = useNavigate();
   const location = useLocation();
@@ -79,6 +81,34 @@ const CheckoutPage = () => {
 
     return () => clearInterval(intervalId);
   }, [orderId]);
+
+  useEffect(() => {
+    const fetchLatestPoint = async () => {
+      const memberId = localStorage.getItem("memberId");
+      if (!memberId) return;
+
+      try {
+        // 1. 백엔드에서 결제가 모두 반영된 "최신 진짜 포인트"를 가져옵니다.
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKSERVER}/member/${memberId}`,
+        );
+        const latestPoint = res.data.memberPoint || 0;
+
+        // 2. 로컬 스토리지 업데이트 (새로고침 대비)
+        localStorage.setItem("memberPoint", latestPoint);
+
+        // 3. 전역 컨텍스트 업데이트 (화면 즉시 반영)
+        if (user) {
+          setUser({ ...user, memberPoint: latestPoint });
+        }
+      } catch (err) {
+        console.error("최신 포인트 갱신 실패:", err);
+      }
+    };
+
+    // 페이지가 열리면 즉시 최신 포인트를 동기화!
+    fetchLatestPoint();
+  }, []);
 
   // 🌟 [핵심 로직] 주문 수락 시각 기준 카운트다운 타이머
   useEffect(() => {

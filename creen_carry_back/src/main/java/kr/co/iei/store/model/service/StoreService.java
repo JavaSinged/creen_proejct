@@ -43,31 +43,35 @@ public class StoreService {
 
     @Transactional
     public int insertOrder(Order order) {
+        // 1. 주문 메인 저장
         int result = storeDao.insertOrder(order);
-
-        if (result != 1) {
-            return 0;
-        }
+        if (result != 1) return 0;
 
         int orderId = order.getOrderId();
         String memberId = order.getMemberId();
-
         List<OrderItem> list = order.getItems();
 
-        // 1. 주문 상세
+        // 2. 주문 상세 저장
         if (list != null && !list.isEmpty()) {
             for (OrderItem orderItem : list) {
                 int detailResult = storeDao.insertOrderDetail(orderItem, orderId);
                 if (detailResult != 1) {
-                    throw new RuntimeException("주문 상세 실패");
+                    throw new RuntimeException("주문 상세 저장 중 오류 발생");
                 }
             }
-            // 임시 주석
-            int setPoint = storeDao.updatePoint(order);
-            int addReduceCarbon = storeDao.addReduceCarbon(orderId);
         }
 
-        // 2. 주문 이력
+        // 3. 🌟 포인트 적립 및 사용 (가장 중요!)
+        // 이 부분은 상세 내역 저장 여부와 상관없이 주문이 성공했다면 실행되어야 합니다.
+        int setPoint = storeDao.updatePoint(order);
+        if (setPoint != 1) {
+            throw new RuntimeException("포인트 적립/사용 처리 실패");
+        }
+
+        // 4. 탄소 절감량(명예 점수) 누적 업데이트
+        storeDao.addReduceCarbon(orderId);
+
+        // 5. 주문 이력 저장
         int historyResult = storeDao.insertOrderHistory(orderId, memberId);
         if (historyResult != 1) {
             throw new RuntimeException("주문 이력 저장 실패");

@@ -105,15 +105,15 @@
 
 	<update id="addReduceCarbon">
 		UPDATE member_tbl
-		SET total_carbon_reduce =
-		NVL(total_carbon_reduce, 0) + (SELECT NVL(SUM(total_carbon), 0)
-		FROM
-		order_detail
-		WHERE order_id = #{orderId})
-		WHERE member_id = (SELECT
-		member_id
+		SET total_carbon_reduce = NVL(total_carbon_reduce, 0) + (
+		SELECT NVL(SUM(total_carbon * quantity), 0) / 1000 FROM order_detail
+		WHERE order_id = #{orderId}
+		)
+		WHERE member_id = (
+		SELECT member_id
 		FROM order_tbl
-		WHERE order_id = #{orderId})
+		WHERE order_id = #{orderId}
+		)
 	</update>
 
 	<insert id="insertOrderDetail">
@@ -176,12 +176,15 @@
 		m.total_carbon_reduce AS totalReduceCarbon,
 		o.get_point AS getPoint,
 		o.expected_time AS expectedTime,
-		TO_CHAR(o.confirm_date, 'YYYY-MM-DD HH24:MI:SS') AS confirmDate,
-		TO_CHAR(o.complete_date, 'YYYY-MM-DD HH24:MI') AS completeDate,
+		TO_CHAR(o.confirm_date, 'YYYY-MM-DD
+		HH24:MI:SS') AS confirmDate,
+		TO_CHAR(o.complete_date, 'YYYY-MM-DD
+		HH24:MI') AS completeDate,
 		CASE
 		WHEN
 		o.delivery_type = 1 THEN 0
-		WHEN o.delivery_type = 2 THEN 1000
+		WHEN
+		o.delivery_type = 2 THEN 1000
 		ELSE
 		2000
 		END AS deliveryPrice,
@@ -194,9 +197,11 @@
 		order_tbl o
 		JOIN store_tbl s ON o.store_id =
 		s.store_id
-		JOIN member_tbl m ON o.member_id = m.member_id
+		JOIN member_tbl m ON
+		o.member_id = m.member_id
 		JOIN
-		order_list_map olm ON o.order_id = olm.order_id
+		order_list_map olm ON o.order_id =
+		olm.order_id
 		WHERE
 		o.order_id =
 		#{orderId}
