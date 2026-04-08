@@ -120,7 +120,7 @@ public class StoreController {
             return ResponseEntity.noContent().build();
         }
     }
-}
+
     @GetMapping("/reviews/{storeId}")
     public ResponseEntity<?> getStoreReviews(@PathVariable Integer storeId) {
         List<StoreReviewResponse> list = storeService.selectStoreReviews(storeId);
