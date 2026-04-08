@@ -106,7 +106,8 @@
 	<update id="addReduceCarbon">
 		UPDATE member_tbl
 		SET total_carbon_reduce = NVL(total_carbon_reduce, 0) + (
-		SELECT NVL(SUM(total_carbon * quantity), 0) / 1000 FROM order_detail
+		SELECT NVL(get_point, 0) / 1000
+		FROM order_tbl
 		WHERE order_id = #{orderId}
 		)
 		WHERE member_id = (
