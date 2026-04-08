@@ -3,7 +3,7 @@ package kr.co.iei.store.model.service;
 import kr.co.iei.store.model.dao.StoreDao;
 import kr.co.iei.store.model.vo.Menu;
 import kr.co.iei.store.model.vo.MenuOption;
-import kr.co.iei.store.model.vo.MenuSaveRequestDto;
+import kr.co.iei.store.model.vo.MenuSaveRequest;
 import kr.co.iei.store.model.vo.Order;
 import kr.co.iei.store.model.vo.OrderItem;
 import kr.co.iei.store.model.vo.OrderListObject;
@@ -90,8 +90,7 @@ public class StoreService {
     }
 
 	public List<OrderListResponse> searchOrdersByMemberId(String memberId) {
-		List<OrderListResponse> list = storeDao.searchOrdersByMemberId(memberId);
-		return list;
+        return storeDao.searchOrdersByMemberId(memberId);
 	}
 
 
@@ -102,9 +101,8 @@ public class StoreService {
 
 	}
 
-	public Integer getStoreId(String memberId) {
-		Integer storeId = storeDao.getStoreId(memberId);
-		return storeId;
+	public Store getStoreByMemberId(String memberId) {
+		return storeDao.findStoreByMemberId(memberId);
 	}
 
 	public List<MenuOption> getAllMenuOptions() {
