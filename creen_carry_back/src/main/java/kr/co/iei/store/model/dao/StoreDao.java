@@ -2,7 +2,7 @@ package kr.co.iei.store.model.dao;
 
 import kr.co.iei.store.model.vo.Menu;
 import kr.co.iei.store.model.vo.MenuOption;
-import kr.co.iei.store.model.vo.MenuSaveRequestDto;
+import kr.co.iei.store.model.vo.MenuSaveRequest;
 import kr.co.iei.store.model.vo.Order;
 import kr.co.iei.store.model.vo.OrderItem;
 import kr.co.iei.store.model.vo.OrderListObject;
@@ -11,13 +11,10 @@ import kr.co.iei.store.model.vo.OrderResponse;
 import kr.co.iei.store.model.vo.ReviewComment;
 import kr.co.iei.store.model.vo.SaleMonth;
 import kr.co.iei.store.model.vo.Store;
-import kr.co.iei.store.model.vo.StoreReviewResponse;
-
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-import java.util.Map;
 
 @Mapper
 public interface StoreDao {
@@ -48,26 +45,6 @@ public interface StoreDao {
 		);
 	int getTotalCarbonPoint(String memberId);
 
-	Integer getStoreId(String memberId);
-
-	List<MenuOption> getAllMenuOptions();
-
-	int updateMenu(MenuSaveRequestDto dto);
-
-	
-	int deleteMenuOptions(@Param("menuId") Long menuId); 
-
-	void insertNewOption(MenuOption newOpt);
-
-	int insertMenuOptions(
-		    @Param("menuId") Long menuId, 
-		    @Param("optionIds") List<Long> optionIds
-		);
-
-	Menu getMenuById(Long menuId);
-
-	int insertMenu(MenuSaveRequestDto dto);
-	
 
 	int cancelOrder(Integer orderId);
 
@@ -94,3 +71,4 @@ public interface StoreDao {
 
 	
 }
+

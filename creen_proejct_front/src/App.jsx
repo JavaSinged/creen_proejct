@@ -37,6 +37,7 @@ import AdminReviewManagement from "./pages/mypage/admin/AdminReviewManagement";
 import AdminContainerManagement from "./pages/mypage/admin/AdminContainerManagement";
 
 // 🌟 문지기 컴포넌트
+
 import ProtectedRoute from "./context/ProtectedRoute";
 import ManagerDelAccount from "./pages/mypage/deleteMember/ManagerDelAccount";
 import UserOrderList from "./pages/mypage/user/UserOrderList";
@@ -104,7 +105,10 @@ function App() {
                 <Route index element={<div>사업자 대시보드 화면</div>} />
                 <Route path="profile" element={<ManagerInfoEdit />} />
                 <Route path="menus" element={<ManagerMenuList />} />
-                <Route path="menuEdit" element={<ManagerMenuEdit />} />
+                <Route
+                  path="menus/menuEdit/:storeId/:menuId?"
+                  element={<ManagerMenuEdit />}
+                />
                 <Route path="deleteMember" element={<ManagerDelAccount />} />
                 <Route path="reviews" element={<ManagerReviewComment />} />
                 <Route path="orders" element={<ManagerOrderList />} />
