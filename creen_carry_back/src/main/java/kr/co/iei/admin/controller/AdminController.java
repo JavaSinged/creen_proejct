@@ -9,19 +9,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import kr.co.iei.CreenCarryBackApplication;
 import kr.co.iei.admin.model.service.AdminService;
-
+import kr.co.iei.admin.model.vo.OrderListByStoreId;
 
 
 @RestController
 @RequestMapping("/admin")
 @CrossOrigin("*")
 public class AdminController {
+
+    private final CreenCarryBackApplication creenCarryBackApplication;
 	 @Autowired
 	    private AdminService adminService;
+
+    AdminController(CreenCarryBackApplication creenCarryBackApplication) {
+        this.creenCarryBackApplication = creenCarryBackApplication;
+    }
 	 
 	 @GetMapping("/api/sales/stats")
 	 public ResponseEntity<?> getSalesStats() {
@@ -54,6 +61,12 @@ public class AdminController {
 	     response.put("categories", categories);
 
 	     return ResponseEntity.ok(response);
+	 }
+	 
+	 @GetMapping("/{storeId}")
+	 public ResponseEntity<?> selectOrdersByStoreId(@PathVariable int storeId){
+		 List<OrderListByStoreId> list = adminService.selectOrdersByStoreId(storeId);   
+		 return ResponseEntity.ok(list);
 	 }
 
 }

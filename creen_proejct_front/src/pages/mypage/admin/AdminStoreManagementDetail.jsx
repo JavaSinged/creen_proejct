@@ -20,25 +20,14 @@ import SearchIcon from "@mui/icons-material/Search";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import axios from "axios";
+import { useParams } from "react-router-dom";
 
 const AdminStoreManagementDetail = () => {
   const [searchKeyword, setSearchKeyword] = useState("");
-
+  const { storeId } = useParams();
+  const backHost = import.meta.env.VITE_BACKSERVER;
   // ✅ state 제대로 선언
-  const [orderList, setOrderList] = useState([
-    {
-      orderId: 1,
-      memberId: "user1",
-      memberEmail: "user1@test.com",
-      menuName: "치킨",
-      optionString: "매운맛",
-      totalPrice: 15000,
-      storeName: "BBQ",
-      orderStatus: "배송완료",
-      memberThumb: "https://i.pravatar.cc/40?img=1",
-      menuThumb: "https://picsum.photos/50/50?random=1",
-    },
-  ]);
+  const [orderList, setOrderList] = useState([{}]);
 
   // ✅ 검색 필터
   const filteredList = orderList.filter((item) =>
@@ -58,10 +47,17 @@ const AdminStoreManagementDetail = () => {
     }
     return {};
   };
-  // useEffect(() => {
-
-  //   axios.get(`${import.meta.env.VITE_BACKSERVER}/`)
-  // }, []);
+  useEffect(() => {
+    axios
+      .get(`${import.meta.env.VITE_BACKSERVER}/admin/${storeId}`)
+      .then((res) => {
+        console.log(res.data);
+        setOrderList(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
   return (
     <div className={styles.content}>
       <Paper className={styles.card} elevation={0}>
@@ -127,11 +123,17 @@ const AdminStoreManagementDetail = () => {
                   <TableCell>
                     <Box className={styles.infoBox}>
                       <img
-                        src={item.menuThumb}
+                        src={
+                          `${backHost}${item.menuList?.[0]?.menuImage}` ||
+                          "/image/default_menu.png"
+                        }
                         className={styles.productImage}
                       />
                       <Box>
-                        <p className={styles.mainText}>{item.menuName}</p>
+                        <p className={styles.mainText}>
+                          {item.menuList?.[0]?.menuName} 외{" "}
+                          {item.menuList.length - 1}
+                        </p>
                         <span className={styles.subText}>
                           {item.optionString}
                         </span>
