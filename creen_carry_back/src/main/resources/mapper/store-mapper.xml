@@ -173,6 +173,7 @@
 		storeThumb,
 		o.order_id AS orderId,
 		o.used_point AS usedPoint,
+		m.total_carbon_reduce AS totalReduceCarbon,
 		o.get_point AS getPoint,
 		o.expected_time AS expectedTime,
 		TO_CHAR(o.confirm_date, 'YYYY-MM-DD HH24:MI:SS') AS confirmDate,
@@ -193,6 +194,7 @@
 		order_tbl o
 		JOIN store_tbl s ON o.store_id =
 		s.store_id
+		JOIN member_tbl m ON o.member_id = m.member_id
 		JOIN
 		order_list_map olm ON o.order_id = olm.order_id
 		WHERE

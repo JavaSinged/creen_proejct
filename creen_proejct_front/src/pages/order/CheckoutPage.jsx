@@ -485,7 +485,9 @@ const CheckoutPage = () => {
               </div>
               <div className={styles.ecoInfoRow}>
                 <span>누적 탄소 절감량</span>
-                <strong>{getPoint}g</strong>
+                <strong>
+                  {totalCarbon ? totalCarbon.toLocaleString() : "0"}kg
+                </strong>
               </div>
             </div>
 
