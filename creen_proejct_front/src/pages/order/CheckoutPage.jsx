@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
 import styles from "./CheckoutPage.module.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import useCartStore from "../../store/useCartStore";
