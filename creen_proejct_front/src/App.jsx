@@ -44,7 +44,7 @@ import UserOrderList from "./pages/mypage/user/UserOrderList";
 import UserReviewList from "./pages/mypage/user/UserReviewList";
 import ManagerReviewComment from "./pages/mypage/manager/ManagerReviewComment";
 import ManagerOrderList from "./pages/mypage/manager/ManagerOrderList";
-import AdminStoreManagementDetail from "./pages/mypage/admin/components/AdminStoreManagementDetail";
+import AdminStoreManagementDetail from "./pages/mypage/admin/AdminStoreManagementDetail";
 
 const BasicLayout = () => {
   return (
@@ -122,10 +122,10 @@ function App() {
                 <Route index element={<AdminDashboard />} />
                 <Route path="members" element={<AdminUserManagement />} />
                 <Route path="stores" element={<AdminStoreManagement />}></Route>
-                {/* <Route
+                <Route
                   path="stores/detail/:storeId"
                   element={<AdminStoreManagementDetail />}
-                ></Route> */}
+                ></Route>
                 <Route path="reviews" element={<AdminReviewManagement />} />
                 <Route
                   path="containers"
