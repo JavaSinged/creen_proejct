@@ -429,3 +429,36 @@
 .delete_btn:hover {
   background: #d9363e;
 }
+.preview_box {
+  width: 100%;
+  height: 200px;
+  background: #f9fafb;
+  border: 2px dashed #e5e7eb;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.image_preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.no_image {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #9ca3af;
+  gap: 8px;
+}
+
+.upload_info {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 10px;
+}

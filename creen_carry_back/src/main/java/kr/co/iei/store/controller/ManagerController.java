@@ -7,7 +7,7 @@ import kr.co.iei.store.model.vo.MenuSaveRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.http.MediaType;
 import java.util.List;
 import java.util.Map;
 
@@ -46,22 +46,28 @@ public class ManagerController {
     }
 
     // 1. 새 메뉴 등록 (POST)
-    @PostMapping("/{storeId}")
-    public ResponseEntity<?> insertMenu(@PathVariable Long storeId, @RequestBody MenuSaveRequest request) {
+ // 1. 새 메뉴 등록 (POST)
+    @PostMapping(value = "/{storeId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> insertMenu(
+            @PathVariable Long storeId, 
+            @ModelAttribute MenuSaveRequest request) { // 🌟 @RequestBody 대신 @ModelAttribute 사용
+        
         request.setStoreId(storeId);
+        
         int result = managerService.insertMenuAll(request);
         return result > 0 ? ResponseEntity.ok().build() : ResponseEntity.internalServerError().build();
     }
 
     // 2. 기존 메뉴 수정 (PUT)
-    @PutMapping("/{storeId}/{menuId}")
+    @PostMapping(value = "/{storeId}/{menuId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateMenu(
             @PathVariable Long storeId,
             @PathVariable Long menuId,
-            @RequestBody MenuSaveRequest request) {
+            @ModelAttribute MenuSaveRequest request) { // 🌟 여기도 변경
 
         request.setStoreId(storeId);
         request.setMenuId(menuId);
+        
         int result = managerService.updateMenuAll(request);
         return result > 0 ? ResponseEntity.ok().build() : ResponseEntity.internalServerError().build();
     }

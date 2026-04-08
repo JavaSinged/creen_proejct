@@ -2,6 +2,8 @@ package kr.co.iei.store.model.vo;
 
 import lombok.Data;
 import org.apache.ibatis.type.Alias;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 @Data
@@ -11,16 +13,17 @@ public class MenuSaveRequest {
     private Long menuId;
     private String menuName;
     private String menuInfo;
-    private String menuImage;
+    private MultipartFile menuImage; 
+    private String menuImagePath;
     private Integer menuPrice;
     private String menuCategory;
-    private double menuCarbon;
+    private Double menuCarbon;
     private Integer menuStatus;
 
     // 추가 설정 데이터들
-    private List<Long> optionIds;
-    private List<MenuOption> newOptions;
-    private List<ContainerItem> containerMap;
+    private String optionIds;
+    private String newOptions;
+    private String containerMap;
 
     @Data
     public static class ContainerItem {

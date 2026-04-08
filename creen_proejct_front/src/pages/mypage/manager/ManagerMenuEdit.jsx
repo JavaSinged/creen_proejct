@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import styles from './ManagerMenuEdit.module.css';
+import { useEffect, useState } from "react";
+import styles from "./ManagerMenuEdit.module.css";
 import {
   SearchIcon,
   X,
@@ -8,9 +8,11 @@ import {
   Upload,
   Plus,
   Minus,
-} from 'lucide-react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+  Camera,
+  RefreshCw,
+} from "lucide-react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 
 const ManagerMenuEdit = () => {
   const navigate = useNavigate();
@@ -19,33 +21,35 @@ const ManagerMenuEdit = () => {
 
   // --- [State] 기본 정보 ---
   const [menu, setMenu] = useState({
-    menuName: '',
-    menuInfo: '',
+    menuName: "",
+    menuInfo: "",
     menuImage: null,
-    menuPrice: '',
-    menuCategory: '메인',
+    menuPrice: "",
+    menuCategory: "메인",
     menuStatus: 1,
   });
 
+  // 사진 미리보기용 URL
+  const [previewUrl, setPreviewUrl] = useState("");
+
   // --- [State] 용기 설정 ---
   const [containerMaster, setContainerMaster] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [isListOpen, setIsListOpen] = useState(false);
   const [selectedContainers, setSelectedContainers] = useState([]);
 
   // --- [State] 옵션 설정 ---
   const [allOptions, setAllOptions] = useState([]);
-  // 💡 [수정/추가] 기존에 등록되어 있던 옵션 전체 정보를 담을 상태 추가
   const [existingOptions, setExistingOptions] = useState([]);
   const [selectedOptionIds, setSelectedOptionIds] = useState([]);
   const [newOptions, setNewOptions] = useState([]);
 
-  // 옵션 추가 시 탄소값(carbon) 상태
-  const [tempSize, setTempSize] = useState({ name: '', price: '', carbon: '' });
+  // 옵션 추가 시 상태
+  const [tempSize, setTempSize] = useState({ name: "", price: "", carbon: "" });
   const [tempGeneral, setTempGeneral] = useState({
-    name: '',
-    price: '',
-    carbon: '',
+    name: "",
+    price: "",
+    carbon: "",
   });
 
   const [openSections, setOpenSections] = useState({
@@ -54,77 +58,86 @@ const ManagerMenuEdit = () => {
     eco: false,
   });
 
-  // 총 탄소 배출량 계산 로직 (선택된 용기 * 개수 * 용기별 탄소량)
+  // 총 탄소 배출량 계산 로직
   const totalCarbonEmission = selectedContainers.reduce((acc, cur) => {
     return acc + (cur.emissions || 0) * cur.count;
   }, 0);
 
   // --- [Effect] 데이터 로드 ---
   useEffect(() => {
+    const backHost = import.meta.env.VITE_BACKSERVER;
+
     // 1. 용기 마스터 목록 로드
     axios
-      .get(`${import.meta.env.VITE_BACKSERVER}/menus/containers`)
+      .get(`${backHost}/menus/containers`)
       .then((res) => {
         setContainerMaster(res.data);
       })
-      .catch((err) => console.error('용기 데이터 로드 실패', err));
+      .catch((err) => console.error("용기 데이터 로드 실패", err));
 
     // 2. 전체 옵션 목록 로드
     axios
-      .get(`${import.meta.env.VITE_BACKSERVER}/stores/options/all`)
+      .get(`${backHost}/stores/options/all`)
       .then((res) => setAllOptions(res.data))
-      .catch((err) => console.error('전체 옵션 로드 실패:', err));
+      .catch((err) => console.error("전체 옵션 로드 실패:", err));
 
     // 3. 수정 모드 데이터 로드
     if (menuId) {
-      // ① 메뉴 기본 정보
-      axios
-        .get(`${import.meta.env.VITE_BACKSERVER}/menus/${menuId}`)
-        .then((res) => {
-          setMenu({
-            menuName: res.data.menuName,
-            menuInfo: res.data.menuInfo,
-            menuImage: res.data.menuImage,
-            menuPrice: res.data.menuPrice,
-            menuCategory: res.data.menuCategory,
-            menuStatus: res.data.menuStatus,
-          });
+      axios.get(`${backHost}/menus/${menuId}`).then((res) => {
+        setMenu({
+          menuName: res.data.menuName,
+          menuInfo: res.data.menuInfo,
+          menuImage: res.data.menuImage,
+          menuPrice: res.data.menuPrice,
+          menuCategory: res.data.menuCategory,
+          menuStatus: res.data.menuStatus,
         });
+        if (res.data.menuImage) {
+          setPreviewUrl(`${backHost}${res.data.menuImage}`);
+        }
+      });
 
-      // ② 옵션 목록 (기존 코드 유지)
-      axios
-        .get(`${import.meta.env.VITE_BACKSERVER}/menus/${menuId}/options`)
-        .then((res) => {
-          setExistingOptions(res.data);
-          setSelectedOptionIds(res.data.map((opt) => opt.optionNo));
-        });
+      axios.get(`${backHost}/menus/${menuId}/options`).then((res) => {
+        setExistingOptions(res.data);
+        setSelectedOptionIds(res.data.map((opt) => opt.optionNo));
+      });
 
-      // ③ 용기 목록 (응답 필드명 테이블 기준으로 수정)
-      axios
-        .get(`${import.meta.env.VITE_BACKSERVER}/menus/${menuId}/containers`)
-        .then((res) => {
-          setSelectedContainers(
-            res.data.map((item) => ({
-              productId: item.productId,
-              name: item.productMaterial,
-              count: item.containerCount, // carbon_menu_map.CONTAINER_COUNT
-              emissions: item.productEmissions,
-            })),
-          );
-        });
+      axios.get(`${backHost}/menus/${menuId}/containers`).then((res) => {
+        setSelectedContainers(
+          res.data.map((item) => ({
+            productId: item.productId,
+            name: item.productMaterial,
+            count: item.containerCount,
+            emissions: item.productEmissions,
+          })),
+        );
+      });
     }
   }, [menuId]);
 
+  // --- [Handlers] 기본 입력 및 파일 ---
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'menuPrice')
-      setMenu({ ...menu, [name]: value.replace(/[^0-9]/g, '') });
+    if (name === "menuPrice")
+      setMenu({ ...menu, [name]: value.replace(/[^0-9]/g, "") });
     else setMenu({ ...menu, [name]: value });
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setMenu({ ...menu, menuImage: file });
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const addContainer = (target) => {
     if (selectedContainers.find((c) => c.productId === target.productId))
-      return alert('이미 추가된 용기입니다.');
+      return alert("이미 추가된 용기입니다.");
 
     setSelectedContainers([
       ...selectedContainers,
@@ -135,35 +148,73 @@ const ManagerMenuEdit = () => {
         emissions: target.productEmissions || 0,
       },
     ]);
-    setSearchTerm('');
+    setSearchTerm("");
     setIsListOpen(false);
   };
 
+  // 🌟 [수정된 부분] 저장 로직: 빈 값 방어 코드 추가
   const handleSave = () => {
-    const finalData = {
-      ...menu,
-      menuPrice: Number(menu.menuPrice),
-      storeId,
-      menuId,
-      menuCarbon: totalCarbonEmission,
-      optionIds: selectedOptionIds,
-      newOptions,
-      containerMap: selectedContainers.map((c) => ({
-        productId: c.productId,
-        count: c.count,
-      })),
-    };
-    const method = menuId ? 'put' : 'post';
-    const url = menuId ? `/menus/${storeId}/${menuId}` : `/menus/${storeId}`;
-    axios[method](`${import.meta.env.VITE_BACKSERVER}${url}`, finalData).then(
-      () => {
-        alert('저장되었습니다.');
-        navigate(-1);
-      },
+    // 필수값 검사 (가격, 이름 등)
+    if (!menu.menuName || !menu.menuPrice) {
+      alert("메뉴 이름과 가격은 필수 입력 항목입니다!");
+      return;
+    }
+
+    const formData = new FormData();
+    const backHost = import.meta.env.VITE_BACKSERVER;
+
+    // 빈칸 방어: 값이 없으면 기본값으로 세팅해서 에러 방지
+    formData.append("menuName", menu.menuName || "");
+    formData.append("menuInfo", menu.menuInfo || "");
+    formData.append("menuPrice", menu.menuPrice ? Number(menu.menuPrice) : 0);
+    formData.append("menuCategory", menu.menuCategory || "메인");
+    formData.append(
+      "menuStatus",
+      menu.menuStatus !== undefined ? menu.menuStatus : 1,
     );
+    formData.append("storeId", storeId || 1);
+    formData.append(
+      "menuCarbon",
+      totalCarbonEmission ? Number(totalCarbonEmission) : 0,
+    );
+
+    // 배열 데이터 안전하게 전송
+    formData.append("optionIds", JSON.stringify(selectedOptionIds || []));
+    formData.append("newOptions", JSON.stringify(newOptions || []));
+    formData.append(
+      "containerMap",
+      JSON.stringify(
+        selectedContainers.map((c) => ({
+          productId: c.productId,
+          count: c.count,
+        })) || [],
+      ),
+    );
+
+    // 파일 전송
+    if (menu.menuImage instanceof File) {
+      formData.append("menuImage", menu.menuImage);
+    }
+
+    const method = "post";
+    const url = menuId ? `/menus/${storeId}/${menuId}` : `/menus/${storeId}`;
+
+    axios({
+      method,
+      url: `${backHost}${url}`,
+      data: formData,
+      headers: { "Content-Type": "multipart/form-data" },
+    })
+      .then(() => {
+        alert("저장되었습니다.");
+        navigate(-1);
+      })
+      .catch((err) => {
+        console.error(err);
+        alert("저장 중 오류가 발생했습니다. 자바 콘솔 창을 확인해주세요!");
+      });
   };
 
-  // [추가] 판매 상태 토글 핸들러
   const handleStatusToggle = () => {
     const nextStatus = menu.menuStatus === 1 ? 0 : 1;
     axios
@@ -174,26 +225,25 @@ const ManagerMenuEdit = () => {
         setMenu((prev) => ({ ...prev, menuStatus: nextStatus }));
         alert(
           nextStatus === 1
-            ? '판매중으로 변경되었습니다.'
-            : '판매중지로 변경되었습니다.',
+            ? "판매중으로 변경되었습니다."
+            : "판매중지로 변경되었습니다.",
         );
       })
-      .catch(() => alert('상태 변경에 실패했습니다.'));
+      .catch(() => alert("상태 변경에 실패했습니다."));
   };
 
-  // [추가] 삭제 핸들러
   const handleDelete = () => {
     if (
-      !window.confirm('메뉴를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')
+      !window.confirm("메뉴를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")
     )
       return;
     axios
       .delete(`${import.meta.env.VITE_BACKSERVER}/menus/${menuId}`)
       .then(() => {
-        alert('메뉴가 삭제되었습니다.');
+        alert("메뉴가 삭제되었습니다.");
         navigate(-1);
       })
-      .catch(() => alert('삭제에 실패했습니다.'));
+      .catch(() => alert("삭제에 실패했습니다."));
   };
 
   const generalList = allOptions.filter((o) => o.optionType === 2);
@@ -203,7 +253,7 @@ const ManagerMenuEdit = () => {
     <div className={styles.page_container}>
       <div className={styles.edit_box}>
         <h2 className={styles.main_title}>
-          {menuId ? '메뉴 수정하기' : '새 메뉴 등록'}
+          {menuId ? "메뉴 수정하기" : "새 메뉴 등록"}
         </h2>
 
         <div className={styles.top_content}>
@@ -234,17 +284,17 @@ const ManagerMenuEdit = () => {
             <div className={styles.input_row}>
               <label
                 style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
                 }}
               >
                 <span>용기 설정</span>
                 <span
                   style={{
-                    fontSize: '0.85rem',
-                    color: '#10b981',
-                    fontWeight: 'bold',
+                    fontSize: "0.85rem",
+                    color: "#10b981",
+                    fontWeight: "bold",
                   }}
                 >
                   예상 총 탄소 배출량: {totalCarbonEmission.toFixed(2)} kg
@@ -367,10 +417,33 @@ const ManagerMenuEdit = () => {
           <div className={styles.image_section}>
             <div className={styles.upload_card}>
               <p className={styles.up_text}>메뉴 사진</p>
+
+              <div className={styles.preview_box}>
+                {previewUrl ? (
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    className={styles.image_preview}
+                  />
+                ) : (
+                  <div className={styles.no_image}>
+                    <Camera size={40} color="#ccc" />
+                    <span>이미지 없음</span>
+                  </div>
+                )}
+              </div>
+
               <label htmlFor="menu-file" className={styles.browse_button}>
-                <Upload size={16} /> 사진 올리기
+                {previewUrl ? <RefreshCw size={16} /> : <Upload size={16} />}
+                {previewUrl ? " 사진 변경하기" : " 사진 올리기"}
               </label>
-              <input id="menu-file" type="file" style={{ display: 'none' }} />
+              <input
+                id="menu-file"
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+              />
             </div>
           </div>
         </div>
@@ -378,9 +451,9 @@ const ManagerMenuEdit = () => {
         <h3 className={styles.sub_title}>옵션 설정</h3>
 
         {[
-          { t: '사이즈 옵션', k: 'size', l: [] },
-          { t: '일반 옵션', k: 'general', l: generalList },
-          { t: '에코포인트 옵션', k: 'eco', l: ecoList },
+          { t: "사이즈 옵션", k: "size", l: [] },
+          { t: "일반 옵션", k: "general", l: generalList },
+          { t: "에코포인트 옵션", k: "eco", l: ecoList },
         ].map((sec, idx) => (
           <div className={styles.accordion_group} key={sec.k}>
             <div
@@ -392,7 +465,7 @@ const ManagerMenuEdit = () => {
                 })
               }
             >
-              <span>{sec.t}</span>{' '}
+              <span>{sec.t}</span>{" "}
               {openSections[sec.k] ? (
                 <ChevronUp size={20} />
               ) : (
@@ -401,16 +474,16 @@ const ManagerMenuEdit = () => {
             </div>
             {openSections[sec.k] && (
               <div className={styles.group_body}>
-                {sec.k !== 'eco' && (
+                {sec.k !== "eco" && (
                   <div className={styles.add_form}>
                     <input
                       placeholder="이름"
                       maxLength={30}
                       value={
-                        sec.k === 'size' ? tempSize.name : tempGeneral.name
+                        sec.k === "size" ? tempSize.name : tempGeneral.name
                       }
                       onChange={(e) =>
-                        sec.k === 'size'
+                        sec.k === "size"
                           ? setTempSize({ ...tempSize, name: e.target.value })
                           : setTempGeneral({
                               ...tempGeneral,
@@ -421,11 +494,11 @@ const ManagerMenuEdit = () => {
                     <input
                       placeholder="가격"
                       value={
-                        sec.k === 'size' ? tempSize.price : tempGeneral.price
+                        sec.k === "size" ? tempSize.price : tempGeneral.price
                       }
                       onChange={(e) => {
-                        const val = e.target.value.replace(/[^0-9]/g, '');
-                        sec.k === 'size'
+                        const val = e.target.value.replace(/[^0-9]/g, "");
+                        sec.k === "size"
                           ? setTempSize({ ...tempSize, price: val })
                           : setTempGeneral({ ...tempGeneral, price: val });
                       }}
@@ -434,22 +507,22 @@ const ManagerMenuEdit = () => {
                       type="number"
                       step="0.01"
                       placeholder="탄소량(kg)"
-                      style={{ width: '80px' }}
+                      style={{ width: "80px" }}
                       value={
-                        sec.k === 'size' ? tempSize.carbon : tempGeneral.carbon
+                        sec.k === "size" ? tempSize.carbon : tempGeneral.carbon
                       }
                       onChange={(e) => {
                         const val = e.target.value;
-                        sec.k === 'size'
+                        sec.k === "size"
                           ? setTempSize({ ...tempSize, carbon: val })
                           : setTempGeneral({ ...tempGeneral, carbon: val });
                       }}
                     />
                     <button
                       onClick={() => {
-                        const cur = sec.k === 'size' ? tempSize : tempGeneral;
-                        if (!cur.name || !cur.price || cur.carbon === '')
-                          return alert('이름, 가격, 탄소량을 모두 입력하세요.');
+                        const cur = sec.k === "size" ? tempSize : tempGeneral;
+                        if (!cur.name || !cur.price || cur.carbon === "")
+                          return alert("이름, 가격, 탄소량을 모두 입력하세요.");
 
                         setNewOptions([
                           ...newOptions,
@@ -461,16 +534,16 @@ const ManagerMenuEdit = () => {
                             isNew: true,
                           },
                         ]);
-                        sec.k === 'size'
-                          ? setTempSize({ name: '', price: '', carbon: '' })
-                          : setTempGeneral({ name: '', price: '', carbon: '' });
+                        sec.k === "size"
+                          ? setTempSize({ name: "", price: "", carbon: "" })
+                          : setTempGeneral({ name: "", price: "", carbon: "" });
                       }}
                     >
                       추가
                     </button>
                   </div>
                 )}
-                {sec.k === 'eco' && (
+                {sec.k === "eco" && (
                   <div className={styles.eco_fixed_box}>
                     <label className={styles.check_item}>
                       <input
@@ -483,7 +556,7 @@ const ManagerMenuEdit = () => {
                               : [...prev, 5],
                           )
                         }
-                      />{' '}
+                      />{" "}
                       <strong>기본 반찬 안 받기</strong>
                     </label>
                     <label className={styles.check_item}>
@@ -497,19 +570,18 @@ const ManagerMenuEdit = () => {
                               : [...prev, 6],
                           )
                         }
-                      />{' '}
+                      />{" "}
                       <strong>일회용품 안 받기</strong>
                     </label>
                   </div>
                 )}
                 <div
                   className={
-                    sec.k === 'size' ? styles.badge_wrap : styles.checkbox_grid
+                    sec.k === "size" ? styles.badge_wrap : styles.checkbox_grid
                   }
                 >
-                  {sec.k === 'size' ? (
+                  {sec.k === "size" ? (
                     <>
-                      {/* 💡 [수정/추가] 백엔드에서 가져온 기존 사이즈 옵션 렌더링 */}
                       {existingOptions
                         .filter((o) => o.optionType === 1)
                         .map((o) => (
@@ -517,12 +589,11 @@ const ManagerMenuEdit = () => {
                             key={`ex-size-${o.optionNo}`}
                             className={styles.opt_badge}
                           >
-                            {o.optionName} (+{o.optionPrice}원 / 🌿{' '}
-                            {o.optionCarbon || 0}kg){' '}
+                            {o.optionName} (+{o.optionPrice}원 / 🌿{" "}
+                            {o.optionCarbon || 0}kg){" "}
                             <X
                               size={12}
                               onClick={() => {
-                                // 화면에서도 지우고, selectedOptionIds 에서도 제거하여 서버로 안 넘어가게 함
                                 setExistingOptions((prev) =>
                                   prev.filter(
                                     (item) => item.optionNo !== o.optionNo,
@@ -536,7 +607,6 @@ const ManagerMenuEdit = () => {
                           </span>
                         ))}
 
-                      {/* 새로 추가하는 사이즈 옵션 */}
                       {newOptions
                         .filter((o) => o.optionType === 1)
                         .map((o, i) => (
@@ -544,8 +614,8 @@ const ManagerMenuEdit = () => {
                             key={`new-size-${i}`}
                             className={styles.opt_badge}
                           >
-                            {o.optionName} (+{o.optionPrice}원 / 🌿{' '}
-                            {o.optionCarbon}kg){' '}
+                            {o.optionName} (+{o.optionPrice}원 / 🌿{" "}
+                            {o.optionCarbon}kg){" "}
                             <X
                               size={12}
                               onClick={() =>
@@ -572,20 +642,19 @@ const ManagerMenuEdit = () => {
                                   : [...prev, o.optionNo],
                               )
                             }
-                          />{' '}
-                          {o.optionName}{' '}
-                          {o.optionPrice > 0 ? `(+${o.optionPrice})` : ''}
+                          />{" "}
+                          {o.optionName}{" "}
+                          {o.optionPrice > 0 ? `(+${o.optionPrice})` : ""}
                         </label>
                       ))
                   )}
                 </div>
 
-                {sec.k === 'general' && (
+                {sec.k === "general" && (
                   <div
                     className={styles.badge_wrap}
-                    style={{ marginTop: '12px' }}
+                    style={{ marginTop: "12px" }}
                   >
-                    {/* 💡 [수정/추가] 기존에 등록되었던 커스텀 일반 옵션 렌더링 (전체 옵션에 없는 애들만 배지로 표시) */}
                     {existingOptions
                       .filter(
                         (o) =>
@@ -597,8 +666,8 @@ const ManagerMenuEdit = () => {
                           key={`ex-gen-${o.optionNo}`}
                           className={styles.opt_badge}
                         >
-                          {o.optionName} (+{o.optionPrice}원 / 🌿{' '}
-                          {o.optionCarbon || 0}kg){' '}
+                          {o.optionName} (+{o.optionPrice}원 / 🌿{" "}
+                          {o.optionCarbon || 0}kg){" "}
                           <X
                             size={12}
                             onClick={() => {
@@ -615,13 +684,12 @@ const ManagerMenuEdit = () => {
                         </span>
                       ))}
 
-                    {/* 새로 추가하는 커스텀 일반 옵션 */}
                     {newOptions
                       .filter((o) => o.optionType === 2)
                       .map((o, i) => (
                         <span key={`new-gen-${i}`} className={styles.opt_badge}>
-                          {o.optionName} (+{o.optionPrice}원 / 🌿{' '}
-                          {o.optionCarbon}kg){' '}
+                          {o.optionName} (+{o.optionPrice}원 / 🌿{" "}
+                          {o.optionCarbon}kg){" "}
                           <X
                             size={12}
                             onClick={() =>
@@ -639,7 +707,7 @@ const ManagerMenuEdit = () => {
           </div>
         ))}
 
-        {/* 판매 상태 표시 (수정 모드일 때만 표시) */}
+        {/* 판매 상태 표시 */}
         {menuId && (
           <div className={styles.status_area}>
             <span
@@ -647,10 +715,10 @@ const ManagerMenuEdit = () => {
                 menu.menuStatus === 1 ? styles.status_on : styles.status_off
               }
             >
-              {menu.menuStatus === 1 ? '● 판매중' : '● 판매중지'}
+              {menu.menuStatus === 1 ? "● 판매중" : "● 판매중지"}
             </span>
             <button className={styles.status_btn} onClick={handleStatusToggle}>
-              {menu.menuStatus === 1 ? '판매중지로 변경' : '판매중으로 변경'}
+              {menu.menuStatus === 1 ? "판매중지로 변경" : "판매중으로 변경"}
             </button>
           </div>
         )}
@@ -662,7 +730,6 @@ const ManagerMenuEdit = () => {
           <button className={styles.cancel_btn} onClick={() => navigate(-1)}>
             취소
           </button>
-          {/* 삭제 버튼 (수정 모드일 때만) */}
           {menuId && (
             <button className={styles.delete_btn} onClick={handleDelete}>
               메뉴 삭제

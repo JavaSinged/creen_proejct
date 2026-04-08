@@ -1,20 +1,21 @@
-import { useEffect, useState, useMemo } from 'react';
-import axios from 'axios';
-import styles from './ManagerMenuList.module.css';
+import { useEffect, useState, useMemo } from "react";
+import axios from "axios";
+import styles from "./ManagerMenuList.module.css";
 
 // MUI Icons
-import SearchIcon from '@mui/icons-material/Search';
-import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { useNavigate } from 'react-router-dom';
+import SearchIcon from "@mui/icons-material/Search";
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { useNavigate } from "react-router-dom";
 
 const ManagerMenuList = () => {
   const navigate = useNavigate();
+  const backHost = import.meta.env.VITE_BACKSERVER;
 
   const [menus, setMenus] = useState([]); // 전체 메뉴 원본 데이터
-  const [searchKeyword, setSearchKeyword] = useState('');
-  const [storeId, setStoreId] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [storeId, setStoreId] = useState("");
 
   // 페이지네이션 상태
   const [currentPage, setCurrentPage] = useState(1);
@@ -22,7 +23,7 @@ const ManagerMenuList = () => {
 
   // 1. 가게 정보 가져오기
   useEffect(() => {
-    const memberId = localStorage.getItem('memberId');
+    const memberId = localStorage.getItem("memberId");
     if (!memberId) return;
 
     axios
@@ -32,7 +33,7 @@ const ManagerMenuList = () => {
           setStoreId(res.data.storeId);
         }
       })
-      .catch((err) => console.error('가게 정보 조회 실패:', err));
+      .catch((err) => console.error("가게 정보 조회 실패:", err));
   }, []);
 
   // 2. 메뉴 정보 전체 가져오기
@@ -42,10 +43,10 @@ const ManagerMenuList = () => {
     axios
       .get(`${import.meta.env.VITE_BACKSERVER}/stores/${storeId}/menus`)
       .then((res) => {
-        console.log('🚀 ~ ManagerMenuList ~ res:', res);
+        console.log("🚀 ~ ManagerMenuList ~ res:", res);
         setMenus(res.data); // 전체 데이터를 한 번에 저장
       })
-      .catch((err) => console.error('메뉴 로딩 실패:', err));
+      .catch((err) => console.error("메뉴 로딩 실패:", err));
   }, [storeId]);
 
   // 📌 3. 데이터 가공 파이프라인 (검색어 필터링)
@@ -126,8 +127,21 @@ const ManagerMenuList = () => {
               }}
             >
               <div className={styles.image_placeholder}>
-                {/* 만약 이미지 URL이 있다면 img 태그로 교체 가능 */}
-                <ImageOutlinedIcon sx={{ fontSize: 60, color: '#bdbdbd' }} />
+                {/* 🌟 1. 이미지가 있으면 img 태그를, 없으면 기본 아이콘을 출력합니다. */}
+                {menu.menuImage ? (
+                  <img
+                    src={`${backHost}${menu.menuImage}`}
+                    alt={menu.menuName}
+                    className={styles.menu_img} // CSS에서 크기 조절 필요
+                    onError={(e) => {
+                      // 이미지 로드 실패 시 대체 이미지나 아이콘 처리
+                      e.target.src =
+                        "https://via.placeholder.com/150?text=No+Image";
+                    }}
+                  />
+                ) : (
+                  <ImageOutlinedIcon sx={{ fontSize: 60, color: "#bdbdbd" }} />
+                )}
               </div>
               <div className={styles.menu_info}>
                 <p className={styles.menu_name}>{menu.menuName}</p>
@@ -157,7 +171,7 @@ const ManagerMenuList = () => {
             <div
               key={num}
               className={`${styles.page_num} ${
-                currentPage === num ? styles.active : ''
+                currentPage === num ? styles.active : ""
               }`}
               onClick={() => handlePageClick(num)}
             >
