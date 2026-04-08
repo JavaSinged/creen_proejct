@@ -16,10 +16,9 @@
 }
 
 .store_image_wrap {
-  flex: 1.2; /* 이미지를 살짝 더 크게 */
-  height: 500px;
-  border-radius: 12px;
-  overflow: hidden;
+  flex: 1;
+  height: 300px;
+  border-radius: 24px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   background-color: #f5f5f5;
 }
