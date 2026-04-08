@@ -2,12 +2,19 @@
 /* 티머니 둥근바람 - CDN 방식 */
 @font-face {
   font-family: "TMoneyDungunbaram";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-07@1.0/TmoneyRoundWindExtraBold.woff")
+    format("woff");
+  font-weight: 800;
+  font-display: swap;
+}
+/* 보통 두께 버전 추가 */
+@font-face {
+  font-family: "TMoneyDungunbaram_Reg";
   src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-07@1.0/TmoneyRoundWindRegular.woff")
     format("woff");
   font-weight: normal;
-  font-display: swap;
+  font-style: normal;
 }
-
 /* 여기어때 잘난체 (기존 설정 유지 시 사용) */
 @font-face {
   font-family: "YeogiGothic";
@@ -17,12 +24,22 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Paperozi";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-7Bold.woff2")
+    format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
 /* 2. 전역 변수 설정 (폰트 + 컬러) */
 :root {
   /* 폰트 시스템 수정 */
   --font-logo: "Gaegu", cursive;
-  --font-title: "TMoneyDungunbaram", sans-serif; /* Jalnan 대신 티머니 적용 */
-  --font-sub: "YeogiGothic", sans-serif;
+  --font-main: sans-serif;
+  --font-title:
+    "TMoneyDungunbaram_Reg", sans-serif; /* Jalnan 대신 티머니 적용 */
+  --font-sub: "Paperozi", sans-serif;
   --font-body: "Pretendard Variable", "Pretendard", sans-serif;
 
   /* 컬러 팔레트 */
@@ -31,7 +48,6 @@
   --color-surface: #e8f5e9; /* 면분할 / 카드 배경 / 강조 구역 */
   --color-point: #ffb300; /* 포인트 컬러 (버튼, 아이콘) */
   --color-info: #00838f; /* 정보성 데이터 (탄소 배출량, 거리 수치) */
-
   /* 텍스트 컬러 */
   --text-main: #222222; /* 본문 텍스트 */
   --text-sub: #6b6666; /* 부가설명 텍스트 */

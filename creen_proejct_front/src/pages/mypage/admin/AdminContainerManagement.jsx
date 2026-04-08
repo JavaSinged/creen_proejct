@@ -127,7 +127,7 @@ const AdminContainerManagement = () => {
   return (
     <div>
       <div className={styles.main}>
-        <h2>용기 등록/수정</h2>
+        <span>용기 등록/수정</span>
       </div>
       <div
         className={`${styles.upload_box} ${isDragging ? styles.dragging : ''}`}

@@ -1,6 +1,7 @@
-.main h2 {
-  margin-top: 0px;
-  font-size: 25px;
+.main {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-family: var(--font-title);
 }
 .upload_box {
   width: 100%;
