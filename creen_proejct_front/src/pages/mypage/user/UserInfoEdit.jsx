@@ -3,7 +3,7 @@ import { AuthContext } from "../../../context/AuthContext";
 import api from "../../../utils/accessToken";
 import styles from "./UserInfoEdit.module.css";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDaumPostcodePopup } from "react-daum-postcode";
 
 // MUI Icons
@@ -61,6 +61,21 @@ export default function UserInfoEdit() {
     memberDetailAddr: "",
   });
 
+  //paymantPage에서 진입시 아코디언 열기
+  const location = useLocation();
+  const addressSectionRef = useRef(null);
+  useEffect(() => {
+    if (location.state?.openAddress) {
+      setopenAddSet(true);
+      setTimeout(() => {
+        addressSectionRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center", // 화면의 중앙에 오도록 설정
+        });
+      }, 300);
+    }
+  }, [location]);
+
   useEffect(() => {
     if (user && user.memberId) {
       api
@@ -100,7 +115,7 @@ export default function UserInfoEdit() {
       return Swal.fire(
         "알림",
         "이름과 전화번호를 모두 입력해주세요.",
-        "warning"
+        "warning",
       );
     }
 
@@ -162,7 +177,7 @@ export default function UserInfoEdit() {
       return Swal.fire(
         "알림",
         "현재 비밀번호와 다른 새 비밀번호를 사용해주세요.",
-        "info"
+        "info",
       );
     if (newPw !== confirmPw)
       return Swal.fire("오류", "새 비밀번호가 일치하지 않습니다.", "error");
@@ -177,7 +192,7 @@ export default function UserInfoEdit() {
         await Swal.fire(
           "성공",
           "비밀번호가 안전하게 변경되었습니다.",
-          "success"
+          "success",
         );
         setPwData({ currentPw: "", newPw: "", confirmPw: "" });
         setopenPwSet(false);
@@ -198,7 +213,7 @@ export default function UserInfoEdit() {
 
   // 다음 우편번호 API 핸들러
   const openPostcode = useDaumPostcodePopup(
-    "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
+    "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js",
   );
 
   const handleCompletePostcode = (data) => {
@@ -247,7 +262,7 @@ export default function UserInfoEdit() {
               latitude: parseFloat(result.y),
               longitude: parseFloat(result.x),
             });
-          }
+          },
         );
       });
 
@@ -261,7 +276,7 @@ export default function UserInfoEdit() {
           memberDetailAddr: newAddress.memberDetailAddr,
           latitude: coords.latitude,
           longitude: coords.longitude,
-        }
+        },
       );
 
       if (response.status === 200) {
@@ -274,12 +289,16 @@ export default function UserInfoEdit() {
           memberAddr: newAddress.memberAddr,
           memberDetailAddr: newAddress.memberDetailAddr,
         }));
-        setNewAddress({
-          memberAddrCode: "",
-          memberAddr: "",
-          memberDetailAddr: "",
-        });
-        setopenAddSet(false);
+        if (location.state?.openAddress) {
+          navigate("/paymentPage", { replace: true });
+        } else {
+          setNewAddress({
+            memberAddrCode: "",
+            memberAddr: "",
+            memberDetailAddr: "",
+          });
+          setopenAddSet(false);
+        }
       }
     } catch (error) {
       // 4. 에러 처리
@@ -301,7 +320,7 @@ export default function UserInfoEdit() {
         `${import.meta.env.VITE_BACKSERVER}/member/check-active-order`,
         {
           params: { memberId: user.memberId },
-        }
+        },
       );
       const axtiveOrderCount = res.data;
       if (axtiveOrderCount > 0) {
@@ -500,7 +519,7 @@ export default function UserInfoEdit() {
         </div>
 
         {/* 주소지 변경 */}
-        <div className={styles.Wrapper}>
+        <div className={styles.Wrapper} ref={addressSectionRef}>
           <div className={styles.addSet} onClick={toggleAddSet}>
             <p>주소지 변경</p>
             <div className={styles.add_icon}>
