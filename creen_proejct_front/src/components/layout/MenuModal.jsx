@@ -58,7 +58,7 @@ export default function MenuModal({
 
   // 탄소 계산
   const menuCarbon = Number(menuData?.menuCarbon || 0) * 1000;
-  const baseCarbon = (menuCarbon + menuCarbon * optionCarbonRateSum) * quantity;
+  const baseCarbon = (menuCarbon - menuCarbon * optionCarbonRateSum) * quantity;
   const reusableAppliedCarbon = reusable
     ? baseCarbon + baseCarbon * 0.5
     : baseCarbon;
@@ -151,7 +151,6 @@ export default function MenuModal({
       totalPrice,
       unitPrice,
       totalCarbon,
-      carbonSaved,
       options: selectedOptions,
       menuImage: menuData.menuImage,
     };
