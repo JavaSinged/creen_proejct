@@ -12,7 +12,7 @@ import org.apache.ibatis.type.Alias;
 public class StoreOperating {
     private Integer hourId;
     private Integer storeId;
-    private Integer dayOfWeek;
+    private String dayOfWeek;
     private String openTime;
     private String closeTime;
     private String isDayOff;

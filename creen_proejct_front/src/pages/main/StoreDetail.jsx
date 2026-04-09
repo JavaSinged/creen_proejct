@@ -13,22 +13,33 @@ export default function StoreDetail() {
   const mapElement = useRef(null);
   const [mapLoaded, setMapLoaded] = useState(false);
 
-  // 🚀 상점 상세 정보 API 호출
+  const [operatingHours, setOperatingHours] = useState([]);
   useEffect(() => {
-    axios
-      .get(`${import.meta.env.VITE_BACKSERVER}/stores/${storeId}`) // 본인 환경에 맞게 '/api/stores' 등으로 수정
+    if (!storeId) return;
+
+    // 1. 매장 상세 정보 가져오기 (이름, 주소 등)
+    axios.get(`${import.meta.env.VITE_BACKSERVER}/stores/${storeId}`)
       .then((res) => {
-        console.log('상점 상세 정보 응답:', res.data);
-        setStoreInfo(res.data);
+        console.log('매장 상세 정보:', res.data);
+        setStoreInfo(res.data); // 여기에 매장 객체 저장
         setIsLoading(false);
       })
       .catch((err) => {
         console.error('상점 정보 로딩 실패:', err);
         setIsLoading(false);
       });
+
+    // 2. 운영시간/휴무일 리스트 가져오기
+    axios.get(`${import.meta.env.VITE_BACKSERVER}/stores/${storeId}/hours`)
+      .then((res) => {
+        console.log('운영시간 리스트:', res.data);
+        setOperatingHours(res.data); // ★ 중요: setStoreInfo가 아니라 setOperatingHours에 저장!
+      })
+      .catch((err) => {
+        console.error('운영시간 로딩 실패:', err);
+      });
   }, [storeId]);
 
-  // 🚀 지도 스크립트 로드
   useEffect(() => {
     const checkNaver = setInterval(() => {
       if (window.naver && window.naver.maps && mapElement.current) {
@@ -39,12 +50,10 @@ export default function StoreDetail() {
     return () => clearInterval(checkNaver);
   }, []);
 
-  // 🚀 마커 렌더링
   useEffect(() => {
     if (!mapLoaded || !mapElement.current || !storeInfo) return;
     const { naver } = window;
 
-    // ✅ VO에 정의된 대문자 필드명 사용
     const lat = storeInfo.LATITUDE || 37.497952;
     const lng = storeInfo.LONGITUDE || 127.027619;
 
@@ -112,6 +121,33 @@ export default function StoreDetail() {
             <tr>
               <th>주소</th>
               <td>{storeInfo.storeAddress}</td>
+            </tr>
+            <tr>
+              <th>운영시간</th>
+              <td>
+                {operatingHours
+                  .filter(h => h.isDayOff === "N")
+                  .map(h => (
+                    <div key={h.dayOfWeek}>{h.dayOfWeek} - {h.openTime} ~ {h.closeTime}</div>
+                  ))}
+              </td>
+            </tr>
+            <tr>
+              <th>휴무일</th>
+              {/*y인 날들 출력*/}
+              <td>
+                {(() => {
+                  const dayOffList = operatingHours.filter(h => h.isDayOff === 'Y');
+
+                  if (dayOffList.length > 0) {
+                    return dayOffList.map(h => h.dayOfWeek).join(', ');
+                  }
+                  if (operatingHours.length < 7) {
+                    return '직접 문의';
+                  }
+                  return '연중무휴';
+                })()}
+              </td>
             </tr>
             <tr>
               <th>전화번호</th>
