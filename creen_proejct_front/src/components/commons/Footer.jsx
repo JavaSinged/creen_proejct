@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "./Footer.module.css";
+import { Link } from 'react-router-dom';
 
 export default function Footer() {
   return (
@@ -15,7 +16,14 @@ export default function Footer() {
             <div className={styles.sns_links}>
               <span>Instagram</span>
               <span>LinkedIn</span>
-              <span>GitHub</span>
+              <a
+                href="https://github.com/우리팀레포지토리주소"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.footerLink}
+              >
+                GitHub
+              </a>
             </div>
           </div>
 
@@ -45,13 +53,17 @@ export default function Footer() {
         <div className={styles.bottom_section}>
           <div className={styles.company_info}>
             <p>
-              <span className={styles.highlight}>CEO.</span> 신지웅 | Seoul, KR
+              <span className={styles.highlight}>CEO.</span> 신지웅
+              <span className={styles.divider}> | </span> Seoul, KR
               (123-45-67890)
             </p>
-            <p>
-              <span className={styles.highlight}>CS.</span> 1600-0000 |
-              partner@greencarry.com
-            </p>
+            <div className={styles.csInfo}>
+              <span>CS. 1600-0000</span>
+              <span className={styles.divider}> | </span>
+              <Link to="/faq" className={styles.footerLink}>자주 묻는 질문</Link>
+              <span className={styles.divider}> | </span>
+              <span>partner@greencarry.com</span>
+            </div>
           </div>
 
           <div className={styles.legal_info}>
@@ -67,20 +79,18 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className={styles.hidden_garden_container}>
-        <div className={styles.garden_content}>
-          <div className={styles.decorations}>
-            <span className={styles.item}>🍄</span>
-            <span className={styles.item}>🌱</span>
-            <span className={styles.item}>🌼</span>
-            <span className={styles.item}>🐰</span>
-            <span className={styles.item}>🍀</span>
-            <span className={styles.item}>🌸</span>
-          </div>
-          <div className={styles.garden_message}>
-            <h4>"당신의 발걸음이 지구를 다시 숨쉬게 합니다"</h4>
-            <p>GreenCarry와 함께해주셔서 감사합니다. 🌍✨</p>
-          </div>
+      <div className={styles.static_garden_wrap}>
+        <div className={styles.garden_icons}>
+          <span className={styles.item}>🍄</span>
+          <span className={styles.item}>🌱</span>
+          <span className={styles.item}>🌼</span>
+          <span className={styles.item}>🐰</span>
+          <span className={styles.item}>🍀</span>
+          <span className={styles.item}>🌸</span>
+        </div>
+        <div className={styles.garden_text}>
+          <h4>"당신의 발걸음이 지구를 다시 숨쉬게 합니다"</h4>
+          <p>GreenCarry와 함께해주셔서 감사합니다. 🌍✨</p>
         </div>
       </div>
     </footer>

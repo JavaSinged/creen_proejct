@@ -15,7 +15,7 @@ import kr.co.iei.store.model.vo.SaleMonth;
 import kr.co.iei.store.model.vo.Store;
 
 import kr.co.iei.store.model.vo.StoreIdResponse;
-
+import kr.co.iei.store.model.vo.StoreOperating;
 import kr.co.iei.store.model.vo.StoreReviewResponse;
 
 
@@ -180,5 +180,10 @@ public class StoreService {
 	public int changeOrderStatus(Integer orderId, int status, Integer expectedTime) {
 		int result = storeDao.changeOrderStatus(orderId, status, expectedTime);
 		return result;
+	}
+
+	public List<StoreOperating> getStoreOperatingHours(Integer storeId) {
+
+		return storeDao.getStoreOperatingHours(storeId);
 	}
 }

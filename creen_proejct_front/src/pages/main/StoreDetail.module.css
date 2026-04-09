@@ -4,7 +4,6 @@
   padding: 32px 20px 60px;
 }
 
-/* 페이지 제목 */
 .pageTitle {
   text-align: center;
   font-family: var(--font-body);
@@ -14,7 +13,6 @@
   margin: 0 0 28px;
 }
 
-/* 지도 */
 .mapWrapper {
   position: relative;
   width: 100%;
@@ -41,7 +39,6 @@
   z-index: 1;
 }
 
-/* 섹션 공통 */
 .section {
   padding: 24px 0;
   border-top: 1px solid #e0e0e0;
@@ -51,7 +48,6 @@
   border-top: none;
 }
 
-/* 매장명 (정보 섹션 상단) */
 .storeName {
   font-family: var(--font-body);
   font-size: 15px;
@@ -60,7 +56,6 @@
   margin: 0 0 16px;
 }
 
-/* 섹션 제목 */
 .sectionTitle {
   font-family: var(--font-body);
   font-size: 15px;
@@ -69,30 +64,32 @@
   margin: 0 0 14px;
 }
 
-/* 정보 테이블 */
 .infoTable {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
+  table-layout: fixed;
 }
 
 .infoTable th {
-  width: 110px;
-  padding: 6px 0;
+  width: 100px;
+  padding: 10px 0;
   font-weight: 600;
   color: var(--text-main);
   text-align: left;
-  vertical-align: top;
+  vertical-align: middle;
   white-space: nowrap;
+  line-height: 1.2;
 }
 
 .infoTable td {
-  padding: 6px 0;
+  padding: 10px 0;
   color: var(--text-sub);
-  line-height: 1.7;
+  vertical-align: middle;
+  line-height: 1.2;
+  word-break: keep-all;
 }
 
-/* 소개 / 원산지 텍스트 */
 .description {
   font-size: 14px;
   color: var(--text-sub);
