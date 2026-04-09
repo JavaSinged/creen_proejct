@@ -80,8 +80,8 @@ const PaymentPage = () => {
 
       const orderNameStr =
         cartList.length > 1
-          ? `${cartList[0].menuName} 외 ${cartList.length - 1}건`
-          : `${cartList[0].menuName}`;
+          ? `${cartList[0].name} 외 ${cartList.length - 1}건`
+          : `${cartList[0].name}`;
 
       await payment.requestPayment({
         method: "CARD",
