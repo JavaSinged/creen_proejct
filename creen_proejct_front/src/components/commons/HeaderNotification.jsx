@@ -12,39 +12,54 @@ const HeaderNotification = () => {
   const backHost = import.meta.env.VITE_BACKSERVER;
   const dropdownRef = useRef(null);
 
-  // 1. 토큰에서 내 아이디 가져오기
+  // 1. 아이디 가져오기
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        setMemberId(decoded.memberId);
-      } catch (error) {
-        console.error("토큰 해독 실패:", error);
-      }
+    const saved = localStorage.getItem("memberId");
+    if (saved) {
+      setMemberId(saved);
     }
   }, []);
 
-  // 2. 실시간 신호 대기
+  // 2. 아이디가 생기면 SSE 연결하기
   useEffect(() => {
-    if (!memberId) return;
+    // 로그로 추적 시작
+    console.log("SSE 연결 체크 시작 - memberId:", memberId);
+
+    if (!memberId) {
+      console.log("아이디가 없어서 연결 중단");
+      return;
+    }
+
+    // 아이디가 있을 때만 이 아래가 실행됩니다.
+    console.log("🚀 드디어 아이디 확인! 서버에 연결 시도합니다. ID:", memberId);
 
     const eventSource = new EventSource(
       `${backHost}/api/notification/subscribe?memberId=${memberId}`,
     );
 
+    eventSource.onopen = () => {
+      console.log("✅ SSE 연결 통로가 성공적으로 열렸습니다!");
+    };
+
     eventSource.addEventListener("orderUpdate", (event) => {
-      // 🌟 신호가 오면 숫자를 올리고, 메시지를 배열에 담음 (DB 대신 메모리 저장)
+      console.log("🔔 알림 도착!! :", event.data);
       setUnreadCount((prev) => prev + 1);
       setNotifications((prev) => [
         { message: event.data, time: new Date().toLocaleTimeString() },
-        ...prev, // 최신순 정렬
+        ...prev,
       ]);
     });
 
-    eventSource.onerror = () => eventSource.close();
-    return () => eventSource.close();
-  }, [memberId, backHost]);
+    eventSource.onerror = (err) => {
+      console.error("❌ SSE 연결 중 에러 발생:", err);
+      eventSource.close();
+    };
+
+    return () => {
+      console.log("🧹 연결 해제 (Clean-up)");
+      eventSource.close();
+    };
+  }, [memberId]); // 👈 memberId가 바뀔 때마다 이 Effect가 다시 실행되어야 합니다!
 
   // 3. 종 클릭 시 숫자 지우고 창 토글
   const handleIconClick = () => {
@@ -64,78 +79,32 @@ const HeaderNotification = () => {
   }, []);
 
   return (
-    <div
-      className={styles.cart_icon_wrap}
-      style={{ position: "relative" }}
-      ref={dropdownRef}
-    >
+    <div className={styles.noti_icon_wrap} ref={dropdownRef}>
       {/* 알림 종 아이콘 */}
       <NotificationsNoneIcon
         onClick={handleIconClick}
         style={{ cursor: "pointer", fontSize: "24px" }}
       />
 
-      {/* 뱃지 숫자 */}
+      {/* 장바구니 뱃지와 똑같은 뱃지 */}
       {unreadCount > 0 && (
-        <span className={styles.cart_badge}>{unreadCount}</span>
+        <span className={styles.noti_badge}>{unreadCount}</span>
       )}
 
-      {/* 🌟 알림 드롭다운 창 (Absolute) */}
+      {/* 알림 드롭다운 창 */}
       {isOpen && (
-        <div
-          style={{
-            position: "absolute",
-            top: "35px",
-            right: "0",
-            width: "250px",
-            backgroundColor: "#fff",
-            border: "1px solid #ddd",
-            borderRadius: "8px",
-            boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-            zIndex: 100,
-            padding: "10px",
-          }}
-        >
-          <p
-            style={{
-              margin: "0 0 10px 0",
-              fontWeight: "bold",
-              fontSize: "14px",
-              borderBottom: "1px solid #eee",
-              paddingBottom: "5px",
-            }}
-          >
-            최근 알림
-          </p>
-          <div style={{ maxHeight: "200px", overflowY: "auto" }}>
+        <div className={styles.noti_dropdown}>
+          <span className={styles.noti_header}>최근 알림</span>
+          <div className={styles.noti_list}>
             {notifications.length > 0 ? (
               notifications.map((noti, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    padding: "8px 0",
-                    borderBottom: "1px solid #f9f9f9",
-                  }}
-                >
-                  <p style={{ margin: 0, fontSize: "13px", color: "#333" }}>
-                    {noti.message}
-                  </p>
-                  <span style={{ fontSize: "11px", color: "#999" }}>
-                    {noti.time}
-                  </span>
+                <div key={idx} className={styles.noti_item}>
+                  <p className={styles.noti_msg}>{noti.message}</p>
+                  <span className={styles.noti_time}>{noti.time}</span>
                 </div>
               ))
             ) : (
-              <p
-                style={{
-                  fontSize: "12px",
-                  color: "#999",
-                  textAlign: "center",
-                  padding: "10px 0",
-                }}
-              >
-                새로운 알림이 없습니다.
-              </p>
+              <p className={styles.empty_msg}>새로운 알림이 없습니다. 🌿</p>
             )}
           </div>
         </div>

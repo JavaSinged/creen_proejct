@@ -1,78 +1,90 @@
-/* 🌟 알림 종 아이콘 전체 감싸는 부모 */
-.notification_container {
-  position: relative; /* absolute 창의 기준점 */
+/* 장바구니 wrap과 똑같은 스타일 */
+.noti_icon_wrap {
+  position: relative;
+  cursor: pointer;
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: 24px; /* 아이콘 크기에 맞춤 */
+  height: 24px; /* 아이콘 크기에 맞춤 */
+  margin-right: 5px; /* 아이콘 간격 조절 */
 }
 
-/* 🌟 알림 창 Dropdown (absolute) */
-.dropdown_panel {
+/* 장바구니 badge와 똑같은 스타일 */
+.noti_badge {
   position: absolute;
-  top: 40px; /* 종 아이콘 아래 간격 */
-  right: 0; /* 오른쪽 정렬 */
-  width: 300px;
-  background-color: #fff;
+  top: -8px;
+  right: -8px;
+  background-color: #ff4757; /* 장바구니와 동일한 레드 */
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid white;
+  z-index: 10;
+}
+
+/* --- 여기서부터는 종 아래로 뜨는 알림창 스타일 --- */
+
+.noti_dropdown {
+  position: absolute;
+  top: 35px; /* 아이콘 바로 아래 위치 */
+  right: 0; /* 오른쪽 끝 맞춤 */
+  width: 260px;
+  background-color: white;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* 그림자 */
-  z-index: 1000; /* 헤더보다 위에 뜨게 */
-  overflow: hidden; /* 모서리 둥글게 처리 */
-  border: 1px solid #eaeaea;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  padding: 10px;
 }
 
-/* 알림 창 헤더 */
-.dropdown_header {
-  padding: 12px 16px;
-  background-color: #f9f9f9;
-  border-bottom: 1px solid #eaeaea;
-}
-
-.dropdown_header h4 {
-  margin: 0;
-  font-size: 15px;
+.noti_header {
+  font-weight: bold;
+  font-size: 14px;
   color: #333;
-  font-weight: 600;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 8px;
+  display: block;
 }
 
-/* 알림 창 바디 */
-.dropdown_body {
-  max-height: 350px; /* 최대 높이 */
-  overflow-y: auto; /* 스크롤 추가 */
+.noti_list {
+  max-height: 250px;
+  overflow-y: auto;
 }
 
-/* 알림 한 줄 */
 .noti_item {
-  padding: 12px 16px;
-  border-bottom: 1px solid #f1f1f1;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.noti_item:hover {
-  background-color: #f9f9f9;
+  padding: 8px 0;
+  border-bottom: 1px solid #f9f9f9;
 }
 
 .noti_item:last-child {
   border-bottom: none;
 }
 
-/* 알림 내용 */
-.noti_content {
-  margin: 0 0 4px 0;
+.noti_msg {
+  margin: 0;
   font-size: 13px;
-  color: #555;
+  color: #444;
   line-height: 1.4;
 }
 
-/* 알림 날짜 */
-.noti_date {
+.noti_time {
   font-size: 11px;
-  color: #999;
+  color: #aaa;
+  display: block;
+  margin-top: 3px;
 }
 
-/* 알림 없을 때 */
-.empty_noti {
-  padding: 30px;
+.empty_msg {
+  padding: 20px 0;
   text-align: center;
-  font-size: 13px;
+  font-size: 12px;
   color: #999;
 }
