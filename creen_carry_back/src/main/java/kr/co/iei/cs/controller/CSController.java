@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import kr.co.iei.cs.model.service.CSService;
 import kr.co.iei.cs.model.vo.Faq;
+import kr.co.iei.cs.model.vo.FaqManager;
 import kr.co.iei.cs.model.vo.Qna;
 import tools.jackson.databind.ext.QNameSerializer;
 
@@ -20,15 +21,20 @@ public class CSController {
 	@Autowired
 	private CSService csService;
 	
-	//전체조회
+	//user FAQ 전체조회
 	@GetMapping(value="/faq")
-	public ResponseEntity<?> selectAllList(Faq faq){
+	public ResponseEntity<?> selectAllListUser(Faq faq){
 		System.out.println("데이터 확인:" +faq);
 		List<Faq> list = csService.selectAllList(faq);
 		return ResponseEntity.ok(list);
-		
-
 	}
+	//manager FAQ 전체조회
+		@GetMapping(value="/faq/manager")
+		public ResponseEntity<?> selectAllListManagerFaq(FaqManager faqManager){
+			System.out.println("데이터 확인:" +faqManager);
+			List<FaqManager> list = csService.selectAllListManagerFaq(faqManager);
+			return ResponseEntity.ok(list);
+		}
 	
 	//1:1문의내역 전체조회
 	@GetMapping(value="/list")

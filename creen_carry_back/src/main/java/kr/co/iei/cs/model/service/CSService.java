@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import kr.co.iei.cs.model.dao.CSDao;
 import kr.co.iei.cs.model.vo.Faq;
+import kr.co.iei.cs.model.vo.FaqManager;
 import kr.co.iei.cs.model.vo.Qna;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,5 +49,10 @@ public class CSService {
 	@Transactional
 	public int updateAnswer(Qna qna) {
 		return csDao.updateAnswer(qna);
+	}
+
+	public List<FaqManager> selectAllListManagerFaq(FaqManager faqManager) {
+		List<FaqManager> list = csDao.selectAllListManagerFaq(faqManager);
+		return list;
 	}
 }
