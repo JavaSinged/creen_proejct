@@ -85,8 +85,8 @@ function App() {
             {/* 공통 접근 구역 (로그인 여부 상관없음) */}
             <Route path="/" element={<Home />} />
             <Route path="/storeView/:id" element={<StoreView />} />
-            <Route path="/storeDetail" element={<StoreDetail />} />
-            <Route path="/storeReviews" element={<StoreReviewPage />} />
+            <Route path="/storeDetail/:id" element={<StoreDetail />} />
+            <Route path="/storeReviews/:id" element={<StoreReviewPage />} />
             {/* ---------------------------------------------------- */}
             {/* 일반 유저 (Grade: 1) 구역 */}
             {/* ---------------------------------------------------- */}

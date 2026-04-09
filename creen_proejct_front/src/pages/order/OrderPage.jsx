@@ -13,27 +13,34 @@ import useCartStore from "../../store/useCartStore";
 import axios from "axios";
 
 const OrderPage = () => {
-  // 선택 상태 관리 (기본값: 'pickup')
-  const [selectedRide, setSelectedRide] = useState("pickup");
-  const [count, setCount] = useState(1);
-  const [count1, setCount1] = useState(1);
   const navigate = useNavigate();
   const list = useLocation();
+
+  // 🌟 Zustand 스토어 데이터 추출
   const cartList = useCartStore((state) => state.cart);
-  const storeId = useCartStore((state) => state.storeId);
+  const storeId = useCartStore((state) => state.storeId); // 👈 핵심: 저장된 매장 ID
+  const storeName = useCartStore((state) => state.storeName);
+  const setSuperTotalPrice = useCartStore((state) => state.setSuperTotalPrice);
+  const setDeilveryPrice = useCartStore((state) => state.setDeilveryPrice);
+  const { increaseQuantity, decreaseQuantity } = useCartStore();
+
+  // 상태 관리
+  const [selectedRide, setSelectedRide] = useState("pickup");
   const [realTotal, setRealTotal] = useState(0);
   const [deliveryType, setDeliveryType] = useState(1);
   const [num, setNum] = useState(0);
-  const setSuperTotalPrice = useCartStore((state) => state.setSuperTotalPrice);
-  const setDeilveryPrice = useCartStore((state) => state.setDeilveryPrice);
-  const totalCarbon = cartList.reduce((sum, item) => sum + item.carbonSaved, 0);
-  const storeName = useCartStore((state) => state.storeName);
 
+  // 탄소 절감량 계산
+  const totalCarbon = cartList.reduce((sum, item) => sum + item.carbonSaved, 0);
+
+  // 배달 타입에 따른 배달비 설정
   useEffect(() => {
     setNum(deliveryType === 1 ? 0 : deliveryType === 2 ? 1000 : 3000);
   }, [deliveryType]);
 
-  const addOrder = () => {};
+  const addOrder = () => {
+    // 주문 추가 로직 (필요 시 작성)
+  };
 
   return (
     <div className={styles.pageWrapper}>
@@ -41,20 +48,29 @@ const OrderPage = () => {
         <section className={styles.leftSection}>
           <div className={styles.card}>
             <div className={styles.cardsHeader}>
+              {/* 🌟 수정: /storeView/${storeId} 로 이동하여 매장 컨텍스트 유지 */}
               <h2
                 onClick={() => {
-                  navigate("/storeView");
+                  navigate(`/storeView/${storeId}`);
                 }}
+                style={{ cursor: "pointer" }}
               >
                 <u>{storeName}</u> <NavigateNextIcon />
               </h2>
               <CloseIcon
+                style={{ cursor: "pointer" }}
                 onClick={() => {
-                  navigate("/storeView");
+                  navigate(`/storeView/${storeId}`);
                 }}
               />
             </div>
-            <MenuList className={styles.manuList} changeTotal={setRealTotal} />
+            {/* 메뉴 리스트 영역 */}
+            <MenuList
+              cartList={cartList}
+              changeTotal={setRealTotal}
+              increaseQuantity={increaseQuantity}
+              decreaseQuantity={decreaseQuantity}
+            />
           </div>
           <div className={styles.totalPriceText}>
             <u>
@@ -115,6 +131,7 @@ const OrderPage = () => {
               <span>예상 배달 시간 25분</span>
             </div>
 
+            {/* 에코 정보 섹션 */}
             <div className={styles.ecoInfoContainer}>
               <div className={styles.ecoTitle}>
                 <ParkIcon />
@@ -138,6 +155,7 @@ const OrderPage = () => {
               </div>
             </div>
           </div>
+
           <div
             className={styles.payButton}
             onClick={() => {
@@ -155,11 +173,13 @@ const OrderPage = () => {
   );
 };
 
-const MenuList = ({ changeTotal }) => {
-  const handleTotal = (price) => {
-    changeTotal(price);
-  };
-  const cartList = useCartStore((state) => state.cart);
+// 🌟 MenuList 컴포넌트
+const MenuList = ({
+  cartList,
+  changeTotal,
+  increaseQuantity,
+  decreaseQuantity,
+}) => {
   const totalPrice = cartList.reduce(
     (sum, item) => sum + item.unitPrice * item.quantity,
     0,
@@ -167,101 +187,89 @@ const MenuList = ({ changeTotal }) => {
 
   useEffect(() => {
     changeTotal(totalPrice);
-  }, [totalPrice]);
+  }, [totalPrice, changeTotal]);
 
-  const { increaseQuantity, decreaseQuantity } = useCartStore();
-
-  if (cartList !== null) {
-    return cartList.map((cart) => {
-      return (
-        <CartItem
-          key={cart.id} // 🌟 고유한 아이디 사용 (리액트 경고 방지)
-          cart={cart}
-          increaseQuantity={increaseQuantity}
-          decreaseQuantity={decreaseQuantity}
-          handleTotal={handleTotal}
-        />
-      );
-    });
+  if (!cartList || cartList.length === 0) {
+    return <div className={styles.emptyCart}>장바구니가 비어있습니다.</div>;
   }
+
+  return cartList.map((cart) => (
+    <CartItem
+      key={cart.id}
+      cart={cart}
+      increaseQuantity={increaseQuantity}
+      decreaseQuantity={decreaseQuantity}
+    />
+  ));
 };
 
-export default OrderPage;
-
-const CartItem = ({
-  cart,
-  increaseQuantity,
-  decreaseQuantity,
-  handleTotal,
-}) => {
+// 🌟 CartItem 컴포넌트
+const CartItem = ({ cart, increaseQuantity, decreaseQuantity }) => {
   const unitPrice = cart.unitPrice;
   const totalPrice = unitPrice * cart.quantity;
   const options = cart.options;
-
-  // 🌟 백엔드 호스트 및 이미지 상태 추가
   const backHost = import.meta.env.VITE_BACKSERVER;
   const [fetchedImage, setFetchedImage] = useState("");
 
   useEffect(() => {
-    axios
-      .get(`${backHost}/stores/orders/itemImg/${cart.menuId}`)
-      .then((res) => {
-        // 🌟 서버에서 사진 경로를 받아왔다면, 백엔드 주소를 붙여서 상태에 저장
-        if (res.data) {
-          setFetchedImage(`${backHost}${res.data}`);
-        }
-      })
-      .catch((err) => {
-        console.log("이미지 로드 에러:", err);
-      });
+    if (cart.menuId) {
+      axios
+        .get(`${backHost}/stores/orders/itemImg/${cart.menuId}`)
+        .then((res) => {
+          if (res.data) {
+            setFetchedImage(`${backHost}${res.data}`);
+          }
+        })
+        .catch((err) => console.log("이미지 로드 에러:", err));
+    }
   }, [cart.menuId, backHost]);
-
-  useEffect(() => {
-    handleTotal(totalPrice);
-  }, [totalPrice]);
 
   return (
     <div className={styles.menuList}>
       <div className={styles.menuItem}>
         <div className={styles.menuInfo}>
-          <p>
-            메뉴 : {cart.name} * ({cart.quantity})
-          </p>
+          <p className={styles.menuNameTitle}>메뉴 : {cart.name}</p>
           <p>가격 : {unitPrice.toLocaleString()}원</p>
           <p className={styles.options}>
             옵션 :
-            {options.map((option, index) => {
-              const name = option.optionName;
-              return <span key={index}>&nbsp;{name},&nbsp;</span>;
-            })}
+            {options && options.length > 0
+              ? options.map((option, index) => (
+                  <span key={index}>
+                    &nbsp;{option.optionName}
+                    {index < options.length - 1 ? "," : ""}&nbsp;
+                  </span>
+                ))
+              : " 없음"}
           </p>
           <div className={styles.quantityBox}>
             <button onClick={() => decreaseQuantity(cart.id)}>-</button>
             <span>{cart.quantity}</span>
             <button onClick={() => increaseQuantity(cart.id)}>+</button>
           </div>
-
-          <p>메뉴 가격 : {totalPrice.toLocaleString()}원</p>
+          <p className={styles.itemTotal}>
+            소계 : {totalPrice.toLocaleString()}원
+          </p>
         </div>
 
         <div className={styles.menuImageWrapper}>
-          {/* 🌟 장바구니 자체에 이미지가 있거나(cart.menuImage), axios로 가져온 이미지가 있다면 출력 */}
-          {fetchedImage || cart.menuImage ? (
-            <img
-              src={fetchedImage || `${backHost}${cart.menuImage}`}
-              alt={cart.name}
-              className={styles.menuImage}
-              style={{ objectFit: "cover" }}
-              onError={(e) => {
-                // 이미지 로드 실패 시 대체 이미지 처리
-                e.target.src = "https://via.placeholder.com/150?text=No+Image";
-              }}
-            />
-          ) : (
-            <div className={styles.menuImagePlaceholder}></div>
-          )}
+          <img
+            src={
+              fetchedImage ||
+              (cart.menuImage
+                ? `${backHost}${cart.menuImage}`
+                : "https://via.placeholder.com/150?text=No+Image")
+            }
+            alt={cart.name}
+            className={styles.menuImage}
+            style={{ objectFit: "cover" }}
+            onError={(e) => {
+              e.target.src = "https://via.placeholder.com/150?text=No+Image";
+            }}
+          />
         </div>
       </div>
     </div>
   );
 };
+
+export default OrderPage;

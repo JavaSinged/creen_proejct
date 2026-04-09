@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import styles from "./StoreReviewPage.module.css";
 import StarIcon from "@mui/icons-material/Star";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 export default function StoreReviewPage() {
+  const { id } = useParams(); // 🌟 주소창의 번호를 읽어옴
+  const storeId = Number(id);
   const backHost = import.meta.env.VITE_BACKSERVER;
-  const location = useLocation();
+  //const location = useLocation();
   const navigate = useNavigate();
-  const storeId = location.state?.storeId;
+  //const storeId = location.state?.storeId;
 
   const [reviews, setReviews] = useState([]);
   const [storeName, setStoreName] = useState("");
