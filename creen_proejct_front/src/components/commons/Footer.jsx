@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "./Footer.module.css";
+import { Link } from 'react-router-dom';
 
 export default function Footer() {
   return (
@@ -13,9 +14,41 @@ export default function Footer() {
               GReen Carry™ — A New Standard for Sustainable Delivery.
             </p>
             <div className={styles.sns_links}>
-              <span>Instagram</span>
-              <span>LinkedIn</span>
-              <span>GitHub</span>
+              <a
+                href="https://docs.google.com/spreadsheets/d/1y5An1r5wMXSMTQPvI4N7ahxKFxeL8jKXqveL0prBrEk/edit?usp=drive_link"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.footerLink}
+              >
+                Spec
+              </a>
+              <span className={styles.one_divider}>|</span>
+              <a
+                href="https://www.erdcloud.com/d/itPtb4kbn5yTwFpjg"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.footerLink}
+              >
+                ERD
+              </a>
+              <span className={styles.one_divider}>|</span>
+              <a
+                href="https://www.figma.com/design/23TrLwzZlitTNLkalzGG44/GreenCarry?node-id=994-3555&t=3N6NHCV4HpVGbcYF-1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.footerLink}
+              >
+                Figma
+              </a>
+              <span className={styles.one_divider}>|</span>
+              <a
+                href="https://github.com/JavaSinged/creen_proejct"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.footerLink}
+              >
+                GitHub
+              </a>
             </div>
           </div>
 
@@ -23,20 +56,21 @@ export default function Footer() {
             <div className={styles.link_column}>
               <h4>Platform</h4>
               <ul>
-                <li>How it Works</li>
-                <li>For Restaurants</li>
-                <li>For Riders</li>
+                <li>Zero Waste Delivery</li>
+                <li>Plastic-Free Zone</li>
+                <li>Every Box Matters</li>
               </ul>
             </div>
             <div className={styles.link_column}>
               <h4>Impact</h4>
               <ul>
-                <li>Carbon Report</li>
-                <li>Forest Fund</li>
-                <li>Reusable Stats</li>
+                <li>Small Steps, Big Change</li>
+                <li>Cycle of Kindness</li>
+                <li>Sustainable Future</li>
               </ul>
             </div>
           </div>
+
         </div>
 
         <hr className={styles.divider} />
@@ -45,20 +79,26 @@ export default function Footer() {
         <div className={styles.bottom_section}>
           <div className={styles.company_info}>
             <p>
-              <span className={styles.highlight}>CEO.</span> 신지웅 | Seoul, KR
+              <span className={styles.highlight}>CEO.</span> 신지웅
+              <span className={styles.one_divider}>|</span> Seoul, KR
               (123-45-67890)
             </p>
-            <p>
-              <span className={styles.highlight}>CS.</span> 1600-0000 |
-              partner@greencarry.com
-            </p>
+            <div className={styles.csInfo}>
+              <span>CS. 1600-0000</span>
+              <span className={styles.one_divider}>  |  </span>
+              <Link to="/mypage/user/userCS" className={styles.footerLink}>자주 묻는 질문</Link>
+              <span className={styles.one_divider}>  |  </span>
+              <span>partner@greencarry.com</span>
+            </div>
           </div>
 
           <div className={styles.legal_info}>
             <div className={styles.legal_links}>
-              <span>Privacy Policy</span>
-              <span>Terms of Service</span>
-              <span>Carbon Report</span>
+              <span>React</span>
+              <span className={styles.one_divider}>|</span>
+              <span>Spring</span>
+              <span className={styles.one_divider}>|</span>
+              <span>Oracle DB</span>
             </div>
             <p className={styles.copyright}>
               © 2026. <strong>GReen Carry™</strong>. All footprints offset. 🌱
@@ -67,20 +107,18 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className={styles.hidden_garden_container}>
-        <div className={styles.garden_content}>
-          <div className={styles.decorations}>
-            <span className={styles.item}>🍄</span>
-            <span className={styles.item}>🌱</span>
-            <span className={styles.item}>🌼</span>
-            <span className={styles.item}>🐰</span>
-            <span className={styles.item}>🍀</span>
-            <span className={styles.item}>🌸</span>
-          </div>
-          <div className={styles.garden_message}>
-            <h4>"당신의 발걸음이 지구를 다시 숨쉬게 합니다"</h4>
-            <p>GreenCarry와 함께해주셔서 감사합니다. 🌍✨</p>
-          </div>
+      <div className={styles.static_garden_wrap}>
+        <div className={styles.garden_icons}>
+          <span className={styles.item}>🍄</span>
+          <span className={styles.item}>🌱</span>
+          <span className={styles.item}>🌼</span>
+          <span className={styles.item}>🐰</span>
+          <span className={styles.item}>🍀</span>
+          <span className={styles.item}>🌸</span>
+        </div>
+        <div className={styles.garden_text}>
+          <h4>"당신의 발걸음이 지구를 다시 숨쉬게 합니다"</h4>
+          <p>GreenCarry와 함께해주셔서 감사합니다. 🌍✨</p>
         </div>
       </div>
     </footer>

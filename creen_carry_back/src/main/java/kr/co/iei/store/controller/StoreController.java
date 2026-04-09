@@ -12,7 +12,7 @@ import kr.co.iei.store.model.vo.StatsOrderInfo;
 import kr.co.iei.store.model.vo.Store;
 
 import kr.co.iei.store.model.vo.StoreIdResponse;
-
+import kr.co.iei.store.model.vo.StoreOperating;
 import kr.co.iei.store.model.vo.StoreReviewResponse;
 
 
@@ -174,4 +174,15 @@ public class StoreController {
             return ResponseEntity.internalServerError().body("상태 변경 실패");
         }
     }
-}
+    @GetMapping("/{storeId}/hours")
+    public ResponseEntity<?> getStoreOperatingHours(@PathVariable Integer storeId) {
+    
+    	List<StoreOperating> hours = storeService.getStoreOperatingHours(storeId);
+    	
+    	if(hours == null || hours.isEmpty()) {
+    	
+    		return ResponseEntity.ok(List.of());
+    	}
+    	return ResponseEntity.ok(hours);
+    }
+    }

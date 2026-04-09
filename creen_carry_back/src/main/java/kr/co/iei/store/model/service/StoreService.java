@@ -15,7 +15,7 @@ import kr.co.iei.store.model.vo.SaleMonth;
 import kr.co.iei.store.model.vo.Store;
 
 import kr.co.iei.store.model.vo.StoreIdResponse;
-
+import kr.co.iei.store.model.vo.StoreOperating;
 import kr.co.iei.store.model.vo.StoreReviewResponse;
 
 
@@ -194,5 +194,9 @@ public class StoreService {
 	public int insertReviewComment(Map<String, Object> payload) {
 		int result = storeDao.insertReviewComment(payload);
 		return result;
+    }
+	public List<StoreOperating> getStoreOperatingHours(Integer storeId) {
+
+		return storeDao.getStoreOperatingHours(storeId);
 	}
 }

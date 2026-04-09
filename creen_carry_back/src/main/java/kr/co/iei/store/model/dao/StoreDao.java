@@ -12,6 +12,7 @@ import kr.co.iei.store.model.vo.StatsOrderInfo;
 import kr.co.iei.store.model.vo.Store;
 
 import kr.co.iei.store.model.vo.StoreIdResponse;
+import kr.co.iei.store.model.vo.StoreOperating;
 import kr.co.iei.store.model.vo.ReviewComment;
 import kr.co.iei.store.model.vo.SaleMonth;
 import kr.co.iei.store.model.vo.Store;
@@ -104,4 +105,5 @@ public interface StoreDao {
 
 	Long selectTotalSales(Integer storeId);
 
+	List<StoreOperating> getStoreOperatingHours(Integer storeId);
 }

@@ -500,6 +500,7 @@
 		o.delivery_type ASC
 	</select>
 
+
 	<select id="selectStoreReviewStats" resultType="map">
 		SELECT
 		NVL(AVG(review_rating), 0) AS "avgRating",
@@ -538,5 +539,17 @@
 		quantity) from order_detail where order_id in (select order_id from
 		order_tbl where store_id = #{storeId})
 	</select>
+
+
+<select id="getStoreOperatingHours" parameterType="int" resultType="operating">
+    SELECT 
+        day_of_week AS dayOfWeek,
+        open_time AS openTime,
+        close_time AS closeTime,
+        is_day_off AS isDayOff
+    FROM operating_hours_tbl
+    WHERE store_id = #{storeId}
+    ORDER BY DECODE(day_of_week, 'MON', 1, 'TUE', 2, 'WED', 3, 'THU', 4, 'FRI', 5, 'SAT', 6, 'SUN', 7)
+</select>
 
 </mapper>

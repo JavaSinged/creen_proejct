@@ -1,7 +1,7 @@
 .footer {
   background-color: var(--color-brand);
   color: #ffffff;
-  padding: 30px 0 30px 0;
+  padding: 30px 0;
   font-family: var(--font-body);
 }
 
@@ -16,6 +16,7 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 10px;
+  position: relative;
 }
 
 .slogan {
@@ -31,15 +32,27 @@
   margin-bottom: 30px;
 }
 
+.footerLink {
+  color: inherit;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  opacity: 0.8;
+  display: inline-block;
+}
+
+.footerLink:hover {
+  opacity: 1;
+  color: #ffcc00;
+  transform: translateY(-2px);
+}
+
 .sns_links {
   display: flex;
   gap: 20px;
   font-size: 0.95rem;
   opacity: 0.8;
-}
-
-.sns_links > span {
-  cursor: pointer;
+  align-items: center;
 }
 
 .link_groups {
@@ -61,21 +74,25 @@
 }
 
 .link_column li {
+  cursor: default !important;
+  pointer-events: none;
   margin-bottom: 12px;
-  font-size: 1rem;
-  opacity: 0.9;
-  cursor: pointer;
+  font-size: 0.9rem;
+  opacity: 0.85;
+  color: #ffffff;
+  padding-left: 5px;
 }
 
-.link_column li:hover {
-  opacity: 1;
-  text-decoration: underline;
+.link_column li::before {
+  content: "• ";
+  color: var(--color-point);
+  margin-right: 8px;
 }
 
 .divider {
   border: 0;
   border-top: 1px solid rgba(255, 255, 255, 0.3);
-  margin-bottom: 5px;
+  margin: 20px 0 15px 0; /* 여백 약간 조정 */
 }
 
 .bottom_section {
@@ -86,13 +103,14 @@
   opacity: 0.9;
 }
 
-.highlight {
-  color: var(--color-point);
-  font-weight: bold;
-}
-
 .company_info p {
   margin: 5px 0;
+}
+
+.csInfo {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
 }
 
 .legal_info {
@@ -101,106 +119,65 @@
 
 .legal_links {
   display: flex;
-  gap: 20px;
   justify-content: flex-end;
   margin-bottom: 10px;
+  align-items: center;
 }
 
 .legal_links span {
-  cursor: pointer;
-  border-right: 1px solid rgba(255, 255, 255, 0.3);
-  padding-right: 20px;
+  cursor: default;
+  padding: 0;
 }
 
-.legal_links span:last-child {
-  border-right: none;
-  padding-right: 0;
+.one_divider {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.3);
+  margin: 0 12px;
+  cursor: default !important;
+  display: inline-block;
+  vertical-align: middle;
+  transform: translateY(-1px);
 }
 
 .copyright {
   margin: 0;
   font-size: 0.8rem;
 }
-.hidden_garden_container {
-  width: 100%;
-  height: 30px;
-  background: var(--color-brand);
-  overflow: hidden;
-  transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-  cursor: help; /* 궁금증 유발 커서 */
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
 
-/* 🌟 마우스를 올리면 지하 정원이 펼쳐짐 */
-.hidden_garden_container:hover {
-  height: 220px;
-  background: linear-gradient(
-    to bottom,
-    #3d2b1f,
-    #1b5e20
-  ); /* 흙에서 숲 배경으로 */
-}
-
-.garden_content {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.6s ease;
-}
-
-/* 정원이 열릴 때 내용물 등장 */
-.hidden_garden_container:hover .garden_content {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.decorations {
-  font-size: 2.5rem;
-  margin-bottom: 20px;
-  display: flex;
-  gap: 25px;
-}
-
-/* 아이콘들 살랑살랑 떠다니는 애니메이션 */
-.item {
-  display: inline-block;
-  animation: float_item 3s infinite ease-in-out;
-}
-
-.item:nth-child(even) {
-  animation-delay: 0.5s;
-}
-
-@keyframes float_item {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-12px) rotate(8deg);
-  }
-}
-
-.garden_message {
+/* 가든 섹션 */
+.static_garden_wrap {
+  padding: 70px 0 35px;
   text-align: center;
-  color: #fff;
 }
 
-.garden_message h4 {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #a5d6a7;
-  margin-bottom: 8px;
-  text-shadow: 0 0 10px rgba(165, 214, 167, 0.4);
+.garden_icons {
+  font-size: 1.5rem;
+  margin-bottom: 25px;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  opacity: 1;
+}
+.garden_icons span.item {
+  display: inline-block;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+  transition: transform 0.3s ease;
+}
+.garden_icons span.item:hover {
+  transform: translateY(-10px) scale(1.1);
+}
+.garden_text h4 {
+  font-size: 15px;
+  font-weight: 400;
+  color: #ffffff;
+  margin: 0 0 8px;
+  opacity: 0.95;
+  letter-spacing: 0.5px;
 }
 
-.garden_message p {
-  font-size: 0.9rem;
+.garden_text p {
+  font-size: 13px;
   color: rgba(255, 255, 255, 0.6);
   margin: 0;
+  font-weight: 300;
 }
