@@ -60,7 +60,8 @@ const ManagerReviewComment = () => {
       };
 
       const res = await api.post("/stores/review/comment", payload);
-      if (res.data === "SUCCESS") {
+
+      if (res.status === 200) {
         Swal.fire("성공", "사장님 답글이 등록되었습니다! 🌱", "success");
         setReplyInputs((prev) => ({ ...prev, [orderId]: "" }));
         fetchReviews();

@@ -120,11 +120,35 @@ public class StoreController {
             return ResponseEntity.noContent().build();
         }
     }
+    @GetMapping("/stats/review")
+    public ResponseEntity<Map<String, Object>> getReviewStats(@RequestParam int storeId) {
+        // service -> dao를 거쳐 위에서 만든 selectStoreReviewStats 결과 반환
+        Map<String, Object> stats = storeService.selectStoreReviewStats(storeId);
+        return ResponseEntity.ok(stats);
+    }
 
     @GetMapping("/reviews/{storeId}")
     public ResponseEntity<?> getStoreReviews(@PathVariable Integer storeId) {
         List<StoreReviewResponse> list = storeService.selectStoreReviews(storeId);
         return ResponseEntity.ok(list);
+    }
+    
+    @PostMapping("/review/comment")
+    public ResponseEntity<?> insertReviewComment(@RequestBody Map<String, Object> payload) {
+        // 1. 프론트에서 보낸 데이터 꺼내기 (reviewId, commentContent 등)
+        // 💡 VO(객체)를 따로 만드셨다면 @RequestBody ReviewCommentVO vo 형태로 받으셔도 됩니다.
+        
+        System.out.println("사장님 답글 요청 데이터: " + payload);
+        
+        // 2. 서비스 호출 (답글 저장 로직)
+        // 예: int result = storeService.insertReviewComment(payload);
+        int result = storeService.insertReviewComment(payload); 
+
+        if (result > 0) {
+            return ResponseEntity.ok("답글이 등록되었습니다.");
+        } else {
+            return ResponseEntity.internalServerError().body("답글 등록 실패");
+        }
     }
     
     @PatchMapping("/order/{orderId}/status")

@@ -80,7 +80,6 @@ public interface StoreDao {
 
 	List<StoreReviewResponse> selectStoreReviews(int storeId);
 
-	int insertReviewComment(ReviewComment comment);
 
 	List<OrderResponse> getOrdersByStoreId(int storeId);
 
@@ -97,4 +96,8 @@ public interface StoreDao {
 	List<StoreReviewResponse> selectStoreReviews(Integer storeId);
 
 	int changeOrderStatus(Integer orderId, int status, Integer expectedTime);
+
+	Map<String, Object> selectStoreReviewStats(int storeId);
+
+	int insertReviewComment(Map<String, Object> payload);
 }

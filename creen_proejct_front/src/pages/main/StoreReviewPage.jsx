@@ -9,32 +9,47 @@ export default function StoreReviewPage() {
   const backHost = import.meta.env.VITE_BACKSERVER;
   const location = useLocation();
   const navigate = useNavigate();
-  const storeId = location.state?.storeId; // StoreView에서 넘겨준 ID
+  const storeId = location.state?.storeId;
 
   const [reviews, setReviews] = useState([]);
   const [storeName, setStoreName] = useState("");
 
+  // 🌟 [추가] 페이지네이션을 위한 상태
+  const [currentPage, setCurrentPage] = useState(1);
+  const reviewsPerPage = 7; // 10개씩 보기
+
   useEffect(() => {
     if (!storeId) {
-      navigate(-1); // ID 없으면 뒤로가기
+      navigate(-1);
       return;
     }
 
-    // 1. 매장 이름 가져오기 (헤더용)
     axios
       .get(`${backHost}/stores/${storeId}`)
       .then((res) => setStoreName(res.data.storeName));
 
-    // 2. 리뷰 목록 가져오기
     axios
       .get(`${backHost}/stores/reviews/${storeId}`)
       .then((res) => setReviews(res.data))
       .catch((err) => console.error("리뷰 로드 실패", err));
   }, [storeId, backHost, navigate]);
 
+  // 🌟 [추가] 현재 페이지에 보여줄 리뷰 계산
+  const indexOfLastReview = currentPage * reviewsPerPage;
+  const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
+  const currentReviews = reviews.slice(indexOfFirstReview, indexOfLastReview);
+
+  // 🌟 [추가] 총 페이지 수 계산
+  const totalPages = Math.ceil(reviews.length / reviewsPerPage);
+
+  // 🌟 [추가] 페이지 변경 함수
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: "smooth" }); // 페이지 이동 시 상단으로 부드럽게
+  };
+
   return (
     <div className={styles.container}>
-      {/* 상단 헤더: 뒤로가기 + 매장명 */}
       <div className={styles.header}>
         <ArrowBackIcon
           onClick={() => navigate(-1)}
@@ -46,8 +61,9 @@ export default function StoreReviewPage() {
       </div>
 
       <div className={styles.review_list}>
-        {reviews.length > 0 ? (
-          reviews.map((review) => (
+        {/* 🌟 reviews 대신 currentReviews를 사용합니다. */}
+        {currentReviews.length > 0 ? (
+          currentReviews.map((review) => (
             <div key={review.orderId} className={styles.review_card}>
               <div className={styles.card_top}>
                 <div className={styles.user_info}>
@@ -88,11 +104,9 @@ export default function StoreReviewPage() {
                   {review.reviewThumb && (
                     <img
                       src={
-                        review.reviewThumb
-                          ? review.reviewThumb.startsWith("/")
-                            ? `${backHost}${review.reviewThumb}`
-                            : `${backHost}/uploads/review/${review.reviewThumb}`
-                          : "/img/no-image.png"
+                        review.reviewThumb.startsWith("/")
+                          ? `${backHost}${review.reviewThumb}`
+                          : `${backHost}/uploads/review/${review.reviewThumb}`
                       }
                       alt="리뷰사진"
                       className={styles.review_img}
@@ -105,7 +119,6 @@ export default function StoreReviewPage() {
                 </div>
               </div>
 
-              {/* 사장님 답글 영역 */}
               {review.reviewCommentContent && (
                 <div className={styles.reply_box}>
                   <p className={styles.reply_owner}>👨‍🍳 사장님 답글</p>
@@ -120,6 +133,37 @@ export default function StoreReviewPage() {
           <div className={styles.empty}>아직 작성된 리뷰가 없습니다. 🌱</div>
         )}
       </div>
+
+      {/* 🌟 [추가] 페이지네이션 UI */}
+      {reviews.length > reviewsPerPage && (
+        <div className={styles.pagination}>
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={styles.page_btn}
+          >
+            이전
+          </button>
+
+          {[...Array(totalPages)].map((_, i) => (
+            <button
+              key={i + 1}
+              onClick={() => handlePageChange(i + 1)}
+              className={`${styles.page_number} ${currentPage === i + 1 ? styles.active : ""}`}
+            >
+              {i + 1}
+            </button>
+          ))}
+
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={styles.page_btn}
+          >
+            다음
+          </button>
+        </div>
+      )}
     </div>
   );
 }

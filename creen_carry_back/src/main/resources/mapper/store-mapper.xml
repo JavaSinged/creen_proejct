@@ -4,15 +4,15 @@
 <mapper namespace="kr.co.iei.store.model.dao.StoreDao">
 
 	<select id="selectAllStore">
-SELECT 
-        s.*,
-        (SELECT NVL(AVG(review_rating), 0) 
-         FROM review_tbl r 
-         WHERE r.store_id = s.store_id) AS storeRating,
-        (SELECT COUNT(*) 
-         FROM review_tbl r 
-         WHERE r.store_id = s.store_id) AS reviewCount
-    FROM store_tbl s
+		SELECT
+		s.*,
+		(SELECT NVL(AVG(review_rating), 0)
+		FROM review_tbl r
+		WHERE r.store_id = s.store_id) AS storeRating,
+		(SELECT COUNT(*)
+		FROM review_tbl r
+		WHERE r.store_id = s.store_id) AS reviewCount
+		FROM store_tbl s
 	</select>
 
 	<select id="findStoreById" parameterType="int"
@@ -495,6 +495,19 @@ SELECT
 		GROUP BY o.delivery_type
 		ORDER BY
 		o.delivery_type ASC
+	</select>
+
+	<select id="selectStoreReviewStats" resultType="map">
+		SELECT
+		NVL(AVG(review_rating), 0) AS "avgRating",
+		COUNT(*) AS "totalCount",
+		COUNT(CASE WHEN review_rating = 5 THEN 1 END) AS "star5",
+		COUNT(CASE WHEN review_rating = 4 THEN 1 END) AS "star4",
+		COUNT(CASE WHEN review_rating = 3 THEN 1 END) AS "star3",
+		COUNT(CASE WHEN review_rating = 2 THEN 1 END) AS "star2",
+		COUNT(CASE WHEN review_rating = 1 THEN 1 END) AS "star1"
+		FROM review_tbl
+		WHERE store_id = #{storeId}
 	</select>
 	<select id="selectMonthlySalesByStoreId" parameterType="Integer"
 		resultType="SaleMonth">

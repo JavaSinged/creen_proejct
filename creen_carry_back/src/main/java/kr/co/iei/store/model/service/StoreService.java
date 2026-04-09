@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class StoreService {
@@ -179,6 +180,16 @@ public class StoreService {
 
 	public int changeOrderStatus(Integer orderId, int status, Integer expectedTime) {
 		int result = storeDao.changeOrderStatus(orderId, status, expectedTime);
+		return result;
+	}
+
+	public Map<String, Object> selectStoreReviewStats(int storeId) {
+		Map<String, Object> stats = storeDao.selectStoreReviewStats(storeId);
+		return stats;
+	}
+
+	public int insertReviewComment(Map<String, Object> payload) {
+		int result = storeDao.insertReviewComment(payload);
 		return result;
 	}
 }
