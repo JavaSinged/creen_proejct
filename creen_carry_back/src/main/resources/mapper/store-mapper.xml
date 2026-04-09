@@ -538,4 +538,10 @@
 		order_tbl where store_id = #{storeId})
 	</select>
 
+	<select id="getMemberIdByOrderId" resultType="string">
+		SELECT member_id
+		FROM order_tbl
+		WHERE order_id = #{orderId}
+	</select>
+
 </mapper>

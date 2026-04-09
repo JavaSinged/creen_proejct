@@ -1,5 +1,6 @@
 package kr.co.iei.store.controller;
 
+import kr.co.iei.notification.model.service.NotificationService;
 import kr.co.iei.store.model.service.StoreService;
 import kr.co.iei.store.model.vo.Menu;
 import kr.co.iei.store.model.vo.MenuOption;
@@ -31,6 +32,9 @@ import java.util.Map;
 public class StoreController {
     @Autowired
     private StoreService storeService;
+    
+    @Autowired
+    private NotificationService notificationService;
 
     
     @GetMapping
@@ -169,6 +173,19 @@ public class StoreController {
         int result = storeService.changeOrderStatus(orderId, status, expectedTime);
         
         if (result > 0) {
+            // 2. 🔥 여기서 마법 시작! orderId로 memberId를 직접 조회합니다.
+            // storeService에 getMemberIdByOrderId 메서드를 하나 만드세요.
+            String memberId = storeService.getMemberIdByOrderId(orderId);
+
+            // 3. 알림 대상(4, 5, 9번 상태)이면 알림 발송
+            if (memberId != null && (status == 4 || status == 5 || status == 9)) {
+                String message = "";
+                if (status == 4) message = "메뉴가 준비되었습니다! 픽업/배달을 확인해주세요.";
+                else if (status == 5) message = "맛있게 드셨나요? 주문이 완료되었습니다. 🌿";
+                else if (status == 9) message = "주문이 취소되었습니다. 다시 확인 부탁드립니다.";
+
+                notificationService.sendNotification(memberId, "orderUpdate", message);
+            }
             return ResponseEntity.ok("상태 변경 성공");
         } else {
             return ResponseEntity.internalServerError().body("상태 변경 실패");

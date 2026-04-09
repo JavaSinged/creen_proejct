@@ -104,4 +104,6 @@ public interface StoreDao {
 
 	Long selectTotalSales(Integer storeId);
 
+	String getMemberIdByOrderId(Integer orderId);
+
 }

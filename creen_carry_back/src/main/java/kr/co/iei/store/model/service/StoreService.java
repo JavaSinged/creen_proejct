@@ -195,4 +195,9 @@ public class StoreService {
 		int result = storeDao.insertReviewComment(payload);
 		return result;
 	}
+
+	public String getMemberIdByOrderId(Integer orderId) {
+	    
+	    return storeDao.getMemberIdByOrderId(orderId);
+	}
 }
