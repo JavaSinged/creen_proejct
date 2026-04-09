@@ -1,0 +1,413 @@
+/* StoreInfoEdit.module.css */
+
+.container {
+  width: 100%;
+  max-width: 900px; /* 전체 폼 너비 */
+  margin: 0 auto;
+  padding: 40px 20px;
+  font-family: var(--font-body);
+  color: var(--text-main);
+  background-color: var(--color-bg);
+}
+
+/* 각 입력 항목(행) 레이아웃 */
+.formRow {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 25px;
+  gap: 30px;
+}
+
+/* 좌측 라벨 */
+.label {
+  width: 150px;
+  font-size: 18px;
+  font-weight: 500;
+  padding-top: 14px; /* 입력창 텍스트와 높이 맞춤 */
+  flex-shrink: 0;
+  letter-spacing: -0.02em;
+}
+
+/* 우측 입력 영역 래퍼 */
+.inputWrap {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* 주소창 등 여러 개 있을 때 간격 */
+}
+
+/* 🟢 공통: 초록색 둥근 테두리 입력창 */
+.inputBase {
+  width: 100%;
+  height: 52px;
+  padding: 0 20px;
+  border: 1.5px solid var(--color-brand); /* 브랜드 초록색 테두리 */
+  border-radius: 30px; /* 완전 둥근 알약(Pill) 모양 */
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--text-main);
+  background-color: transparent;
+  outline: none;
+  box-sizing: border-box;
+  transition: box-shadow 0.2s ease, border-width 0.2s ease;
+}
+
+.inputBase:focus {
+  box-shadow: 0 0 0 3px var(--color-surface); /* 포커스 시 연한 초록색 그림자 */
+}
+
+.inputBase::placeholder {
+  color: #bbb;
+}
+
+/* 📍 주소 영역 특별 레이아웃 */
+.addressTopRow {
+  display: flex;
+  gap: 15px;
+}
+
+.addressSearchBtn {
+  height: 52px;
+  padding: 0 30px;
+  background-color: var(--color-brand);
+  color: var(--color-bg);
+  border: none;
+  border-radius: 30px; /* 버튼도 둥글게 */
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  box-shadow: 0px 2px 5px rgba(46, 129, 71, 0.2);
+}
+
+.addressSearchBtn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+/* 🏷️ 카테고리 태그 버튼 영역 */
+.categoryGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 6px;
+}
+
+.categoryBtn {
+  height: 42px;
+  padding: 0 22px;
+  border: 1.5px solid var(--color-brand);
+  border-radius: 20px;
+  background-color: var(--color-bg);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.categoryBtnActive {
+  background-color: var(--color-brand);
+  color: var(--color-bg);
+  font-weight: 600;
+}
+
+/* 🖼️ 가게 대표 이미지 업로드 박스 */
+.uploadBox {
+  border: 1.5px solid var(--color-brand);
+  border-radius: 12px; /* 사진 참고: 모서리만 살짝 둥근 사각형 */
+  padding: 30px 25px;
+  background-color: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.uploadTitle {
+  margin: 0;
+  font-weight: 700;
+  color: var(--color-brand);
+  font-size: 16px;
+}
+
+.uploadHint {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: var(--text-sub);
+}
+
+.browseBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: fit-content;
+  height: 40px;
+  padding: 0 20px;
+  background-color: var(--color-brand);
+  color: var(--color-bg);
+  border-radius: 8px; /* 버튼 모서리 */
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: filter 0.2s;
+}
+
+.browseBtn:hover {
+  filter: brightness(1.1);
+}
+
+/* 추가 정보 영역 (텍스트에리어, Select 등) */
+.textareaBase {
+  width: 100%;
+  height: 120px;
+  padding: 20px;
+  border: 1.5px solid var(--color-brand);
+  border-radius: 20px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  resize: vertical;
+  outline: none;
+}
+
+.textareaBase:focus {
+  box-shadow: 0 0 0 3px var(--color-surface);
+}
+
+/* 폼 제출 버튼 (하단) */
+.submitWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 60px;
+}
+
+.submitBtn {
+  height: 60px;
+  padding: 0 80px;
+  background-color: var(--color-brand);
+  color: var(--color-bg);
+  border: none;
+  border-radius: 30px;
+  font-family: var(--font-title); /* 티머니 둥근바람 폰트 적용 */
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0px 4px 15px rgba(46, 129, 71, 0.3);
+  transition: all 0.2s;
+}
+
+.submitBtn:hover {
+  transform: scale(0.98);
+}
+
+/* --- 이전 코드 생략 (기존 container, formRow, inputBase 등 유지) --- */
+
+/* 🌟 구분선 및 소제목 */
+.sectionDivider {
+  margin: 40px 0 20px 0;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--color-brand);
+  font-size: 20px;
+  font-weight: bold;
+  font-family: var(--font-title);
+  color: var(--color-brand);
+}
+
+/* 🌟 영업시간 탭 토글 그룹 */
+.hoursToggleGroup {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.hoursToggleBtn {
+  flex: 1;
+  position: relative;
+  height: 80px;
+  background-color: var(--color-bg);
+  border: 1.5px solid #e0e0e0;
+  border-radius: 12px;
+  text-align: left;
+  padding: 15px 20px;
+  font-size: 15px;
+  font-family: var(--font-body);
+  color: var(--text-sub);
+  cursor: pointer;
+  line-height: 1.4;
+  transition: all 0.2s;
+}
+
+.hoursToggleBtnActive {
+  border: 2px solid var(--color-brand);
+  color: var(--color-brand);
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(46, 129, 71, 0.1);
+}
+
+.checkIcon {
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: var(--color-brand);
+}
+
+/* 🌟 영업시간 내용 박스 (사진과 같은 깔끔한 박스 형태) */
+.hoursContentBox {
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 25px;
+  background-color: #fafafa;
+}
+
+/* 체크박스 공통 스타일 */
+.checkboxWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.checkboxWrap input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-brand);
+  cursor: pointer;
+}
+
+/* 매일 영업시간 레이아웃 */
+.hoursHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.timeInputRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  gap: 10px;
+}
+
+.timeLabel {
+  width: 50px;
+  color: var(--text-sub);
+  font-size: 14px;
+}
+
+/* 요일별 영업시간 레이아웃 */
+.dayRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px dashed #eaeaea;
+}
+
+.dayRow:last-child {
+  border-bottom: none;
+}
+
+.dayTimeGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tilde {
+  color: #999;
+  margin: 0 5px;
+}
+
+/* 드롭다운 (Select) 스타일 */
+.timeSelect {
+  width: 80px;
+  height: 40px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0 10px;
+  font-family: var(--font-body);
+  outline: none;
+  background-color: white;
+}
+
+.timeSelect:focus {
+  border-color: var(--color-brand);
+}
+
+/* 🌟 휴무일 박스 영역 */
+.restDayBox {
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 25px;
+  background-color: #fafafa;
+}
+
+.restDayItem {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.restDaySelects {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.inputBaseSelect {
+  width: 100%;
+  height: 48px;
+  padding: 0 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+  font-size: 15px;
+  font-family: var(--font-body);
+  outline: none;
+}
+
+.inputBaseSelect:focus {
+  border-color: var(--color-brand);
+}
+
+.deleteTextBtn {
+  align-self: flex-end;
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.deleteTextBtn:hover {
+  color: #ff5252;
+}
+
+.addTextBtn {
+  background: none;
+  border: none;
+  color: var(--color-brand);
+  font-weight: bold;
+  font-size: 15px;
+  padding: 10px 0;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-body);
+}
+
+.infoHint {
+  font-size: 13px;
+  color: #888;
+  margin-top: 10px;
+  line-height: 1.5;
+}
