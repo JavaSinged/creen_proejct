@@ -49,6 +49,7 @@ import ManagerReviewComment from "./pages/mypage/manager/ManagerReviewComment";
 import ManagerOrderList from "./pages/mypage/manager/ManagerOrderList";
 import ManagerCS from "./pages/mypage/manager/ManagerCS";
 import AdminStoreManagementDetail from "./pages/mypage/admin/AdminStoreManagementDetail";
+import StoreReviewPage from "./pages/main/StoreReviewPage";
 
 const BasicLayout = () => {
   return (
@@ -85,6 +86,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/storeView" element={<StoreView />} />
             <Route path="/storeDetail" element={<StoreDetail />} />
+            <Route path="/storeReviews" element={<StoreReviewPage />} />
             {/* ---------------------------------------------------- */}
             {/* 일반 유저 (Grade: 1) 구역 */}
             {/* ---------------------------------------------------- */}
