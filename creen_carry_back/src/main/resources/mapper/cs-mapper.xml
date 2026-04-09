@@ -62,5 +62,23 @@
 
     </update>
 
+	<select id="selectAllListManagerFaq" resultType="faqManager">
+        SELECT * FROM faq_Manager_tbl
+        <where>
+            <if test="faqCategory != null and faqCategory != 0">
+                AND faq_category = #{faqCategory}
+            </if>
+
+            <if test="searchKeyword != null and searchKeyword != ''">
+                AND (
+                faq_title LIKE '%' || #{searchKeyword} || '%'
+                OR faq_content LIKE '%' || #{searchKeyword} || '%'
+                )
+            </if>
+        </where>
+        ORDER BY faq_no ASC
+    </select>
+
+
 
 </mapper>

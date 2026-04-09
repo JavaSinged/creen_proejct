@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 import kr.co.iei.cs.model.vo.Faq;
+import kr.co.iei.cs.model.vo.FaqManager;
 import kr.co.iei.cs.model.vo.Qna;
 
 @Mapper
@@ -21,4 +22,6 @@ public interface CSDao {
 	int putInquiry(Qna qna);
 
     int updateAnswer(Qna qna);
+
+	List<FaqManager> selectAllListManagerFaq(FaqManager faqManager);
 }
