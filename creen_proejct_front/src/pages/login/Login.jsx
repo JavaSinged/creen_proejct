@@ -516,7 +516,7 @@ const Login = () => {
           </div>
           <div className="character-illustration" onClick={handleLogoEasterEgg}>
             <img
-              src="/image/logo.png"
+              src="/image/logo-upscale.png"
               alt="Logo"
               style={{
                 cursor: "pointer",
