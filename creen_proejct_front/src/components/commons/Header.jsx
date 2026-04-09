@@ -10,18 +10,17 @@ import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import PersonIcon from "@mui/icons-material/Person";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from "@mui/icons-material/Login";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart"; // 🌟 장바구니 아이콘 추가
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
-import useCartStore from "../../store/useCartStore"; // 🌟 장바구니 스토어 가져오기
+import useCartStore from "../../store/useCartStore";
 
 export default function Header() {
   const navigate = useNavigate();
   const { isLogin, user, logout, isLoading } = useContext(AuthContext);
   const backHost = import.meta.env.VITE_BACKSERVER;
 
-  // 🌟 [추가] 장바구니 개수 실시간 확인
   const cart = useCartStore((state) => state.cart);
   const cartCount = cart.length;
 
@@ -131,16 +130,18 @@ export default function Header() {
               </span>
             )}
 
-            {/* 🌟 장바구니 아이콘 추가 영역 */}
-            <div
-              className={styles.cart_icon_wrap}
-              onClick={() => navigate("/orderPage")}
-            >
-              <ShoppingCartIcon />
-              {cartCount > 0 && (
-                <span className={styles.cart_badge}>{cartCount}</span>
-              )}
-            </div>
+            {/* 🌟 [수정] 로그인 상태이고, memberGrade가 1(개인)인 경우에만 장바구니 노출 */}
+            {isLogin && Number(user?.memberGrade) === 1 && (
+              <div
+                className={styles.cart_icon_wrap}
+                onClick={() => navigate("/orderPage")}
+              >
+                <ShoppingCartIcon />
+                {cartCount > 0 && (
+                  <span className={styles.cart_badge}>{cartCount}</span>
+                )}
+              </div>
+            )}
 
             <NotificationsNoneIcon style={{ cursor: "pointer" }} />
 
