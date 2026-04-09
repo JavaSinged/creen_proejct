@@ -119,12 +119,10 @@
 		= #{memberId}
 	</update>
 	<select id="getTotalCarbonPoint" parameterType="string"
-		resultType="int">
-		SELECT
-		NVL(SUM(get_point), 0)
-		FROM order_tbl
-		WHERE member_id =
-		#{memberId}
+		resultType="Double">
+		SELECT NVL(total_carbon_reduce, 0)
+		FROM member_tbl
+		WHERE member_id = #{memberId}
 	</select>
 	<select id="getCommunityTotalCarbon" resultType="int">
 		SELECT
@@ -252,12 +250,17 @@
 		o.order_id AS orderId,
 		s.store_name AS storeName,
 		TO_CHAR(m.reg_date, 'YYYY-MM-DD') AS orderDate,
-		o.get_point AS getPoint, o.used_point AS usedPoint FROM order_tbl o
-		JOIN order_list_map m ON o.order_id = m.order_id
-		JOIN store_tbl s ON o.store_id = s.store_id
+		o.get_point AS
+		getPoint, o.used_point AS usedPoint FROM order_tbl o
+		JOIN
+		order_list_map m ON o.order_id = m.order_id
+		JOIN store_tbl s ON
+		o.store_id = s.store_id
 		WHERE o.member_id = #{memberId}
-		AND m.reg_date >= ADD_MONTHS(SYSDATE, -3)
-		AND (o.get_point > 0 OR o.used_point > 0) ORDER BY m.reg_date DESC
+		AND m.reg_date
+		>= ADD_MONTHS(SYSDATE, -3)
+		AND (o.get_point > 0 OR o.used_point > 0)
+		ORDER BY m.reg_date DESC
 	</select>
 
 	<select id="getEnrollDate" parameterType="String"

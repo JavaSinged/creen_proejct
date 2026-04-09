@@ -63,7 +63,7 @@ const UserProfile = () => {
             params: { memberId: user.memberId },
             ...config,
           });
-          setTotalCarbon(carbonRes.data);
+          setTotalCarbon(Math.floor(carbonRes.data * 1000));
 
           // 커뮤니티 포인트
           const commRes = await axios.get(
@@ -119,7 +119,7 @@ const UserProfile = () => {
             <div className={styles.dashboard}>
               <p className={styles.dashboard_title}>나의 누적 탄소 절감량</p>
               <p className={styles.dashboard_value}>
-                {totalCarbon.toLocaleString()}g {/* 🌟 누적량 표시 */}
+                {totalCarbon.toLocaleString()}g
               </p>
               <p className={styles.dashbboard_subtitle}>나의 총 실천 기록</p>
             </div>

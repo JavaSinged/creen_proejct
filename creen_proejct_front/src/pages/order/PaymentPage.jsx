@@ -60,7 +60,7 @@ const PaymentPage = () => {
       totalPrice: totalPrice,
       // 🌟 [수정 핵심] 화면(g)과 서버(kg)의 단위를 맞춥니다.
       // 만약 서버 DB가 g 단위를 쓴다면 / 1000 을 지우세요!
-      getPoint: totalCarbon / 1000,
+      getPoint: totalCarbon,
     };
 
     try {
