@@ -243,10 +243,7 @@ export default function Home() {
                 key={store.storeId}
                 className={styles.card_item}
                 onClick={() => {
-                  setStoreId(store.storeId);
-                  navigate("/storeView", {
-                    state: { storeId: store.storeId },
-                  });
+                  navigate(`/storeView/${store.storeId}`);
                 }}
               >
                 <div className={styles.image_wrap}>

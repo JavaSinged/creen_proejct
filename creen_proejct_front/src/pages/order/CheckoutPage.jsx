@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 import { AuthContext } from "../../context/AuthContext";
 
 const CheckoutPage = () => {
+  const { clearCart } = useCartStore();
   const { user, setUser } = useContext(AuthContext);
   const cartList = useCartStore((state) => state.cart);
   const navigate = useNavigate();
@@ -73,6 +74,7 @@ const CheckoutPage = () => {
   };
 
   useEffect(() => {
+    clearCart();
     fetchOrderDetails();
 
     const intervalId = setInterval(() => {

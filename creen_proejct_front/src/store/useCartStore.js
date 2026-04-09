@@ -1,45 +1,56 @@
-import { DeliveryDining } from "@mui/icons-material";
-import { useState } from "react";
 import { create } from "zustand";
+import { persist } from "zustand/middleware"; // 🌟 persist 임포트
 
-const useCartStore = create((set) => ({
-  cart: [], // 장바구니에 담긴 아이템 배열
-  superTotalPrice: 0, // 최종 결제 금액
-  deliveryPrice: 0,
-  usingEcoPoint: 0,
-  storeName: "",
-  storeId: 0,
-  // 장바구니에 아이템 추가하는 함수
-  addToCart: (item) =>
-    set((state) => ({
-      cart: [...state.cart, item],
-    })),
+const useCartStore = create(
+  persist(
+    (set, get) => ({
+      // 🌟 get 추가 (탄소 계산 함수 등에서 필요)
+      cart: [],
+      superTotalPrice: 0,
+      deliveryPrice: 0,
+      usingEcoPoint: 0,
+      storeName: "",
+      storeId: 0,
 
-  // 장바구니 비우기 (결제 완료 후 등에 사용)
-  clearCart: () => set({ cart: [] }),
+      // 장바구니에 아이템 추가
+      addToCart: (item) =>
+        set((state) => ({
+          cart: [...state.cart, item],
+        })),
 
-  increaseQuantity: (id) =>
-    set((state) => ({
-      cart: state.cart.map((c) =>
-        c.id === id ? { ...c, quantity: c.quantity + 1 } : c,
-      ),
-    })),
+      // 장바구니 비우기
+      clearCart: () => set({ cart: [], storeId: 0, storeName: "" }),
 
-  decreaseQuantity: (id) =>
-    set((state) => ({
-      cart: state.cart
-        .map((c) => (c.id === id ? { ...c, quantity: c.quantity - 1 } : c))
-        .filter((c) => c.quantity > 0),
-    })),
-  setSuperTotalPrice: (price) => set({ superTotalPrice: price }),
-  setDeilveryPrice: (price) => set({ deliveryPrice: price }),
-  setUsingEcoPoint: (price) => set({ UsingEcoPoint: price }),
-  setStoreName: (storeName) => set({ storeName: storeName }),
-  setStoreId: (storeId) => set({ storeId: storeId }),
-  getTotalSavedCarbon: () =>
-    Math.round(
-      get().cart.reduce((sum, item) => sum + (item.savedCarbon || 0), 0),
-    ),
-}));
+      increaseQuantity: (id) =>
+        set((state) => ({
+          cart: state.cart.map((c) =>
+            c.id === id ? { ...c, quantity: c.quantity + 1 } : c,
+          ),
+        })),
+
+      decreaseQuantity: (id) =>
+        set((state) => ({
+          cart: state.cart
+            .map((c) => (c.id === id ? { ...c, quantity: c.quantity - 1 } : c))
+            .filter((c) => c.quantity > 0),
+        })),
+
+      setSuperTotalPrice: (price) => set({ superTotalPrice: price }),
+      setDeilveryPrice: (price) => set({ deliveryPrice: price }),
+      setUsingEcoPoint: (price) => set({ usingEcoPoint: price }), // 🌟 오타 수정 (usingEcoPoint)
+      setStoreName: (name) => set({ storeName: name }),
+      setStoreId: (id) => set({ storeId: id }),
+
+      // 탄소 절감 계산기
+      getTotalSavedCarbon: () =>
+        Math.round(
+          get().cart.reduce((sum, item) => sum + (item.savedCarbon || 0), 0),
+        ),
+    }),
+    {
+      name: "cart-storage",
+    },
+  ),
+);
 
 export default useCartStore;

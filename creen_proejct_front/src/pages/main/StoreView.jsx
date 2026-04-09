@@ -1,22 +1,24 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom"; // 🌟 useParams로 주소창 ID 감지
 import axios from "axios";
 import styles from "./StoreView.module.css";
 import SearchIcon from "@mui/icons-material/Search";
-import StarIcon from "@mui/icons-material/Star"; // 🌟 별점 아이콘 추가
+import StarIcon from "@mui/icons-material/Star";
 import MenuModal from "../../components/layout/MenuModal";
 import CartBar from "../../components/layout/ui/CartBar";
 import useCartStore from "../../store/useCartStore";
 
 export default function StoreView() {
+  const { id } = useParams(); // 🌟 URL 파라미터 (/storeView/3) 에서 '3'을 직접 추출
+  const navigate = useNavigate();
   const backHost = import.meta.env.VITE_BACKSERVER;
-  const location = useLocation();
-  const storeId = location.state?.storeId || 1;
 
-  // 🌟 리뷰 개수 상태 추가
+  // 🌟 주소창의 ID를 숫자로 변환 (이게 이 페이지의 절대적인 기준점입니다)
+  const storeId = id ? Number(id) : null;
+
   const [reviewCount, setReviewCount] = useState(0);
 
-  // 1. 가게 정보 상태 (별점 포함)
+  // 1. 가게 정보 상태
   const [storeInfo, setStoreInfo] = useState({
     storeId: "",
     storeIntro: "",
@@ -36,6 +38,12 @@ export default function StoreView() {
   const setGlobalStoreName = useCartStore((state) => state.setStoreName);
 
   useEffect(() => {
+    // 🌟 URL에 ID가 없으면 홈으로 보냅니다 (잘못된 접근 방지)
+    if (!id) {
+      navigate("/");
+      return;
+    }
+
     window.scrollTo(0, 0);
 
     // 🚀 [메뉴 로드]
@@ -67,14 +75,14 @@ export default function StoreView() {
       })
       .catch((err) => console.error("가게 로딩 실패:", err));
 
-    // 🚀 [리뷰 개수 로드] 🌟 추가된 로직
+    // 🚀 [리뷰 개수 로드]
     axios
       .get(`${backHost}/stores/reviews/${storeId}`)
       .then((res) => {
-        setReviewCount(res.data.length); // 리뷰 리스트의 길이를 저장
+        setReviewCount(res.data.length);
       })
       .catch((err) => console.error("리뷰 로딩 실패:", err));
-  }, [storeId, backHost, setGlobalStoreName]);
+  }, [storeId, backHost, setGlobalStoreName, navigate, id]);
 
   const filteredMenu = menuList.filter((item) => {
     const isCategoryMatch =
@@ -123,14 +131,13 @@ export default function StoreView() {
                 {storeInfo.storeRating?.toFixed(1)}
               </span>
 
-              {/* 🌟 별점 옆에 총 리뷰 개수 표시 */}
               <span className={styles.review_count_text}>
                 ({reviewCount.toLocaleString()})
               </span>
 
+              {/* 🌟 리뷰 보기 Link 수정: state 대신 storeId 직접 전달 권장 */}
               <Link
-                to="/storeReviews"
-                state={{ storeId: storeId }}
+                to={`/storeReviews/${storeId}`}
                 className={styles.review_count_link}
               >
                 리뷰 보기 {">"}
@@ -138,11 +145,7 @@ export default function StoreView() {
             </div>
           </div>
 
-          <Link
-            to="/storeDetail"
-            state={{ storeId: storeId }}
-            className={styles.store_link}
-          >
+          <Link to={`/storeDetail/${storeId}`} className={styles.store_link}>
             가게 정보, 원산지 정보 {">"}
           </Link>
           <p className={styles.store_desc}>{storeInfo.storeIntro}</p>
@@ -220,10 +223,13 @@ export default function StoreView() {
         </div>
       </div>
 
+      {/* 🌟 [핵심] 모달에 현재 매장 ID를 전달할 때 URL에서 가져온 storeId를 직접 사용 */}
       <MenuModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         menuData={selectedMenu}
+        currentStoreId={Number(storeId)}
+        currentStoreName={storeInfo.storeName}
       />
       <CartBar />
     </div>

@@ -94,7 +94,7 @@ export default function Header() {
     <header className={styles.header}>
       <div
         className={styles.logo_wrap}
-        onClick={() => (window.location.href = "/")}
+        onClick={() => navigate("/")}
         style={{ cursor: "pointer" }}
       >
         <img src="/image/logo.png" alt="GreenCarry Logo" />
