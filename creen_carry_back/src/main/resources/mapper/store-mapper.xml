@@ -4,12 +4,15 @@
 <mapper namespace="kr.co.iei.store.model.dao.StoreDao">
 
 	<select id="selectAllStore">
-		SELECT
-		s.*,
-		(SELECT NVL(AVG(review_rating), 0)
-		FROM review_tbl r
-		WHERE r.store_id = s.store_id) AS storeRating
-		FROM store_tbl s
+SELECT 
+        s.*,
+        (SELECT NVL(AVG(review_rating), 0) 
+         FROM review_tbl r 
+         WHERE r.store_id = s.store_id) AS storeRating,
+        (SELECT COUNT(*) 
+         FROM review_tbl r 
+         WHERE r.store_id = s.store_id) AS reviewCount
+    FROM store_tbl s
 	</select>
 
 	<select id="findStoreById" parameterType="int"

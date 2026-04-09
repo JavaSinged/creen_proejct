@@ -125,6 +125,7 @@
 		WHERE
 		member_id = #{memberId}
 	</select>
+	
 	<select id="getCommunityTotalCarbon" resultType="double"> SELECT
 		NVL(SUM(total_carbon_reduce), 0)
 		FROM member_tbl

@@ -30,4 +30,5 @@ public class Store {
     private String storeThumb;
     private Long totalSale;
     private List<SaleMonth> SaleMonth;
+    private int reviewCount;
 }

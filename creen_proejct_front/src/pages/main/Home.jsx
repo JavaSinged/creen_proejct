@@ -278,6 +278,9 @@ export default function Home() {
                     <span className={styles.rating_number}>
                       {store.storeRating.toFixed(1)}
                     </span>
+                    <span className={styles.review_count}>
+                      ({store.reviewCount?.toLocaleString() || 0})
+                    </span>
                   </div>
                 </div>
               </div>

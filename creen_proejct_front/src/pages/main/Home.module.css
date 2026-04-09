@@ -296,3 +296,21 @@
   width: 30%;
   height: 18px;
 }
+.store_rating_wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.rating_number {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.review_count {
+  font-size: 0.85rem;
+  color: #888;
+  font-weight: 500;
+}
