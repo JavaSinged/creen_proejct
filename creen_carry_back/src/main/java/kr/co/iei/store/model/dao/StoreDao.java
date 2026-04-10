@@ -61,7 +61,7 @@ public interface StoreDao {
 	int[] selectOrderList(String memberId);
 
 
-	int updatePoint(Order order);
+	int updatePoint(Integer orderId);
 
 	int addReduceCarbon(int orderId);
 

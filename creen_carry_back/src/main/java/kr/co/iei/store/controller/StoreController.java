@@ -174,4 +174,10 @@ public class StoreController {
             return ResponseEntity.internalServerError().body("상태 변경 실패");
         }
     }
+    
+    @PatchMapping("/updatePoint/{orderId}")
+    public ResponseEntity<?> updatePoint(@PathVariable Integer orderId){
+    	int result = storeService.updatePoint(orderId);
+    	return ResponseEntity.ok(result);
+    }
 }

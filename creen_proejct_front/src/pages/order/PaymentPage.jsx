@@ -78,7 +78,6 @@ const PaymentPage = () => {
       );
 
       const savedOrderId = response.data;
-
       // 2. 토스페이먼츠 호출
       const tossPayments = await loadTossPayments(
         import.meta.env.VITE_TOSS_CLIENT_KEY,
@@ -102,6 +101,7 @@ const PaymentPage = () => {
         failUrl: `${window.location.origin}/payment/fail`,
         customerName: memberId,
       });
+      ///이구간이 결제 완료된 구간
 
       // Zustand 스토어에 사용 포인트 기록 (필요 시)
       setUsingEcoPoint(ecoPoint);
@@ -110,7 +110,6 @@ const PaymentPage = () => {
       alert("결제 처리 중 오류가 발생했습니다.");
     }
   };
-
   // 포인트 입력 핸들러
   const handlePointChange = (e) => {
     const value = e.target.value.replace(/[^0-9]/g, "");

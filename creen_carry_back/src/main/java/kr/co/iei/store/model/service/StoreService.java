@@ -79,15 +79,6 @@ public class StoreService {
             }
         }
 
-        // 3. 🌟 포인트 적립 및 사용 (가장 중요!)
-        // 이 부분은 상세 내역 저장 여부와 상관없이 주문이 성공했다면 실행되어야 합니다.
-        int setPoint = storeDao.updatePoint(order);
-        if (setPoint != 1) {
-            throw new RuntimeException("포인트 적립/사용 처리 실패");
-        }
-
-        // 4. 탄소 절감량(명예 점수) 누적 업데이트
-        storeDao.addReduceCarbon(orderId);
 
         // 5. 주문 이력 저장
         int historyResult = storeDao.insertOrderHistory(orderId, memberId);
@@ -207,5 +198,18 @@ public class StoreService {
 	public int insertReviewComment(Map<String, Object> payload) {
 		int result = storeDao.insertReviewComment(payload);
 		return result;
+	}
+@Transactional
+	public int updatePoint(Integer orderId) {
+		// 3. 🌟 포인트 적립 및 사용 (가장 중요!)
+        // 이 부분은 상세 내역 저장 여부와 상관없이 주문이 성공했다면 실행되어야 합니다.
+        int setPoint = storeDao.updatePoint(orderId);
+        if (setPoint != 1) {
+            throw new RuntimeException("포인트 적립/사용 처리 실패");
+        }
+
+        // 4. 탄소 절감량(명예 점수) 누적 업데이트
+        storeDao.addReduceCarbon(orderId);
+		return setPoint;
 	}
 }
