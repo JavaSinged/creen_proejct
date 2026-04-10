@@ -113,17 +113,20 @@
 
 	<update id="updatePoint">
 		UPDATE member_tbl m
-		SET m.member_point = m.member_point + (
+		SET m.member_point =
+		m.member_point + (
 		SELECT o.get_point - o.used_point
 		FROM order_tbl o
 		WHERE o.order_id = #{orderId}
 		AND o.member_id = m.member_id
 		)
-		WHERE EXISTS (
+		WHERE
+		EXISTS (
 		SELECT 1
 		FROM order_tbl o
 		WHERE o.order_id = #{orderId}
-		AND o.member_id = m.member_id
+		AND
+		o.member_id = m.member_id
 		)
 	</update>
 
@@ -551,8 +554,13 @@
 	</select>
 	<update id="rollbackPoint" parameterType="int">
 		UPDATE member_tbl m
-		SET member_point = member_point + (
-		SELECT +o.used_point - o.get_point
+		SET (
+		member_point,
+		total_carbon_reduce
+		) = (
+		SELECT
+		m.member_point + o.used_point - o.get_point,
+		GREATEST(m.total_carbon_reduce - (o.get_point / 1000.0), 0)
 		FROM order_tbl o
 		WHERE o.member_id = m.member_id
 		AND o.order_id = #{orderId}
@@ -567,7 +575,8 @@
 
 	<update id="cancelOrder" parameterType="int">
 		UPDATE order_tbl
-		SET order_status = 9
+		SET
+		order_status = 9
 		WHERE order_id = #{orderId}
 	</update>
 </mapper>
