@@ -11,8 +11,7 @@ import { AuthContext } from '../../../../context/AuthContext';
 
 export default function StoreInfoEdit() {
   const { user } = useContext(AuthContext) || {};
-  // const storeId = user?.storeId || null;
-  const storeId = 2;
+  const storeId = user?.storeId || null;
   const [formData, setFormData] = useState({
     storeName: '',
     storeIntro: '',
