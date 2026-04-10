@@ -52,20 +52,20 @@ export default function Home() {
   const navigate = useNavigate();
   const backHost = import.meta.env.VITE_BACKSERVER;
 
-  const { user } = useContext(AuthContext); // 🌟 글로벌 유저 정보 가져오기
+  const { user } = useContext(AuthContext);
 
   const [isLoading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("인기맛집");
   const [searchTerm, setSearchTerm] = useState("");
   const [storeList, setStoreList] = useState([]);
 
-  // 🌟 [수정] 거리 계산 함수 (변수명을 LATITUDE, LONGITUDE로 통일)
-  const calculateDistance = (storeLat, storeLng) => {
-    // 1. user 객체에 값이 있는지 먼저 확인, 없으면 로컬스토리지에서 가져옴 (최종 수단)
+  // 1. 🌟 숫자 거리 계산 함수 (단위: km)
+  const getNumericDistance = (storeLat, storeLng) => {
+    // AuthContext의 user 정보 혹은 로컬스토리지를 우선 참조 (변수명 LATITUDE, LONGITUDE)
     const myLat = user?.LATITUDE || localStorage.getItem("LATITUDE");
     const myLng = user?.LONGITUDE || localStorage.getItem("LONGITUDE");
 
-    if (!myLat || !myLng || !storeLat || !storeLng) return "위치 정보 없음";
+    if (!myLat || !myLng || !storeLat || !storeLng) return null;
 
     const R = 6371; // 지구 반지름 (km)
     const dLat = ((storeLat - myLat) * Math.PI) / 180;
@@ -77,8 +77,25 @@ export default function Home() {
         Math.sin(dLng / 2) *
         Math.sin(dLng / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c;
+    return R * c;
+  };
 
+  // 2. 🌟 거리를 예상 배달 시간(분)으로 환산하는 함수
+  const formatTime = (distance) => {
+    if (distance === null) return "계산 불가";
+
+    // 공식: 기본 조리시간 15분 + km당 6분 이동 시간
+    const estimatedTime = 15 + distance * 6;
+
+    // 유저 편의를 위해 5분 단위로 반올림 (예: 18분 -> 20분)
+    const roundedTime = Math.round(estimatedTime / 5) * 5;
+
+    return `${roundedTime}분`;
+  };
+
+  // 3. 🌟 거리 텍스트 포맷 (m 또는 km)
+  const formatDistance = (distance) => {
+    if (distance === null) return "위치 미설정";
     return distance < 1
       ? `${Math.round(distance * 1000)}m`
       : `${distance.toFixed(1)}km`;
@@ -97,10 +114,9 @@ export default function Home() {
         console.error("데이터 로딩 에러:", err);
         setLoading(false);
       });
-    // 🌟 [중요] user의 위치 정보가 바뀌면 이 useEffect가 다시 실행되어 리스트를 새로 갱신함
   }, [backHost, user?.LATITUDE, user?.LONGITUDE]);
 
-  // 🔍 검색 및 카테고리 필터링
+  // 🔍 검색, 카테고리, 그리고 거리(5km) 필터링
   const filteredStores = storeList.filter((store) => {
     const isCategoryMatch =
       selectedCategory === "인기맛집" ||
@@ -109,6 +125,13 @@ export default function Home() {
     const isSearchMatch = store.storeName
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
+
+    const distance = getNumericDistance(store.LATITUDE, store.LONGITUDE);
+
+    // 좌표 정보가 있을 때 5km 초과 매장은 제외
+    if (distance !== null && distance > 5) {
+      return false;
+    }
 
     return isCategoryMatch && isSearchMatch;
   });
@@ -142,7 +165,6 @@ export default function Home() {
 
   return (
     <div className={styles.page_container}>
-      {/* 이스터에그 컴포넌트 */}
       <EcoLightSwitch />
       <EcoClean />
       <EcoRider />
@@ -151,7 +173,6 @@ export default function Home() {
       <EcoEarth />
       <EcoFlood />
 
-      {/* 1. 배너 영역 */}
       <div className={styles.banner_wrap}>
         <Swiper
           spaceBetween={0}
@@ -177,14 +198,11 @@ export default function Home() {
       </div>
 
       <div className={styles.content_wrap}>
-        {/* 2. 카테고리 바 */}
         <div className={styles.category_wrap}>
           {categories.map((item) => (
             <div
               key={item.name}
-              className={`${styles.category_item} ${
-                selectedCategory === item.name ? styles.active : ""
-              }`}
+              className={`${styles.category_item} ${selectedCategory === item.name ? styles.active : ""}`}
               onClick={() => setSelectedCategory(item.name)}
             >
               <div className={styles.category_img_circle}>
@@ -199,7 +217,6 @@ export default function Home() {
           ))}
         </div>
 
-        {/* 3. 검색창 */}
         <div className={styles.search_container}>
           <div className={styles.search_wrap}>
             <input
@@ -212,7 +229,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* 4. 카드 목록 */}
         <div className={styles.card_wrap}>
           {isLoading ? (
             [1, 2, 3, 4].map((n) => (
@@ -231,53 +247,60 @@ export default function Home() {
               </div>
             ))
           ) : filteredStores.length > 0 ? (
-            filteredStores.map((store) => (
-              <div
-                key={store.storeId}
-                className={styles.card_item}
-                onClick={() => {
-                  navigate(`/storeView/${store.storeId}`);
-                }}
-              >
-                <div className={styles.image_wrap}>
-                  <img
-                    src={
-                      store.storeThumb
-                        ? `${backHost}/${store.storeThumb}`
-                        : "/image/default_store.png"
-                    }
-                    alt={store.storeName}
-                    style={{ objectFit: "cover" }}
-                  />
-                  {/* 🌟 렌더링 시점에 실시간으로 계산된 거리 표시 */}
-                  <div className={styles.card_badge}>
-                    {calculateDistance(store.LATITUDE, store.LONGITUDE)}
-                  </div>
-                </div>
-                <div className={styles.card_info}>
-                  <h3 className={styles.store_name}>{store.storeName}</h3>
-                  <div className={styles.store_tags}>
-                    <span>{store.storeCategory}</span>
-                    <span>30분</span>
-                  </div>
-                  <div className={styles.store_rating_wrap}>
-                    <div className={styles.stars_box}>
-                      {renderStars(store.storeRating)}
+            filteredStores.map((store) => {
+              const numericDist = getNumericDistance(
+                store.LATITUDE,
+                store.LONGITUDE,
+              );
+              return (
+                <div
+                  key={store.storeId}
+                  className={styles.card_item}
+                  onClick={() => navigate(`/storeView/${store.storeId}`)}
+                >
+                  <div className={styles.image_wrap}>
+                    <img
+                      src={
+                        store.storeThumb
+                          ? `${backHost}/${store.storeThumb}`
+                          : "/image/default_store.png"
+                      }
+                      alt={store.storeName}
+                      style={{ objectFit: "cover" }}
+                    />
+                    {/* 🌟 뱃지에 '예상 시간' 표시 */}
+                    <div className={styles.card_badge}>
+                      {formatTime(numericDist)}
                     </div>
-                    <span className={styles.rating_number}>
-                      {store.storeRating.toFixed(1)}
-                    </span>
-                    <span className={styles.review_count}>
-                      ({store.reviewCount?.toLocaleString() || 0})
-                    </span>
+                  </div>
+                  <div className={styles.card_info}>
+                    <h3 className={styles.store_name}>{store.storeName}</h3>
+                    <div className={styles.store_tags}>
+                      <span>{store.storeCategory}</span>
+                      {/* 🌟 태그 영역에 실제 '거리' 표시 */}
+                      <span className={styles.dist_text}>
+                        {formatDistance(numericDist)}
+                      </span>
+                    </div>
+                    <div className={styles.store_rating_wrap}>
+                      <div className={styles.stars_box}>
+                        {renderStars(store.storeRating)}
+                      </div>
+                      <span className={styles.rating_number}>
+                        {store.storeRating.toFixed(1)}
+                      </span>
+                      <span className={styles.review_count}>
+                        ({store.reviewCount?.toLocaleString() || 0})
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <div className={styles.empty_msg_box}>
               <p className={styles.empty_msg}>
-                해당 카테고리에 등록된 매장이 없습니다.
+                반경 5km 이내에 매장이 없습니다. 🌱
               </p>
             </div>
           )}

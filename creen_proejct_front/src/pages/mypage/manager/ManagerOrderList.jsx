@@ -69,7 +69,7 @@ const ManagerOrderList = () => {
         title: isPickup ? "예상 픽업 소요 시간" : "예상 배달 소요 시간",
         html: `
           <div style="margin: 20px 0;">
-            <b id="range-value" style="font-size: 2.5rem; color: #2f8f46;">30</b>
+            <b id="range-value" style="font-size: 2.5rem; color: #2f8f46;">15</b>
             <span style="font-size: 1.2rem; font-weight: bold;">분</span>
           </div>
         `,
@@ -79,7 +79,7 @@ const ManagerOrderList = () => {
           max: "120",
           step: "1", // 1분 단위 조절 가능
         },
-        inputValue: 30,
+        inputValue: 15,
         showCancelButton: true,
         confirmButtonText: "주문 수락",
         cancelButtonText: "취소",

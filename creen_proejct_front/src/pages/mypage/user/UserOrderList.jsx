@@ -7,6 +7,83 @@ import { useNavigate } from "react-router-dom";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
+// 🌟 [수정 컴포넌트] 남은 시간 + 예상 도착 시각 표시
+const OrderTimer = ({ order }) => {
+  const [remainingText, setRemainingText] = useState("");
+  const [targetTimeText, setTargetTimeText] = useState("");
+
+  useEffect(() => {
+    // 2: 주문수락, 3: 조리중, 4: 배달중/픽업대기 일 때만 작동
+    const activeStatuses = [2, 3, 4];
+    if (
+      !activeStatuses.includes(order.orderStatus) ||
+      !order.confirmDate ||
+      !order.expectedTime
+    ) {
+      setRemainingText("");
+      setTargetTimeText("");
+      return;
+    }
+
+    // 1. 예상 도착 시각 계산 (수락 시각 + 예상 시간)
+    const targetDate = new Date(order.confirmDate.replace(" ", "T"));
+    targetDate.setMinutes(targetDate.getMinutes() + Number(order.expectedTime));
+
+    const hh = String(targetDate.getHours()).padStart(2, "0");
+    const mm = String(targetDate.getMinutes()).padStart(2, "0");
+    setTargetTimeText(`${hh}:${mm}`); // 예: 14:30
+
+    // 2. 카운트다운 타이머 실행
+    const updateTimer = () => {
+      const now = new Date();
+      const diffMs = targetDate.getTime() - now.getTime();
+
+      if (diffMs <= 0) {
+        setRemainingText(
+          order.deliveryType === 1 ? "도착 완료! 🏃‍♂️" : "곧 도착합니다! 🛵",
+        );
+        return;
+      }
+
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffSecs = Math.floor((diffMs % 60000) / 1000);
+      setRemainingText(`${diffMins}분 ${diffSecs}초 남음`);
+    };
+
+    updateTimer();
+    const timerId = setInterval(updateTimer, 1000);
+    return () => clearInterval(timerId);
+  }, [order]);
+
+  if (!targetTimeText && order.orderStatus !== 5) return null;
+
+  return (
+    <div className={styles.timerContainer}>
+      {/* 진행 중일 때: 예상 도착 시각 + 남은 시간 */}
+      {[2, 3, 4].includes(order.orderStatus) && (
+        <>
+          <div className={styles.targetTimeLabel}>
+            {order.deliveryType === 1 ? "픽업 예정 " : "도착 예정 "}
+            <strong>{targetTimeText}</strong>
+          </div>
+          <div className={styles.timerBadge}>
+            <span className={styles.timerDot}></span>
+            {remainingText}
+          </div>
+        </>
+      )}
+
+      {/* 완료 되었을 때: 실제 완료 시각 */}
+      {order.orderStatus === 5 && order.completeDate && (
+        <div className={styles.completeTimeLabel}>
+          {order.deliveryType === 1 ? "픽업 완료 " : "배달 완료 "}
+          <strong>{order.completeDate.split(" ")[1]}</strong>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const UserOrderListPage = () => {
   const backHost = import.meta.env.VITE_BACKSERVER;
   const navigate = useNavigate();
@@ -24,20 +101,14 @@ const UserOrderListPage = () => {
     .toISOString()
     .split("T")[0];
 
-  // 검색어 상태 (요청하신 로직에 포함되어 있어 추가)
   const [searchKeyword, setSearchKeyword] = useState("");
-
-  // 🌟 [페이지네이션 상태 및 로직 시작] ---------------------------------------
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
   const [pageGroup, setPageGroup] = useState(0);
   const pageLimit = 5;
 
-  // 1. 필터링 로직 (날짜 필터 + 매장명 검색 통합)
   const filteredList = useMemo(() => {
     let filtered = [...orderList];
-
-    // 날짜 필터
     if (startDate) {
       filtered = filtered.filter(
         (order) => new Date(order.orderDate) >= new Date(startDate),
@@ -48,7 +119,6 @@ const UserOrderListPage = () => {
       end.setHours(23, 59, 59, 999);
       filtered = filtered.filter((order) => new Date(order.orderDate) <= end);
     }
-    // 매장명 검색 필터
     if (searchKeyword) {
       filtered = filtered.filter((item) =>
         item.storeName?.toLowerCase().includes(searchKeyword.toLowerCase()),
@@ -59,7 +129,6 @@ const UserOrderListPage = () => {
 
   const totalPages = Math.ceil(filteredList.length / itemsPerPage);
 
-  // 2. 정렬 로직 (기본은 최신순)
   const sortedList = useMemo(() => {
     return [...filteredList].sort(
       (a, b) =>
@@ -69,14 +138,11 @@ const UserOrderListPage = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-
-  // 현재 페이지 아이템
   const currentOrders = sortedList.slice(indexOfFirstItem, indexOfLastItem);
 
   const startPage = Math.floor((currentPage - 1) / pageLimit) * pageLimit + 1;
   const endPage = Math.min(startPage + pageLimit - 1, totalPages);
 
-  // 페이지 이동 핸들러
   const handlePrevGroup = () => {
     if (pageGroup > 0) {
       setPageGroup(pageGroup - 1);
@@ -90,7 +156,6 @@ const UserOrderListPage = () => {
       setCurrentPage((pageGroup + 1) * pageLimit + 1);
     }
   };
-  // ----------------------------------------------------------- [로직 끝]
 
   const fetchOrders = () => {
     if (!memberId) return;
@@ -107,9 +172,7 @@ const UserOrderListPage = () => {
 
   useEffect(() => {
     fetchOrders();
-    const intervalId = setInterval(() => {
-      fetchOrders();
-    }, 5000);
+    const intervalId = setInterval(fetchOrders, 5000);
     return () => clearInterval(intervalId);
   }, [memberId]);
 
@@ -117,7 +180,6 @@ const UserOrderListPage = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentPage]);
 
-  // 필터 변경 시 1페이지로
   useEffect(() => {
     setCurrentPage(1);
     setPageGroup(0);
@@ -175,7 +237,7 @@ const UserOrderListPage = () => {
   };
 
   const goToCheckoutPage = (order) => {
-    const tossStyleOrderId = `ORDER_${order.orderId}_${new Date().getTime()}`;
+    const tossStyleOrderId = `ORDER_${order.orderId}_${new Date(order.orderDate).getTime()}`;
     const amount = order.totalPrice || 0;
     navigate(`/checkoutPage?orderId=${tossStyleOrderId}&amount=${amount}`);
   };
@@ -263,6 +325,9 @@ const UserOrderListPage = () => {
                   </div>
 
                   <div className={styles.rightInfo}>
+                    {/* 🌟 [시간 타이머 및 시각 정보 표시] */}
+                    <OrderTimer order={order} />
+
                     <span
                       className={`${styles.statusBadge} ${isCanceled ? styles.canceledBadge : ""}`}
                     >
@@ -368,17 +433,14 @@ const UserOrderListPage = () => {
         )}
       </div>
 
-      {/* 페이지네이션 영역*/}
       <div className={styles.pagination}>
         <button
           className={styles.page_btn_nav}
           onClick={handlePrevGroup}
           disabled={pageGroup === 0}
         >
-          <ChevronLeftIcon fontSize="small" />
-          이전
+          <ChevronLeftIcon fontSize="small" /> 이전
         </button>
-
         <div className={styles.page_numbers}>
           {Array.from(
             { length: endPage - startPage + 1 },
@@ -386,23 +448,19 @@ const UserOrderListPage = () => {
           ).map((num) => (
             <div
               key={num}
-              className={`${styles.page_num} ${
-                currentPage === num ? styles.active : ""
-              }`}
+              className={`${styles.page_num} ${currentPage === num ? styles.active : ""}`}
               onClick={() => setCurrentPage(num)}
             >
               {num}
             </div>
           ))}
         </div>
-
         <button
           className={styles.page_btn_nav}
           onClick={handleNextGroup}
           disabled={endPage === totalPages || totalPages === 0}
         >
-          다음
-          <ChevronRightIcon fontSize="small" />
+          다음 <ChevronRightIcon fontSize="small" />
         </button>
       </div>
 
@@ -419,7 +477,6 @@ const UserOrderListPage = () => {
 
 export default UserOrderListPage;
 
-// 보조 함수들
 const getOrderStatusText = (status, deliveryType) => {
   const isPickup = deliveryType === 1;
   const statusMap = {
