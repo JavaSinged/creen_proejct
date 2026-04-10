@@ -27,8 +27,14 @@ const PaymentPage = () => {
   const deliveryType = deliveryPrice === 0 ? 1 : deliveryPrice === 1000 ? 2 : 3;
   const deliveryCarbon = deliveryType === 3 ? 0 : 300;
   const totalCarbon =
-    cartList.reduce((sum, item) => sum + (item.carbonSaved || 0), 0) +
-    deliveryCarbon;
+    Math.floor(
+      cartList.reduce(
+        (sum, item) =>
+          sum +
+          (item.reusableAppliedCarbon * item.quantity + item.optionCarbon),
+        0,
+      ),
+    ) + deliveryCarbon;
 
   // 🌟 최종 결제 금액 (실시간 계산)
   const totalPrice = itemPrice + deliveryPrice - ecoPoint;
