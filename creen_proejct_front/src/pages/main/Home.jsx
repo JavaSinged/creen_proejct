@@ -34,6 +34,13 @@ const banners = [
     title: "오늘도 그린하게, 지구를 구하는 한 끼",
     img: "/image/banner/banner2.png",
   },
+  {
+    title: "우리의 오늘이 지구의 내일이 됩니다",
+    img: "/image/banner/banner3.png",
+  },
+  {
+    img: "/image/banner/banner4.png",
+  },
 ];
 
 const categories = [
