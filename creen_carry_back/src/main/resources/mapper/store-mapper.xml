@@ -106,20 +106,19 @@
 
 	<update id="updatePoint">
 		UPDATE member_tbl m
-		SET m.member_point =
-		m.member_point + (
+		SET m.member_point = m.member_point + (
 		SELECT o.get_point - o.used_point
 		FROM order_tbl o
 		WHERE o.order_id = #{orderId}
 		AND o.member_id = m.member_id
+		AND o.point_reward = 0
 		)
-		WHERE
-		EXISTS (
+		WHERE EXISTS (
 		SELECT 1
 		FROM order_tbl o
 		WHERE o.order_id = #{orderId}
-		AND
-		o.member_id = m.member_id
+		AND o.member_id = m.member_id
+		AND o.point_reward = 0
 		)
 	</update>
 
@@ -599,4 +598,8 @@
 		#{isDayOff},
 		#{weekOfMonth})
 	</insert>
+	<update id="pointReward">
+		update order_tbl set point_reward = 1 where order_id
+		= #{orderId}
+	</update>
 </mapper>

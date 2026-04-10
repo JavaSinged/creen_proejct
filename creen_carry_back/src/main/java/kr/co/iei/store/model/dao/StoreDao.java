@@ -91,4 +91,6 @@ public interface StoreDao {
 	int rollbackPoint(Integer orderId);
 
     void insertOperatingHours(StoreOperating dto);
+	void pointReward(Integer orderId);
+
 }
