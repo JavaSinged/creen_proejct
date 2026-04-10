@@ -11,8 +11,8 @@ import { AuthContext } from '../../../../context/AuthContext';
 
 export default function StoreInfoEdit() {
   const { user } = useContext(AuthContext) || {};
-  const storeId = user?.storeId || null;
-
+  // const storeId = user?.storeId || null;
+  const storeId = 2;
   const [formData, setFormData] = useState({
     storeName: '',
     storeIntro: '',
@@ -273,6 +273,207 @@ export default function StoreInfoEdit() {
     );
   };
 
+  // 🌟 컴포넌트 마운트 시 데이터 불러오기 로직
+  useEffect(() => {
+    if (!storeId) return;
+
+    const fetchStoreData = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_BACKSERVER}/stores/info/${storeId}`,
+        );
+
+        if (response.status === 200 && response.data) {
+          const data = response.data;
+          console.log('🚀 ~ fetchStoreData ~ data:', data);
+
+          const addrMatch = (data.storeAddress || '').match(
+            /^\((.*?)\)\s+(.*)$/,
+          );
+          const parsedZip = addrMatch ? addrMatch[1] : '';
+          const parsedAddr = addrMatch ? addrMatch[2] : data.storeAddress || '';
+
+          // ✅ 기본 폼 데이터 세팅
+          setFormData({
+            storeName: data.storeName || '',
+            storeIntro: data.storeIntro || '',
+            storePhone: data.storePhone || '',
+            storeAddress: data.storeAddress || '',
+            latitude: data.latitude || null,
+            longitude: data.longitude || null,
+            businessNumber: data.storeOwnerNo || '',
+            openDate: data.openingDate || null,
+            storeOriginInfo: data.storeOriginInfo || '',
+            storeAddrCode: parsedZip,
+            storeAddr: parsedAddr,
+            storeAddrDetail: '',
+          });
+
+          if (data.storeCategory) setActiveCategory(data.storeCategory);
+
+          // ✅ 영업시간 파싱
+          if (data.operatingHours && data.operatingHours.length > 0) {
+            const fetchedRestDays = [];
+
+            // 기본 diffTimes 틀 복사 (초기값 유지)
+            let fetchedDiffTimes = [
+              {
+                day: 'mon',
+                label: '월',
+                isOpen: true,
+                startH: '09',
+                startM: '00',
+                endH: '22',
+                endM: '00',
+              },
+              {
+                day: 'tue',
+                label: '화',
+                isOpen: true,
+                startH: '09',
+                startM: '00',
+                endH: '22',
+                endM: '00',
+              },
+              {
+                day: 'wed',
+                label: '수',
+                isOpen: true,
+                startH: '09',
+                startM: '00',
+                endH: '22',
+                endM: '00',
+              },
+              {
+                day: 'thu',
+                label: '목',
+                isOpen: true,
+                startH: '09',
+                startM: '00',
+                endH: '22',
+                endM: '00',
+              },
+              {
+                day: 'fri',
+                label: '금',
+                isOpen: true,
+                startH: '09',
+                startM: '00',
+                endH: '22',
+                endM: '00',
+              },
+              {
+                day: 'sat',
+                label: '토',
+                isOpen: true,
+                startH: '09',
+                startM: '00',
+                endH: '22',
+                endM: '00',
+              },
+              {
+                day: 'sun',
+                label: '일',
+                isOpen: true,
+                startH: '09',
+                startM: '00',
+                endH: '22',
+                endM: '00',
+              },
+            ];
+
+            // ✅ weekOfMonth가 0인 일반 영업일만 추출
+            const normalHours = data.operatingHours.filter(
+              (h) => h.weekOfMonth === 0,
+            );
+
+            // ✅ weekOfMonth > 0인 정기 휴무일 추출
+            const restHours = data.operatingHours.filter(
+              (h) => h.isDayOff === 'Y' && h.weekOfMonth > 0,
+            );
+
+            restHours.forEach((timeInfo) => {
+              fetchedRestDays.push({
+                id: Date.now() + Math.random(),
+                weekMonth:
+                  reverseWeekMonthMapping[timeInfo.weekOfMonth] || 'week',
+                day: timeInfo.dayOfWeek?.toLowerCase(),
+              });
+            });
+
+            // ✅ 일반 영업일 데이터로 diffTimes 업데이트
+            normalHours.forEach((timeInfo) => {
+              const dayKey = timeInfo.dayOfWeek?.toLowerCase();
+              const diffIndex = fetchedDiffTimes.findIndex(
+                (d) => d.day === dayKey,
+              );
+
+              if (diffIndex !== -1) {
+                const isOpen = timeInfo.isDayOff === 'N';
+                let stH = '09',
+                  stM = '00',
+                  edH = '22',
+                  edM = '00';
+
+                if (isOpen && timeInfo.openTime && timeInfo.closeTime) {
+                  [stH, stM] = timeInfo.openTime.split(':');
+                  [edH, edM] = timeInfo.closeTime.split(':');
+                }
+
+                fetchedDiffTimes[diffIndex] = {
+                  ...fetchedDiffTimes[diffIndex],
+                  isOpen,
+                  startH: stH,
+                  startM: stM,
+                  endH: edH,
+                  endM: edM,
+                };
+              }
+            });
+
+            setRestDays(fetchedRestDays);
+
+            // ✅ 7개가 다 있고 모두 같은 시간이면 'same', 아니면 'diff'
+            const openHours = normalHours.filter((h) => h.isDayOff === 'N');
+            const allSame =
+              normalHours.length === 7 &&
+              openHours.length === 7 &&
+              openHours.every(
+                (h) =>
+                  h.openTime === openHours[0].openTime &&
+                  h.closeTime === openHours[0].closeTime,
+              );
+
+            if (allSame) {
+              setHoursType('same');
+              const firstOpen = openHours[0].openTime;
+              const firstClose = openHours[0].closeTime;
+
+              if (
+                firstOpen === '00:00' &&
+                (firstClose === '23:59' || firstClose === '24:00')
+              ) {
+                setIs24h(true);
+              } else {
+                const [sH, sM] = firstOpen.split(':');
+                const [eH, eM] = firstClose.split(':');
+                setSameTime({ startH: sH, startM: sM, endH: eH, endM: eM });
+              }
+            } else {
+              // ✅ diff 모드: DB에 없는 요일은 초기값(09:00~22:00 영업) 유지
+              setHoursType('diff');
+              setDiffTimes(fetchedDiffTimes);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('가게 정보를 불러오는 중 오류가 발생했습니다.', error);
+      }
+    };
+
+    fetchStoreData();
+  }, [storeId]);
+
   // --- 🌟 폼 제출 (백엔드 Payload 규격에 맞게 매핑) ---
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -293,7 +494,7 @@ export default function StoreInfoEdit() {
       return alert('원산지 정보를 입력해주세요.');
 
     // 1. 전체 주소 조합
-    const fullStoreAddress = `(${formData.storeAddrCode}) ${formData.storeAddr} ${formData.storeAddrDetail}`;
+    // const fullStoreAddress = `(${formData.storeAddrCode}) ${formData.storeAddr} ${formData.storeAddrDetail}`;
 
     // 2. 영업시간 + 휴무일 통합 리스트 만들기 (operating_hours_tbl 용)
     const operatingHoursList = [];
@@ -355,7 +556,10 @@ export default function StoreInfoEdit() {
         operatingHours: operatingHoursList,
       };
 
-      const response = await axios.post('/api/store/update', payload);
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKSERVER}/stores/update`,
+        payload,
+      );
       if (response.status === 200 || response.data === 'SUCCESS') {
         alert('정보 변경이 완료되었습니다.');
       }
@@ -364,153 +568,6 @@ export default function StoreInfoEdit() {
       alert('서버 오류가 발생했습니다. 다시 시도해주세요.');
     }
   };
-
-  // 🌟 컴포넌트 마운트 시 데이터 불러오기 로직
-  useEffect(() => {
-    if (!storeId) return;
-
-    const fetchStoreData = async () => {
-      try {
-        // 백엔드 API 엔드포인트는 실제 환경에 맞게 수정해주세요.
-        const response = await axios.get(`/stores/info/${storeId}`);
-
-        if (response.status === 200 && response.data) {
-          const data = response.data;
-
-          setFormData((prev) => ({
-            ...prev,
-            storeName: data.storeName || '',
-            storeIntro: data.storeIntro || '',
-            storePhone: data.storePhone || '',
-            storeAddress: data.storeAddress || '', // 🌟 통문자열 그대로 세팅
-            latitude: data.latitude || null, // 🌟 DB에 있는 위도 세팅
-            longitude: data.longitude || null, // 🌟 DB에 있는 경도 세팅
-            businessNumber: data.storeOwnerNo || '',
-            openDate: data.openingDate || null,
-            storeOriginInfo: data.storeOriginInfo || '',
-          }));
-
-          // 1. 주소 분리 처리 (제출할 때 `(우편번호) 주소 상세주소` 형태로 묶었기 때문)
-          let parsedZip = '';
-          let parsedAddr = data.storeAddress || '';
-          // 띄어쓰기로 결합된 문자열을 주소/상세주소로 완벽히 나누기는 어려우므로
-          // 정규식으로 우편번호만 추출하고 나머지를 주소칸에 넣습니다.
-          const addrMatch = (data.storeAddress || '').match(
-            /^\((.*?)\)\s+(.*)$/,
-          );
-          if (addrMatch) {
-            parsedZip = addrMatch[1];
-            parsedAddr = addrMatch[2];
-          }
-
-          // 2. 기본 정보 폼 데이터 세팅
-          setFormData((prev) => ({
-            ...prev,
-            storeName: data.storeName || '',
-            storeIntro: data.storeIntro || '',
-            storePhone: data.storePhone || '',
-            storeAddrCode: parsedZip,
-            storeAddr: parsedAddr,
-            storeAddrDetail: '', // 통문자열의 완벽한 분리가 불가능하다면 비워두거나 직접 수정 유도
-            businessNumber: data.storeOwnerNo || '',
-            openDate: data.openingDate || null,
-            storeOriginInfo: data.storeOriginInfo || '',
-          }));
-
-          if (data.storeCategory) setActiveCategory(data.storeCategory);
-
-          // 3. 영업시간 & 휴무일 세팅
-          if (data.operatingHours && data.operatingHours.length > 0) {
-            const fetchedRestDays = [];
-            let fetchedDiffTimes = [...diffTimes]; // 초기값 복사
-
-            let allSame = true; // '매일 같은 시간 영업' 여부 체크용
-            let firstOpen = null;
-            let firstClose = null;
-            let normalDayCount = 0;
-
-            data.operatingHours.forEach((timeInfo) => {
-              // 휴무일 데이터 추출 (weekOfMonth가 0보다 큰 경우)
-              if (timeInfo.isDayOff === 'Y' && timeInfo.weekOfMonth > 0) {
-                fetchedRestDays.push({
-                  id: Date.now() + Math.random(), // 임시키 부여
-                  weekMonth:
-                    reverseWeekMonthMapping[timeInfo.weekOfMonth] || 'week',
-                  day: timeInfo.dayOfWeek,
-                });
-              }
-              // 일반 영업일 데이터 추출 (weekOfMonth가 0인 경우)
-              else if (timeInfo.weekOfMonth === 0) {
-                normalDayCount++;
-                const diffIndex = fetchedDiffTimes.findIndex(
-                  (d) => d.day === timeInfo.dayOfWeek,
-                );
-
-                if (diffIndex !== -1) {
-                  const isOpen = timeInfo.isDayOff === 'N';
-                  let stH = '09',
-                    stM = '00',
-                    edH = '22',
-                    edM = '00';
-
-                  if (isOpen && timeInfo.openTime && timeInfo.closeTime) {
-                    [stH, stM] = timeInfo.openTime.split(':');
-                    [edH, edM] = timeInfo.closeTime.split(':');
-                  }
-
-                  fetchedDiffTimes[diffIndex] = {
-                    ...fetchedDiffTimes[diffIndex],
-                    isOpen,
-                    startH: stH,
-                    startM: stM,
-                    endH: edH,
-                    endM: edM,
-                  };
-
-                  // 매일 동일한 시간인지 검사
-                  if (firstOpen === null && isOpen) {
-                    firstOpen = timeInfo.openTime;
-                    firstClose = timeInfo.closeTime;
-                  } else if (isOpen) {
-                    if (
-                      firstOpen !== timeInfo.openTime ||
-                      firstClose !== timeInfo.closeTime
-                    ) {
-                      allSame = false; // 시간이 하루라도 다름
-                    }
-                  } else {
-                    allSame = false; // 하루라도 쉬는 날이 있음
-                  }
-                }
-              }
-            });
-
-            // 상태 업데이트
-            setRestDays(fetchedRestDays);
-
-            // 모든 요일이 꽉 차 있고 시간이 동일하면 '매일 같은 시간', 아니면 '요일별 다름'
-            if (allSame && normalDayCount === 7) {
-              setHoursType('same');
-              if (firstOpen === '00:00' && firstClose === '23:59') {
-                setIs24h(true);
-              } else if (firstOpen && firstClose) {
-                const [sH, sM] = firstOpen.split(':');
-                const [eH, eM] = firstClose.split(':');
-                setSameTime({ startH: sH, startM: sM, endH: eH, endM: eM });
-              }
-            } else {
-              setHoursType('diff');
-              setDiffTimes(fetchedDiffTimes);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('가게 정보를 불러오는 중 오류가 발생했습니다.', error);
-      }
-    };
-
-    fetchStoreData();
-  }, [storeId]); // storeId가 세팅/변경될 때마다 실행
 
   return (
     <div className={styles.container}>
