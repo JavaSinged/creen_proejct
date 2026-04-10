@@ -85,27 +85,20 @@ public class StoreController {
 		return ResponseEntity.ok(orderResponse);
 	}
 
-        // 서비스 호출 (상태값과 예상 시간을 넘겨줍니다)
-        int result = storeService.changeOrderStatus(orderId, status, expectedTime);
-        
-        if (result > 0) {
-            return ResponseEntity.ok("상태 변경 성공");
-        } else {
-            return ResponseEntity.internalServerError().body("상태 변경 실패");
-        }
-    }
-    @GetMapping("/{storeId}/hours")
-    public ResponseEntity<?> getStoreOperatingHours(@PathVariable Integer storeId) {
-    
-    	List<StoreOperating> hours = storeService.getStoreOperatingHours(storeId);
-    	
-    	if(hours == null || hours.isEmpty()) {
-    	
-    		return ResponseEntity.ok(List.of());
-    	}
-    	return ResponseEntity.ok(hours);
-    }
-    }
+	// 서비스 호출 (상태값과 예상 시간을 넘겨줍니다)
+
+	@GetMapping("/{storeId}/hours")
+	public ResponseEntity<?> getStoreOperatingHours(@PathVariable Integer storeId) {
+
+		List<StoreOperating> hours = storeService.getStoreOperatingHours(storeId);
+
+		if (hours == null || hours.isEmpty()) {
+
+			return ResponseEntity.ok(List.of());
+		}
+		return ResponseEntity.ok(hours);
+	}
+
 	@GetMapping("/orders/owner/{storeId}")
 	public ResponseEntity<?> getStoreOrders(@PathVariable Integer storeId) {
 		List<OrderResponse> list = storeService.getOrdersByStoreId(storeId);
@@ -201,8 +194,8 @@ public class StoreController {
 			// 3. 알림 대상(4, 5, 9번 상태)이면 알림 발송
 			if (memberId != null && (status == 2 || status == 4 || status == 5 || status == 9)) {
 				String message = "";
-				if(status == 2)
-					message = "주문이 접수되었습니다. 약 "+expectedTime+"분 뒤 조리가 완료됩니다.";
+				if (status == 2)
+					message = "주문이 접수되었습니다. 약 " + expectedTime + "분 뒤 조리가 완료됩니다.";
 				else if (status == 4)
 					message = "메뉴가 준비되었습니다! 픽업/배달을 확인해주세요.";
 				else if (status == 5)
