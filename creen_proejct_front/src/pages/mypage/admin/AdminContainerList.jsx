@@ -1,61 +1,68 @@
 import React, { useEffect, useState } from "react";
 import styles from "./AdminContainerList.module.css";
 import SearchIcon from "@mui/icons-material/Search";
-import StarIcon from "@mui/icons-material/Star";
-import StarHalfIcon from "@mui/icons-material/StarHalf";
-import StarOutlineIcon from "@mui/icons-material/StarOutline";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import EditIcon from "@mui/icons-material/Edit";
+import ClearIcon from '@mui/icons-material/Clear';
 import axios from "axios";
+import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import api from "../../../utils/accessToken";
 
 export default function AdminContainerList() {
     const navigate = useNavigate();
-    const [stores, setStores] = useState([]);
-    const [searchTerm, setSearchTerm] = useState("");
     const backHost = import.meta.env.VITE_BACKSERVER;
 
+    const [searchTerm, setSearchTerm] = useState("");
     const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
-    const [orderType, setOrderType] = useState(0);
+    const [carbonList, setCarbonList] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const itemsPerPage = 6;
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
+
     useEffect(() => {
         axios
-            .get(`${import.meta.env.VITE_BACKSERVER}/`)
+            .get(`${backHost}/carbon-list`)
             .then((res) => {
-
-                console.log(res.data);
-
-                const now = new Date();
-
-                const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-
-                const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-                const prevMonth = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, "0")}`;
-
-                const dataWithSales = res.data.map((item) => {
-                    const salesList = item.SaleMonth || [];
-
-                    const currentData = salesList.find(
-                        (sale) => sale.saleMonth === currentMonth,
-                    );
-                    const prevData = salesList.find(
-                        (sale) => sale.saleMonth === prevMonth,
-                    );
-
-                    return {
-                        ...item,
-                        currentSales: currentData?.totalSales || 0,
-                        prevSales: prevData?.totalSales || 0,
-                    };
-                });
-
-                setStores(dataWithSales);
-
-                setStores(dataWithSales);
+                setCarbonList(res.data);
             })
-            .catch((err) => console.log(err));
+            .catch((err) => console.log("데이터 불러오기 실패: ", err));
     }, []);
-    // 2. 정렬 실행 함수
+    // 🗑️ 삭제 실행 함수
+    const handleDelete = (productId) => {
+        // 1. 실수로 지우지 않게 경고창 띄우기
+        Swal.fire({
+            title: '정말 삭제하시겠습니까?',
+            text: "삭제하면 데이터를 복구할 수 없습니다!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: '삭제',
+            cancelButtonText: '취소'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                api
+                    .delete(`${backHost}/carbon-list/${productId}`)
+                    .then((res) => {
+                        if (res.data === "SUCCESS") {
+                            Swal.fire('삭제 완료!', '용기가 삭제되었습니다.', 'success');
+                            setCarbonList(carbonList.filter((carbon) => carbon.productId !== productId));
+                        }
+                    })
+                    .catch((err) => {
+                        console.error("삭제 실패:", err);
+                        Swal.fire('오류', '삭제 중 문제가 발생했습니다.', 'error');
+                    });
+            }
+        });
+    };
     const handleSort = (key) => {
         let direction = "asc";
         if (sortConfig.key === key && sortConfig.direction === "asc") {
@@ -64,14 +71,12 @@ export default function AdminContainerList() {
         setSortConfig({ key, direction });
     };
 
-    // 3. 필터링 + 정렬이 모두 적용된 데이터 계산
-    const getSortedStores = () => {
-        // 먼저 검색어로 필터링
-        let items = stores.filter((store) =>
-            store.storeName.toLowerCase().includes(searchTerm.toLowerCase()),
-        );
+    const getSortedCarbonList = () => {
+        let items = carbonList.filter((carbon) => {
+            if (!carbon.productMaterial) return false;
+            return carbon.productMaterial.toLowerCase().includes(searchTerm.toLowerCase());
+        });
 
-        // 그 다음 정렬 적용
         if (sortConfig.key !== null) {
             items.sort((a, b) => {
                 if (a[sortConfig.key] < b[sortConfig.key]) {
@@ -86,18 +91,21 @@ export default function AdminContainerList() {
         return items;
     };
 
-    const sortedStores = getSortedStores();
+    const sortedCarbonList = getSortedCarbonList();
 
-    const renderStars = (rating) => {
-        const stars = [];
-        for (let i = 1; i <= 5; i++) {
-            if (rating >= i)
-                stars.push(<StarIcon key={i} style={{ color: "#ffb300" }} />);
-            else if (rating >= i - 0.5)
-                stars.push(<StarHalfIcon key={i} style={{ color: "#ffb300" }} />);
-            else stars.push(<StarOutlineIcon key={i} style={{ color: "#ccc" }} />);
-        }
-        return stars;
+    const totalPages = Math.ceil(sortedCarbonList.length / itemsPerPage);
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = sortedCarbonList.slice(indexOfFirstItem, indexOfLastItem);
+
+    const handlePrevPage = () => {
+        if (currentPage > 1) setCurrentPage(currentPage - 1);
+    };
+    const handleNextPage = () => {
+        if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+    };
+    const handlePageClick = (pageNumber) => {
+        setCurrentPage(pageNumber);
     };
 
     return (
@@ -120,83 +128,91 @@ export default function AdminContainerList() {
                 <table className={styles.table}>
                     <thead>
                         <tr>
-
-                            <th
-                                className={styles.col_left}
-                                onClick={() => handleSort("storeName")}
-                            >
+                            <th className={styles.col_left} onClick={() => handleSort("productMaterial")}>
                                 용기 이름 <UnfoldMoreIcon className={styles.sort_icon} />
                             </th>
-                            <th onClick={() => handleSort("currentSales")}>
+                            <th onClick={() => handleSort("productMaterial")}>
                                 카테고리 <UnfoldMoreIcon className={styles.sort_icon} />
                             </th>
-                            <th onClick={() => handleSort("prevSales")}>
+                            <th onClick={() => handleSort("productEmissions")}>
                                 1개 당 탄소 배출량(g) <UnfoldMoreIcon className={styles.sort_icon} />
                             </th>
                             <th>수정</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {sortedStores.map((store) => (
-                            <tr
-                                key={store.storeId}
-                                className={styles.table_row}
-                                onClick={() => {
-                                    navigate(`detail/${store.storeId}`);
-                                }}
-                            >
+                        {currentItems.map((carbon) => (
+                            <tr key={carbon.productId} className={styles.table_row}>
                                 <td className={styles.col_left}>
                                     <div className={styles.store_info}>
                                         <div className={styles.store_image_placeholder}>
                                             <img
                                                 src={
-                                                    store.storeThumb
-                                                        ? `${backHost}/${store.storeThumb}`
-                                                        : "/image/default_store.png"
+                                                    carbon.productImg
+                                                        ? `${backHost}${carbon.productImg.startsWith('/') ? '' : '/'}${carbon.productImg}`
+                                                        : "/image/default_container.png"
                                                 }
+                                                alt="용기 이미지"
                                             />
                                         </div>
                                         <div className={styles.store_text}>
-                                            <p className={styles.store_name}>{store.storeName}</p>
-                                            <span className={styles.store_sub}>
-                                                {store.storeAddress}
-                                            </span>
+                                            <p className={styles.store_name}>{carbon.productMaterial}</p>
+                                            <span className={styles.store_sub}>{carbon.productDesc}</span>
                                         </div>
                                     </div>
                                 </td>
-                                <td>{store.storePhone}</td>
                                 <td>
-                                    <span className={styles.badge}>{store.storeCategory}</span>
+                                    <span className={styles.badge}>{carbon.productMaterial}</span>
                                 </td>
-                                {/* 당월 */}
-                                <td>{store.currentSales?.toLocaleString()}원</td>
-                                {/* 전월 */}
-                                <td>
-                                    {store.totalSale ? store.totalSale?.toLocaleString() : 0}원
-                                </td>
-                                <td>
-                                    <div className={styles.rating_wrap}>
-                                        <div className={styles.stars}>
-                                            {renderStars(store.storeRating)}
-                                        </div>
-                                        <span className={styles.rating_score}>
-                                            {store.storeRating?.toFixed(1)}
-                                        </span>
-                                    </div>
+                                <td>{carbon.productEmissions} g</td>
+                                <td className={styles.iconContain}>
+                                    <button
+                                        className={styles.edit_btn}
+                                        onClick={() => navigate(`/mypage/admin/containers/detail/${carbon.productId}`, {
+                                            state: { carbonData: carbon }
+                                        })}
+                                    >
+                                        <EditIcon className={styles.edit_icon} />
+                                    </button>
+                                    <button
+                                        className={styles.delete_btn}
+                                        onClick={() => handleDelete(carbon.productId)}
+                                    >
+                                        <ClearIcon className={styles.delete_icon} />
+                                    </button>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
+
             <div className={styles.pagination}>
-                <button className={styles.page_btn_nav}>
+                <button
+                    className={styles.page_btn_nav}
+                    onClick={handlePrevPage}
+                    disabled={currentPage === 1}
+                >
                     <ChevronLeftIcon fontSize="small" /> 이전
                 </button>
+
                 <div className={styles.page_numbers}>
-                    <button className={`${styles.page_num} ${styles.active}`}>01</button>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <button
+                            key={page}
+                            className={`${styles.page_num} ${currentPage === page ? styles.active : ''}`}
+                            onClick={() => handlePageClick(page)}
+                        >
+                            {page}
+                        </button>
+                    ))}
                 </div>
-                <button className={styles.page_btn_nav}>
+
+                <button
+                    className={styles.page_btn_nav}
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages || totalPages === 0}
+                >
                     다음 <ChevronRightIcon fontSize="small" />
                 </button>
             </div>

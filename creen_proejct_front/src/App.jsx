@@ -50,6 +50,7 @@ import ManagerOrderList from "./pages/mypage/manager/ManagerOrderList";
 import ManagerCS from "./pages/mypage/manager/ManagerCS";
 import AdminStoreManagementDetail from "./pages/mypage/admin/AdminStoreManagementDetail";
 import StoreReviewPage from "./pages/main/StoreReviewPage";
+import AdminContainerList from "./pages/mypage/admin/AdminContainerList";
 
 const BasicLayout = () => {
   return (
@@ -134,8 +135,14 @@ function App() {
                   element={<AdminStoreManagementDetail />}
                 ></Route>
                 <Route path="reviews" element={<AdminReviewManagement />} />
+                {/* 용기 리스트 */}
                 <Route
                   path="containers"
+                  element={<AdminContainerList />}
+                />
+                {/* 용기 수정 */}
+                <Route
+                  path="containers/detail/:productId"
                   element={<AdminContainerManagement />}
                 />
               </Route>
