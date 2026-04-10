@@ -4,12 +4,15 @@ import SearchIcon from "@mui/icons-material/Search";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
+import AddIcon from '@mui/icons-material/Add';
 import EditIcon from "@mui/icons-material/Edit";
 import ClearIcon from '@mui/icons-material/Clear';
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import api from "../../../utils/accessToken";
+import { Select } from "@mui/material";
 
 export default function AdminContainerList() {
     const navigate = useNavigate();
@@ -30,6 +33,7 @@ export default function AdminContainerList() {
         axios
             .get(`${backHost}/carbon-list`)
             .then((res) => {
+                console.log(res.data);
                 setCarbonList(res.data);
             })
             .catch((err) => console.log("데이터 불러오기 실패: ", err));
@@ -122,6 +126,8 @@ export default function AdminContainerList() {
                     />
                     <SearchIcon className={styles.search_icon} />
                 </div>
+                <select><FilterAltOutlinedIcon />필터</select>
+                <span> <AddIcon />추가</span>
             </div>
 
             <div className={styles.table_wrap}>

@@ -5,7 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class ContainerVo {
-    private int productId;           
+    private Integer productId;           
     private String productName;      
     private double productEmissions; 
     private String productDesc;      

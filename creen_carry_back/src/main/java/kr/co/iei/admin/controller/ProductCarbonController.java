@@ -2,11 +2,14 @@ package kr.co.iei.admin.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,15 +26,33 @@ public class ProductCarbonController {
 	private final ProductCarbonService  productCarbonService;
 	
 	@GetMapping
-	public ResponseEntity<List<ProductCarbon>> getCarbonList(){
+	public ResponseEntity<?> getCarbonList(){
 		
 		List<ProductCarbon> list = productCarbonService.getCarbonList();
-		
+		System.out.println(list);
 		return ResponseEntity.ok(list);
 	}
 	
-	@DeleteMapping("carbon-list/{productId}")
+	@DeleteMapping("/{productId}")
 	public ResponseEntity<?> deleteContainer(@PathVariable Integer productId){
-		return ResponseEntity.ok("");	
+		int result = productCarbonService.deleteCarbon(productId);
+	    
+	    if(result > 0) {
+	        return ResponseEntity.ok("SUCCESS"); // 성공하면 리액트로 SUCCESS 보냄
+	    } else {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("FAIL");
+	    }
+	}	
+	
+	
+	@PostMapping("/register")
+	public ResponseEntity<String> register(@ModelAttribute ProductCarbon product){
+		Integer result = productCarbonService.saveContainer(product);
+		
+		if(result > 0) {
+			return ResponseEntity.ok("SUCCESS");
+		}else {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("FAIL");
+		}
 	}
 }

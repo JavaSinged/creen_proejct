@@ -11,4 +11,10 @@ public interface ProductCarbonDao {
 
 	List<ProductCarbon> selectAllCarbon();
 
+	Integer updateContainer(ProductCarbon product);
+
+	Integer insertContainer(ProductCarbon product);
+
+	Integer deleteCarbon(Integer productId);
+
 }
