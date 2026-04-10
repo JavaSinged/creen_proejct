@@ -38,9 +38,7 @@ const banners = [
     title: "우리의 오늘이 지구의 내일이 됩니다",
     img: "/image/banner/banner3.png",
   },
-  {
-    img: "/image/banner/banner4.png",
-  },
+  { img: "/image/banner/banner4.png" },
 ];
 
 const categories = [
@@ -58,7 +56,6 @@ const categories = [
 export default function Home() {
   const navigate = useNavigate();
   const backHost = import.meta.env.VITE_BACKSERVER;
-
   const { user } = useContext(AuthContext);
 
   const [isLoading, setLoading] = useState(true);
@@ -66,41 +63,45 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [storeList, setStoreList] = useState([]);
 
-  // 1. 🌟 숫자 거리 계산 함수 (단위: km)
+  // 1. 🌟 숫자 거리 계산 함수 (철저한 방어 로직 추가)
   const getNumericDistance = (storeLat, storeLng) => {
-    // AuthContext의 user 정보 혹은 로컬스토리지를 우선 참조 (변수명 LATITUDE, LONGITUDE)
-    const myLat = user?.LATITUDE || localStorage.getItem("LATITUDE");
-    const myLng = user?.LONGITUDE || localStorage.getItem("LONGITUDE");
+    // 로컬스토리지는 무조건 문자열이므로 parseFloat로 강제 형변환
+    const myLat = parseFloat(
+      user?.LATITUDE || localStorage.getItem("LATITUDE"),
+    );
+    const myLng = parseFloat(
+      user?.LONGITUDE || localStorage.getItem("LONGITUDE"),
+    );
 
-    if (!myLat || !myLng || !storeLat || !storeLng) return null;
+    // 매장 좌표도 숫자인지 확인
+    const sLat = parseFloat(storeLat);
+    const sLng = parseFloat(storeLng);
+
+    // 하나라도 숫자가 아니면 계산 불가(null) 반환
+    if (isNaN(myLat) || isNaN(myLng) || isNaN(sLat) || isNaN(sLng)) {
+      return null;
+    }
 
     const R = 6371; // 지구 반지름 (km)
-    const dLat = ((storeLat - myLat) * Math.PI) / 180;
-    const dLng = ((storeLng - myLng) * Math.PI) / 180;
+    const dLat = ((sLat - myLat) * Math.PI) / 180;
+    const dLng = ((sLng - myLng) * Math.PI) / 180;
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos((myLat * Math.PI) / 180) *
-        Math.cos((storeLat * Math.PI) / 180) *
+        Math.cos((sLat * Math.PI) / 180) *
         Math.sin(dLng / 2) *
         Math.sin(dLng / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   };
 
-  // 2. 🌟 거리를 예상 배달 시간(분)으로 환산하는 함수
   const formatTime = (distance) => {
     if (distance === null) return "계산 불가";
-
-    // 공식: 기본 조리시간 15분 + km당 6분 이동 시간
     const estimatedTime = 15 + distance * 6;
-
-    // 유저 편의를 위해 5분 단위로 반올림 (예: 18분 -> 20분)
     const roundedTime = Math.round(estimatedTime / 5) * 5;
-
     return `${roundedTime}분`;
   };
 
-  // 3. 🌟 거리 텍스트 포맷 (m 또는 km)
   const formatDistance = (distance) => {
     if (distance === null) return "위치 미설정";
     return distance < 1
@@ -121,7 +122,7 @@ export default function Home() {
         console.error("데이터 로딩 에러:", err);
         setLoading(false);
       });
-  }, [backHost, user?.LATITUDE, user?.LONGITUDE]);
+  }, [backHost]);
 
   // 🔍 검색, 카테고리, 그리고 거리(5km) 필터링
   const filteredStores = storeList.filter((store) => {
@@ -133,9 +134,12 @@ export default function Home() {
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
 
-    const distance = getNumericDistance(store.LATITUDE, store.LONGITUDE);
+    // 🌟 [핵심] 머지 시 바뀔 수 있는 대/소문자 필드명 모두 대응
+    const sLat = store.LATITUDE || store.latitude;
+    const sLng = store.LONGITUDE || store.longitude;
+    const distance = getNumericDistance(sLat, sLng);
 
-    // 좌표 정보가 있을 때 5km 초과 매장은 제외
+    // 좌표 정보가 있을 때 5km 초과 매장은 제외 (위치 정보 없으면 일단 보여줌)
     if (distance !== null && distance > 5) {
       return false;
     }
@@ -143,15 +147,15 @@ export default function Home() {
     return isCategoryMatch && isSearchMatch;
   });
 
-  // ⭐ 별점 렌더링 함수
   const renderStars = (rating) => {
     const stars = [];
+    const score = rating || 0;
     for (let i = 1; i <= 5; i++) {
-      if (i <= Math.floor(rating)) {
+      if (i <= Math.floor(score)) {
         stars.push(
           <StarIcon key={i} sx={{ color: "#ffb300", fontSize: "1.2rem" }} />,
         );
-      } else if (i === Math.ceil(rating) && rating % 1 !== 0) {
+      } else if (i === Math.ceil(score) && score % 1 !== 0) {
         stars.push(
           <StarHalfIcon
             key={i}
@@ -255,10 +259,11 @@ export default function Home() {
             ))
           ) : filteredStores.length > 0 ? (
             filteredStores.map((store) => {
-              const numericDist = getNumericDistance(
-                store.LATITUDE,
-                store.LONGITUDE,
-              );
+              // 🌟 렌더링 시에도 대/소문자 필드명 모두 대응
+              const sLat = store.LATITUDE || store.latitude;
+              const sLng = store.LONGITUDE || store.longitude;
+              const numericDist = getNumericDistance(sLat, sLng);
+
               return (
                 <div
                   key={store.storeId}
@@ -275,7 +280,6 @@ export default function Home() {
                       alt={store.storeName}
                       style={{ objectFit: "cover" }}
                     />
-                    {/* 🌟 뱃지에 '예상 시간' 표시 */}
                     <div className={styles.card_badge}>
                       {formatTime(numericDist)}
                     </div>
@@ -284,7 +288,6 @@ export default function Home() {
                     <h3 className={styles.store_name}>{store.storeName}</h3>
                     <div className={styles.store_tags}>
                       <span>{store.storeCategory}</span>
-                      {/* 🌟 태그 영역에 실제 '거리' 표시 */}
                       <span className={styles.dist_text}>
                         {formatDistance(numericDist)}
                       </span>
@@ -294,7 +297,7 @@ export default function Home() {
                         {renderStars(store.storeRating)}
                       </div>
                       <span className={styles.rating_number}>
-                        {store.storeRating.toFixed(1)}
+                        {(store.storeRating || 0).toFixed(1)}
                       </span>
                       <span className={styles.review_count}>
                         ({store.reviewCount?.toLocaleString() || 0})
