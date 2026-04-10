@@ -182,7 +182,20 @@ public class StoreService {
 	}
 
 	public int changeOrderStatus(Integer orderId, int status, Integer expectedTime) {
-		int result = storeDao.changeOrderStatus(orderId, status, expectedTime);
+		int result;
+		if(status == 9) {
+			//주문 취소시 포인트 롤백
+			int result1 = storeDao.rollbackPoint(orderId);
+		    int result2 = storeDao.cancelOrder(orderId);
+		    if(result1+result2 == 2) {
+		    	result = 1;
+		    }else {
+		    	result = 0;
+		    }
+		}else {
+			//일반 주문 상태 변경
+			result = storeDao.changeOrderStatus(orderId, status, expectedTime);
+		}
 		return result;
 	}
 

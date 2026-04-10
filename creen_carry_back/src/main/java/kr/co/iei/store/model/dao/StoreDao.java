@@ -104,4 +104,6 @@ public interface StoreDao {
 
 	Long selectTotalSales(Integer storeId);
 
+	int rollbackPoint(Integer orderId);
+
 }
