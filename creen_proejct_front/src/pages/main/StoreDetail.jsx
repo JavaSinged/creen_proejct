@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import axios from 'axios';
-import styles from './StoreDetail.module.css';
+import { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import styles from "./StoreDetail.module.css";
 
 export default function StoreDetail() {
-  const location = useLocation();
-  const storeId = location.state?.storeId || 1;
+  const { id } = useParams();
+  const storeId = id ? Number(id) : 0;
 
   const [storeInfo, setStoreInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -15,22 +15,22 @@ export default function StoreDetail() {
 
   // 요일 영어 -> 한글 매핑
   const dayMap = {
-    mon: '월요일',
-    tue: '화요일',
-    wed: '수요일',
-    thu: '목요일',
-    fri: '금요일',
-    sat: '토요일',
-    sun: '일요일',
+    mon: "월요일",
+    tue: "화요일",
+    wed: "수요일",
+    thu: "목요일",
+    fri: "금요일",
+    sat: "토요일",
+    sun: "일요일",
   };
 
   // 주차 숫자 -> 한글 매핑
   const weekMap = {
-    0: '매주',
-    1: '매월 첫번째',
-    2: '매월 두번째',
-    3: '매월 세번째',
-    4: '매월 네번째',
+    0: "매주",
+    1: "매월 첫번째",
+    2: "매월 두번째",
+    3: "매월 세번째",
+    4: "매월 네번째",
   };
 
   const dayOrder = {
@@ -52,12 +52,12 @@ export default function StoreDetail() {
     axios
       .get(`${import.meta.env.VITE_BACKSERVER}/stores/${storeId}`)
       .then((res) => {
-        console.log('매장 상세 정보:', res.data);
+        console.log("매장 상세 정보:", res.data);
         setStoreInfo(res.data); // 여기에 매장 객체 저장
         setIsLoading(false);
       })
       .catch((err) => {
-        console.error('상점 정보 로딩 실패:', err);
+        console.error("상점 정보 로딩 실패:", err);
         setIsLoading(false);
       });
 
@@ -65,7 +65,7 @@ export default function StoreDetail() {
     axios
       .get(`${import.meta.env.VITE_BACKSERVER}/stores/${storeId}/hours`)
       .then((res) => {
-        console.log('운영시간 리스트:', res.data);
+        console.log("운영시간 리스트:", res.data);
 
         // 🌟 받아온 배열을 요일 순서대로 정렬
         const sortedHours = [...res.data].sort((a, b) => {
@@ -83,7 +83,7 @@ export default function StoreDetail() {
         setOperatingHours(sortedHours);
       })
       .catch((err) => {
-        console.error('운영시간 로딩 실패:', err);
+        console.error("운영시간 로딩 실패:", err);
       });
   }, [storeId]);
 
@@ -101,8 +101,8 @@ export default function StoreDetail() {
     if (!mapLoaded || !mapElement.current || !storeInfo) return;
     const { naver } = window;
 
-    const lat = storeInfo.LATITUDE || 37.497952;
-    const lng = storeInfo.LONGITUDE || 127.027619;
+    const lat = storeInfo.latitude || 37.497952;
+    const lng = storeInfo.longitude || 127.027619;
 
     const location = new naver.maps.LatLng(lat, lng);
 
@@ -131,7 +131,7 @@ export default function StoreDetail() {
         },
       });
     } catch (e) {
-      console.error('지도 생성 중 에러:', e);
+      console.error("지도 생성 중 에러:", e);
     }
   }, [mapLoaded, storeInfo]);
 
@@ -173,11 +173,11 @@ export default function StoreDetail() {
               <th>운영시간</th>
               <td>
                 {operatingHours
-                  .filter((h) => h.isDayOff === 'N')
+                  .filter((h) => h.isDayOff === "N")
                   .map((h) => (
                     <div key={h.dayOfWeek}>
                       {/* 요일을 한글로 변환하여 표시 */}
-                      {dayMap[h.dayOfWeek?.toLowerCase()] || h.dayOfWeek} :{' '}
+                      {dayMap[h.dayOfWeek?.toLowerCase()] || h.dayOfWeek} :{" "}
                       {h.openTime} ~ {h.closeTime}
                     </div>
                   ))}
@@ -188,26 +188,26 @@ export default function StoreDetail() {
               <td>
                 {(() => {
                   const dayOffList = operatingHours.filter(
-                    (h) => h.isDayOff === 'Y',
+                    (h) => h.isDayOff === "Y"
                   );
 
                   if (dayOffList.length > 0) {
                     return dayOffList
                       .map((h) => {
-                        const weekPrefix = weekMap[h.weekOfMonth] || '';
+                        const weekPrefix = weekMap[h.weekOfMonth] || "";
                         const dayText =
                           dayMap[h.dayOfWeek?.toLowerCase()] || h.dayOfWeek;
                         return `${weekPrefix} ${dayText}`;
                       })
-                      .join(', ');
+                      .join(", ");
                   }
 
                   // 운영 데이터가 7개 미만이면 정보 부족으로 판단
                   if (operatingHours.length < 7 && operatingHours.length > 0) {
-                    return '직접 문의';
+                    return "직접 문의";
                   }
 
-                  return '연중무휴';
+                  return "연중무휴";
                 })()}
               </td>
             </tr>

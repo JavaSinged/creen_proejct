@@ -65,4 +65,5 @@ public interface MemberDao {
 	void updateReviewStatus(int orderId);
 	String getEnrollDate(String memberId);
 
+    int updateStoreOwner(Member member);
 }
