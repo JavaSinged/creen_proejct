@@ -1,160 +1,160 @@
 /* global naver */
-import React, { useContext, useState, useEffect } from "react";
-import axios from "axios";
-import styles from "./StoreInfoEdit.module.css";
-import { useDaumPostcodePopup } from "react-daum-postcode";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import "react-datepicker/dist/react-datepicker.css";
-import { AuthContext } from "../../../../context/AuthContext";
+import React, { useContext, useState, useEffect } from 'react';
+import axios from 'axios';
+import styles from './StoreInfoEdit.module.css';
+import { useDaumPostcodePopup } from 'react-daum-postcode';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import 'react-datepicker/dist/react-datepicker.css';
+import { AuthContext } from '../../../../context/AuthContext';
 
 export default function StoreInfoEdit() {
   const { user } = useContext(AuthContext) || {};
   const storeId = user?.storeId || null;
 
   const [formData, setFormData] = useState({
-    storeName: "",
-    storeIntro: "",
-    storePhone: "",
-    storeAddress: "",
+    storeName: '',
+    storeIntro: '',
+    storePhone: '',
+    storeAddress: '',
     latitude: null,
     longitude: null,
-    businessNumber: "",
+    businessNumber: '',
     openDate: null,
-    storeOriginInfo: "",
+    storeOriginInfo: '',
   });
 
   const [showCalendar, setShowCalendar] = useState(false);
-  const [activeCategory, setActiveCategory] = useState("한식");
-  const [hoursType, setHoursType] = useState("same");
+  const [activeCategory, setActiveCategory] = useState('한식');
+  const [hoursType, setHoursType] = useState('same');
   const [is24h, setIs24h] = useState(false);
 
   const [sameTime, setSameTime] = useState({
-    startH: "09",
-    startM: "00",
-    endH: "22",
-    endM: "00",
+    startH: '09',
+    startM: '00',
+    endH: '22',
+    endM: '00',
   });
 
   const [diffTimes, setDiffTimes] = useState([
     {
-      day: "mon",
-      label: "월",
+      day: 'mon',
+      label: '월',
       isOpen: true,
-      startH: "09",
-      startM: "00",
-      endH: "22",
-      endM: "00",
+      startH: '09',
+      startM: '00',
+      endH: '22',
+      endM: '00',
     },
     {
-      day: "tue",
-      label: "화",
+      day: 'tue',
+      label: '화',
       isOpen: true,
-      startH: "09",
-      startM: "00",
-      endH: "22",
-      endM: "00",
+      startH: '09',
+      startM: '00',
+      endH: '22',
+      endM: '00',
     },
     {
-      day: "wed",
-      label: "수",
+      day: 'wed',
+      label: '수',
       isOpen: true,
-      startH: "09",
-      startM: "00",
-      endH: "22",
-      endM: "00",
+      startH: '09',
+      startM: '00',
+      endH: '22',
+      endM: '00',
     },
     {
-      day: "thu",
-      label: "목",
+      day: 'thu',
+      label: '목',
       isOpen: true,
-      startH: "09",
-      startM: "00",
-      endH: "22",
-      endM: "00",
+      startH: '09',
+      startM: '00',
+      endH: '22',
+      endM: '00',
     },
     {
-      day: "fri",
-      label: "금",
+      day: 'fri',
+      label: '금',
       isOpen: true,
-      startH: "09",
-      startM: "00",
-      endH: "22",
-      endM: "00",
+      startH: '09',
+      startM: '00',
+      endH: '22',
+      endM: '00',
     },
     {
-      day: "sat",
-      label: "토",
+      day: 'sat',
+      label: '토',
       isOpen: true,
-      startH: "09",
-      startM: "00",
-      endH: "22",
-      endM: "00",
+      startH: '09',
+      startM: '00',
+      endH: '22',
+      endM: '00',
     },
     {
-      day: "sun",
-      label: "일",
+      day: 'sun',
+      label: '일',
       isOpen: true,
-      startH: "09",
-      startM: "00",
-      endH: "22",
-      endM: "00",
+      startH: '09',
+      startM: '00',
+      endH: '22',
+      endM: '00',
     },
   ]);
 
   const [restDays, setRestDays] = useState([]);
 
   const categories = [
-    { value: "한식", label: "한식" },
-    { value: "양식", label: "양식" },
-    { value: "중식", label: "중식" },
-    { value: "일식", label: "일식" },
-    { value: "피자", label: "피자" },
-    { value: "치킨", label: "치킨" },
-    { value: "샐러드", label: "샐러드" },
-    { value: "커피/디저트", label: "커피/디저트" },
+    { value: '한식', label: '한식' },
+    { value: '양식', label: '양식' },
+    { value: '중식', label: '중식' },
+    { value: '일식', label: '일식' },
+    { value: '피자', label: '피자' },
+    { value: '치킨', label: '치킨' },
+    { value: '샐러드', label: '샐러드' },
+    { value: '커피/디저트', label: '커피/디저트' },
   ];
 
   const restWeekMonthOpts = [
-    { value: "week1", label: "매월 첫번째" },
-    { value: "week2", label: "매월 두번째" },
-    { value: "week3", label: "매월 세번째" },
-    { value: "week4", label: "매월 네번째" },
+    { value: 'week1', label: '매월 첫번째' },
+    { value: 'week2', label: '매월 두번째' },
+    { value: 'week3', label: '매월 세번째' },
+    { value: 'week4', label: '매월 네번째' },
   ];
 
   const reverseWeekMonthMapping = {
-    0: "week",
-    1: "week1",
-    2: "week2",
-    3: "week3",
-    4: "week4",
+    0: 'week',
+    1: 'week1',
+    2: 'week2',
+    3: 'week3',
+    4: 'week4',
   };
 
   const restDayOpts = [
-    { value: "mon", label: "월요일" },
-    { value: "tue", label: "화요일" },
-    { value: "wed", label: "수요일" },
-    { value: "thu", label: "목요일" },
-    { value: "fri", label: "금요일" },
-    { value: "sat", label: "토요일" },
-    { value: "sun", label: "일요일" },
+    { value: 'mon', label: '월요일' },
+    { value: 'tue', label: '화요일' },
+    { value: 'wed', label: '수요일' },
+    { value: 'thu', label: '목요일' },
+    { value: 'fri', label: '금요일' },
+    { value: 'sat', label: '토요일' },
+    { value: 'sun', label: '일요일' },
   ];
 
   const openPostcode = useDaumPostcodePopup(
-    "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
+    'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js',
   );
 
   const handleCompletePostcode = (data) => {
     let fullAddress = data.address;
-    let extraAddress = "";
+    let extraAddress = '';
 
-    if (data.addressType === "R") {
-      if (data.bname !== "") extraAddress += data.bname;
-      if (data.buildingName !== "")
+    if (data.addressType === 'R') {
+      if (data.bname !== '') extraAddress += data.bname;
+      if (data.buildingName !== '')
         extraAddress +=
-          extraAddress !== "" ? `, ${data.buildingName}` : data.buildingName;
-      fullAddress += extraAddress !== "" ? ` (${extraAddress})` : "";
+          extraAddress !== '' ? `, ${data.buildingName}` : data.buildingName;
+      fullAddress += extraAddress !== '' ? ` (${extraAddress})` : '';
     }
 
     const combinedAddress = `(${data.zonecode}) ${fullAddress} `;
@@ -173,7 +173,7 @@ export default function StoreInfoEdit() {
         }));
       } else {
         setFormData((prev) => ({ ...prev, storeAddress: combinedAddress }));
-        alert("주소에 해당하는 위치(위/경도)를 찾을 수 없습니다.");
+        alert('주소에 해당하는 위치(위/경도)를 찾을 수 없습니다.');
       }
     });
   };
@@ -189,7 +189,7 @@ export default function StoreInfoEdit() {
       options.push(
         <option key={value} value={value}>
           {value}
-        </option>
+        </option>,
       );
     }
     return options;
@@ -199,21 +199,21 @@ export default function StoreInfoEdit() {
     const { name, value } = e.target;
     let formattedValue = value;
 
-    if (name === "storePhone") {
-      const nums = value.replace(/\D/g, "");
-      if (nums.startsWith("02")) {
+    if (name === 'storePhone') {
+      const nums = value.replace(/\D/g, '');
+      if (nums.startsWith('02')) {
         if (nums.length <= 2) formattedValue = nums;
         else if (nums.length <= 5)
           formattedValue = `${nums.slice(0, 2)}-${nums.slice(2)}`;
         else if (nums.length <= 9)
           formattedValue = `${nums.slice(0, 2)}-${nums.slice(
             2,
-            5
+            5,
           )}-${nums.slice(5)}`;
         else
           formattedValue = `${nums.slice(0, 2)}-${nums.slice(
             2,
-            6
+            6,
           )}-${nums.slice(6, 10)}`;
       } else {
         if (nums.length <= 3) formattedValue = nums;
@@ -222,22 +222,22 @@ export default function StoreInfoEdit() {
         else if (nums.length <= 10)
           formattedValue = `${nums.slice(0, 3)}-${nums.slice(
             3,
-            6
+            6,
           )}-${nums.slice(6)}`;
         else
           formattedValue = `${nums.slice(0, 3)}-${nums.slice(
             3,
-            7
+            7,
           )}-${nums.slice(7, 11)}`;
       }
-    } else if (name === "businessNumber") {
-      const nums = value.replace(/\D/g, "").slice(0, 10);
+    } else if (name === 'businessNumber') {
+      const nums = value.replace(/\D/g, '').slice(0, 10);
       if (nums.length <= 3) formattedValue = nums;
       else if (nums.length <= 5)
         formattedValue = `${nums.slice(0, 3)}-${nums.slice(3)}`;
       else
         formattedValue = `${nums.slice(0, 3)}-${nums.slice(3, 5)}-${nums.slice(
-          5
+          5,
         )}`;
     }
 
@@ -246,8 +246,8 @@ export default function StoreInfoEdit() {
 
   const handleDateChange = (date) => {
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
     const dateString = `${year}-${month}-${day}`;
 
     setFormData((prev) => ({
@@ -266,7 +266,7 @@ export default function StoreInfoEdit() {
   const handleAddRestDay = () => {
     setRestDays([
       ...restDays,
-      { id: Date.now(), weekMonth: "week", day: "mon" },
+      { id: Date.now(), weekMonth: 'week', day: 'mon' },
     ]);
   };
 
@@ -276,7 +276,7 @@ export default function StoreInfoEdit() {
 
   const handleRestDayChange = (id, field, value) => {
     setRestDays(
-      restDays.map((rd) => (rd.id === id ? { ...rd, [field]: value } : rd))
+      restDays.map((rd) => (rd.id === id ? { ...rd, [field]: value } : rd)),
     );
   };
 
@@ -286,32 +286,32 @@ export default function StoreInfoEdit() {
     const fetchStoreData = async () => {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_BACKSERVER}/stores/info/${storeId}`
+          `${import.meta.env.VITE_BACKSERVER}/stores/info/${storeId}`,
         );
 
         if (response.status === 200 && response.data) {
           const data = response.data;
-          console.log("🚀 ~ fetchStoreData ~ data:", data);
+          console.log('🚀 ~ fetchStoreData ~ data:', data);
 
-          const addrMatch = (data.storeAddress || "").match(
-            /^\((.*?)\)\s+(.*)$/
+          const addrMatch = (data.storeAddress || '').match(
+            /^\((.*?)\)\s+(.*)$/,
           );
-          const parsedZip = addrMatch ? addrMatch[1] : "";
-          const parsedAddr = addrMatch ? addrMatch[2] : data.storeAddress || "";
+          const parsedZip = addrMatch ? addrMatch[1] : '';
+          const parsedAddr = addrMatch ? addrMatch[2] : data.storeAddress || '';
 
           setFormData({
-            storeName: data.storeName || "",
-            storeIntro: data.storeIntro || "",
-            storePhone: data.storePhone || "",
-            storeAddress: data.storeAddress || "",
+            storeName: data.storeName || '',
+            storeIntro: data.storeIntro || '',
+            storePhone: data.storePhone || '',
+            storeAddress: data.storeAddress || '',
             latitude: data.latitude || null,
             longitude: data.longitude || null,
-            businessNumber: data.storeOwnerNo || "",
+            businessNumber: data.storeOwnerNo || '',
             openDate: data.openingDate || null,
-            storeOriginInfo: data.storeOriginInfo || "",
+            storeOriginInfo: data.storeOriginInfo || '',
             storeAddrCode: parsedZip,
             storeAddr: parsedAddr,
-            storeAddrDetail: "",
+            storeAddrDetail: '',
           });
 
           if (data.storeCategory) setActiveCategory(data.storeCategory);
@@ -320,82 +320,82 @@ export default function StoreInfoEdit() {
             const fetchedRestDays = [];
             let fetchedDiffTimes = [
               {
-                day: "mon",
-                label: "월",
+                day: 'mon',
+                label: '월',
                 isOpen: true,
-                startH: "09",
-                startM: "00",
-                endH: "22",
-                endM: "00",
+                startH: '09',
+                startM: '00',
+                endH: '22',
+                endM: '00',
               },
               {
-                day: "tue",
-                label: "화",
+                day: 'tue',
+                label: '화',
                 isOpen: true,
-                startH: "09",
-                startM: "00",
-                endH: "22",
-                endM: "00",
+                startH: '09',
+                startM: '00',
+                endH: '22',
+                endM: '00',
               },
               {
-                day: "wed",
-                label: "수",
+                day: 'wed',
+                label: '수',
                 isOpen: true,
-                startH: "09",
-                startM: "00",
-                endH: "22",
-                endM: "00",
+                startH: '09',
+                startM: '00',
+                endH: '22',
+                endM: '00',
               },
               {
-                day: "thu",
-                label: "목",
+                day: 'thu',
+                label: '목',
                 isOpen: true,
-                startH: "09",
-                startM: "00",
-                endH: "22",
-                endM: "00",
+                startH: '09',
+                startM: '00',
+                endH: '22',
+                endM: '00',
               },
               {
-                day: "fri",
-                label: "금",
+                day: 'fri',
+                label: '금',
                 isOpen: true,
-                startH: "09",
-                startM: "00",
-                endH: "22",
-                endM: "00",
+                startH: '09',
+                startM: '00',
+                endH: '22',
+                endM: '00',
               },
               {
-                day: "sat",
-                label: "토",
+                day: 'sat',
+                label: '토',
                 isOpen: true,
-                startH: "09",
-                startM: "00",
-                endH: "22",
-                endM: "00",
+                startH: '09',
+                startM: '00',
+                endH: '22',
+                endM: '00',
               },
               {
-                day: "sun",
-                label: "일",
+                day: 'sun',
+                label: '일',
                 isOpen: true,
-                startH: "09",
-                startM: "00",
-                endH: "22",
-                endM: "00",
+                startH: '09',
+                startM: '00',
+                endH: '22',
+                endM: '00',
               },
             ];
 
             const normalHours = data.operatingHours.filter(
-              (h) => h.weekOfMonth === 0
+              (h) => h.weekOfMonth === 0,
             );
             const restHours = data.operatingHours.filter(
-              (h) => h.isDayOff === "Y" && h.weekOfMonth > 0
+              (h) => h.isDayOff === 'Y' && h.weekOfMonth > 0,
             );
 
             restHours.forEach((timeInfo) => {
               fetchedRestDays.push({
                 id: Date.now() + Math.random(),
                 weekMonth:
-                  reverseWeekMonthMapping[timeInfo.weekOfMonth] || "week",
+                  reverseWeekMonthMapping[timeInfo.weekOfMonth] || 'week',
                 day: timeInfo.dayOfWeek?.toLowerCase(),
               });
             });
@@ -404,25 +404,25 @@ export default function StoreInfoEdit() {
             normalHours.forEach((timeInfo) => {
               const dayKey = timeInfo.dayOfWeek?.toLowerCase();
               const diffIndex = fetchedDiffTimes.findIndex(
-                (d) => d.day === dayKey
+                (d) => d.day === dayKey,
               );
 
               if (diffIndex !== -1) {
-                const isOpen = timeInfo.isDayOff === "N";
-                let stH = "09",
-                  stM = "00",
-                  edH = "22",
-                  edM = "00";
+                const isOpen = timeInfo.isDayOff === 'N';
+                let stH = '09',
+                  stM = '00',
+                  edH = '22',
+                  edM = '00';
 
                 if (isOpen && timeInfo.openTime && timeInfo.closeTime) {
-                  const [rawStH, rawStM] = timeInfo.openTime.split(":");
-                  const [rawEdH, rawEdM] = timeInfo.closeTime.split(":");
+                  const [rawStH, rawStM] = timeInfo.openTime.split(':');
+                  const [rawEdH, rawEdM] = timeInfo.closeTime.split(':');
 
                   // 혹시라도 DB에 "9:0" 처럼 들어가있다면 Select Box 바인딩이 안 되므로 강제로 "09:00" 포맷을 맞춤
-                  stH = rawStH?.padStart(2, "0") || "09";
-                  stM = rawStM?.padStart(2, "0") || "00";
-                  edH = rawEdH?.padStart(2, "0") || "22";
-                  edM = rawEdM?.padStart(2, "0") || "00";
+                  stH = rawStH?.padStart(2, '0') || '09';
+                  stM = rawStM?.padStart(2, '0') || '00';
+                  edH = rawEdH?.padStart(2, '0') || '22';
+                  edM = rawEdM?.padStart(2, '0') || '00';
                 }
 
                 fetchedDiffTimes[diffIndex] = {
@@ -440,45 +440,45 @@ export default function StoreInfoEdit() {
             setDiffTimes(fetchedDiffTimes);
             setRestDays(fetchedRestDays);
 
-            const openHours = normalHours.filter((h) => h.isDayOff === "N");
+            const openHours = normalHours.filter((h) => h.isDayOff === 'N');
             const allSame =
               normalHours.length === 7 &&
               openHours.length === 7 &&
               openHours.every(
                 (h) =>
                   h.openTime === openHours[0].openTime &&
-                  h.closeTime === openHours[0].closeTime
+                  h.closeTime === openHours[0].closeTime,
               );
 
             if (allSame) {
-              setHoursType("same");
+              setHoursType('same');
               const firstOpen = openHours[0].openTime;
               const firstClose = openHours[0].closeTime;
 
               if (
-                firstOpen === "00:00" &&
-                (firstClose === "23:59" || firstClose === "24:00")
+                firstOpen === '00:00' &&
+                (firstClose === '23:59' || firstClose === '24:00')
               ) {
                 setIs24h(true);
               } else {
-                const [sH, sM] = firstOpen.split(":");
-                const [eH, eM] = firstClose.split(":");
+                const [sH, sM] = firstOpen.split(':');
+                const [eH, eM] = firstClose.split(':');
                 // sameTime에도 0 패딩을 강제로 맞춥니다.
                 setSameTime({
-                  startH: sH.padStart(2, "0"),
-                  startM: sM.padStart(2, "0"),
-                  endH: eH.padStart(2, "0"),
-                  endM: eM.padStart(2, "0"),
+                  startH: sH.padStart(2, '0'),
+                  startM: sM.padStart(2, '0'),
+                  endH: eH.padStart(2, '0'),
+                  endM: eM.padStart(2, '0'),
                 });
               }
             } else {
-              setHoursType("diff");
+              setHoursType('diff');
               // diffTimes는 이미 위에서 세팅했으므로 생략해도 됩니다.
             }
           }
         }
       } catch (error) {
-        console.error("가게 정보를 불러오는 중 오류가 발생했습니다.", error);
+        console.error('가게 정보를 불러오는 중 오류가 발생했습니다.', error);
       }
     };
 
@@ -489,21 +489,31 @@ export default function StoreInfoEdit() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.storeName.trim()) return alert("가게명을 입력해주세요.");
-    if (!formData.storeIntro.trim()) return alert("가게 소개를 입력해주세요.");
+    if (!formData.storeName.trim()) return alert('가게명을 입력해주세요.');
+    if (!formData.storeIntro.trim()) return alert('가게 소개를 입력해주세요.');
     if (formData.storePhone.length < 9)
-      return alert("올바른 가게 번호(9자리 이상)를 입력해주세요.");
+      return alert('올바른 가게 번호(9자리 이상)를 입력해주세요.');
     if (!formData.storeAddress.trim())
-      return alert("가게 주소를 입력해주세요.");
+      return alert('가게 주소를 입력해주세요.');
     if (!formData.latitude || !formData.longitude)
-      return alert("주소 검색을 통해 정확한 위치를 설정해주세요.");
+      return alert('주소 검색을 통해 정확한 위치를 설정해주세요.');
     if (formData.businessNumber.length !== 12)
-      return alert("사업자 번호(10자리)를 올바르게 입력해주세요.");
-    if (!formData.openDate) return alert("개업일자를 선택해주세요.");
+      return alert('사업자 번호(10자리)를 올바르게 입력해주세요.');
+    if (!formData.openDate) return alert('개업일자를 선택해주세요.');
     if (!formData.storeOriginInfo.trim())
-      return alert("원산지 정보를 입력해주세요.");
+      return alert('원산지 정보를 입력해주세요.');
 
     try {
+      // 🌟 체크 해제된 요일들을 수집 (매주 휴무인 요일들)
+      const closedDays = diffTimes
+        .filter((item) => !item.isOpen)
+        .map((item) => item.day);
+
+      // 🌟 restDays에서 매주 휴무인 요일 제거 (중복 방지)
+      const filteredRestDays = restDays.filter(
+        (rd) => !closedDays.includes(rd.day),
+      );
+
       const payload = {
         storeId: storeId,
         storeName: formData.storeName,
@@ -523,21 +533,21 @@ export default function StoreInfoEdit() {
           is24h: is24h,
           sameTime: sameTime,
           diffTimes: diffTimes,
-          restDays: restDays,
+          restDays: filteredRestDays, // 🌟 필터링된 restDays 사용
         },
       };
 
       const response = await axios.post(
         `${import.meta.env.VITE_BACKSERVER}/stores/update`,
-        payload
+        payload,
       );
 
-      if (response.status === 200 || response.data === "SUCCESS") {
-        alert("정보 변경이 완료되었습니다.");
+      if (response.status === 200 || response.data === 'SUCCESS') {
+        alert('정보 변경이 완료되었습니다.');
       }
     } catch (error) {
-      console.error("저장 실패", error);
-      alert("서버 오류가 발생했습니다. 다시 시도해주세요.");
+      console.error('저장 실패', error);
+      alert('서버 오류가 발생했습니다. 다시 시도해주세요.');
     }
   };
 
@@ -637,29 +647,29 @@ export default function StoreInfoEdit() {
           <div className={styles.inputWrap}>
             <div
               style={{
-                position: "relative",
-                display: "flex",
-                alignItems: "center",
-                width: "100%",
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                width: '100%',
               }}
             >
               <input
                 type="text"
                 name="openDate"
-                value={formData.openDate || ""}
+                value={formData.openDate || ''}
                 className={styles.inputBase}
                 placeholder="YYYY-MM-DD"
                 readOnly
                 onClick={() => setShowCalendar(!showCalendar)}
-                style={{ cursor: "pointer", paddingRight: "35px" }}
+                style={{ cursor: 'pointer', paddingRight: '35px' }}
               />
               <CalendarMonthIcon
                 onClick={() => setShowCalendar(!showCalendar)}
                 style={{
-                  position: "absolute",
-                  right: "10px",
-                  cursor: "pointer",
-                  color: "var(--color-brand)",
+                  position: 'absolute',
+                  right: '10px',
+                  cursor: 'pointer',
+                  color: 'var(--color-brand)',
                 }}
               />
 
@@ -667,15 +677,15 @@ export default function StoreInfoEdit() {
               {showCalendar && (
                 <div
                   style={{
-                    position: "absolute",
-                    top: "100%",
-                    left: "0",
+                    position: 'absolute',
+                    top: '100%',
+                    left: '0',
                     zIndex: 100,
-                    marginTop: "5px",
-                    borderRadius: "12px",
-                    overflow: "hidden",
-                    boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
-                    backgroundColor: "#fff",
+                    marginTop: '5px',
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+                    backgroundColor: '#fff',
                   }}
                 >
                   <Calendar
@@ -688,7 +698,7 @@ export default function StoreInfoEdit() {
                         : new Date()
                     }
                     formatDay={(locale, date) =>
-                      date.toLocaleString("en", { day: "numeric" })
+                      date.toLocaleString('en', { day: 'numeric' })
                     }
                   />
                 </div>
@@ -708,7 +718,7 @@ export default function StoreInfoEdit() {
                   type="button"
                   onClick={() => setActiveCategory(cat.value)}
                   className={`${styles.categoryBtn} ${
-                    activeCategory === cat.value ? styles.categoryBtnActive : ""
+                    activeCategory === cat.value ? styles.categoryBtnActive : ''
                   }`}
                 >
                   {cat.label}
@@ -742,7 +752,7 @@ export default function StoreInfoEdit() {
                 type="file"
                 id="storeThumb"
                 accept="image/*"
-                style={{ display: "none" }}
+                style={{ display: 'none' }}
               />
               <div className={styles.uploadContent}>
                 <p>가게 대표 이미지</p>
@@ -765,31 +775,31 @@ export default function StoreInfoEdit() {
               <button
                 type="button"
                 className={`${styles.hoursToggleBtn} ${
-                  hoursType === "same" ? styles.hoursToggleBtnActive : ""
+                  hoursType === 'same' ? styles.hoursToggleBtnActive : ''
                 }`}
-                onClick={() => setHoursType("same")}
+                onClick={() => setHoursType('same')}
               >
-                매일 같은 시간에 영업해요{" "}
-                {hoursType === "same" && (
+                매일 같은 시간에 영업해요{' '}
+                {hoursType === 'same' && (
                   <span className={styles.checkIcon}>✓</span>
                 )}
               </button>
               <button
                 type="button"
                 className={`${styles.hoursToggleBtn} ${
-                  hoursType === "diff" ? styles.hoursToggleBtnActive : ""
+                  hoursType === 'diff' ? styles.hoursToggleBtnActive : ''
                 }`}
-                onClick={() => setHoursType("diff")}
+                onClick={() => setHoursType('diff')}
               >
-                요일별로 다르게 영업해요{" "}
-                {hoursType === "diff" && (
+                요일별로 다르게 영업해요{' '}
+                {hoursType === 'diff' && (
                   <span className={styles.checkIcon}>✓</span>
                 )}
               </button>
             </div>
 
             <div className={styles.hoursContentBox}>
-              {hoursType === "same" ? (
+              {hoursType === 'same' ? (
                 <>
                   <div className={styles.hoursHeaderRow}>
                     <div className={styles.checkboxWrap}>
@@ -838,7 +848,7 @@ export default function StoreInfoEdit() {
                       disabled={is24h}
                     >
                       {renderTimeOptions(23)}
-                    </select>{" "}
+                    </select>{' '}
                     시
                     <select
                       className={styles.timeSelect}
@@ -849,7 +859,7 @@ export default function StoreInfoEdit() {
                       disabled={is24h}
                     >
                       {renderTimeOptions(50, 10)}
-                    </select>{" "}
+                    </select>{' '}
                     분
                   </div>
                 </>
@@ -865,8 +875,8 @@ export default function StoreInfoEdit() {
                           onChange={(e) =>
                             handleDiffTimeChange(
                               idx,
-                              "isOpen",
-                              e.target.checked
+                              'isOpen',
+                              e.target.checked,
                             )
                           }
                         />
@@ -877,18 +887,18 @@ export default function StoreInfoEdit() {
                           className={styles.timeSelect}
                           value={item.startH}
                           onChange={(e) =>
-                            handleDiffTimeChange(idx, "startH", e.target.value)
+                            handleDiffTimeChange(idx, 'startH', e.target.value)
                           }
                           disabled={!item.isOpen}
                         >
                           {renderTimeOptions(23)}
-                        </select>{" "}
+                        </select>{' '}
                         :
                         <select
                           className={styles.timeSelect}
                           value={item.startM}
                           onChange={(e) =>
-                            handleDiffTimeChange(idx, "startM", e.target.value)
+                            handleDiffTimeChange(idx, 'startM', e.target.value)
                           }
                           disabled={!item.isOpen}
                         >
@@ -899,18 +909,18 @@ export default function StoreInfoEdit() {
                           className={styles.timeSelect}
                           value={item.endH}
                           onChange={(e) =>
-                            handleDiffTimeChange(idx, "endH", e.target.value)
+                            handleDiffTimeChange(idx, 'endH', e.target.value)
                           }
                           disabled={!item.isOpen}
                         >
                           {renderTimeOptions(23)}
-                        </select>{" "}
+                        </select>{' '}
                         :
                         <select
                           className={styles.timeSelect}
                           value={item.endM}
                           onChange={(e) =>
-                            handleDiffTimeChange(idx, "endM", e.target.value)
+                            handleDiffTimeChange(idx, 'endM', e.target.value)
                           }
                           disabled={!item.isOpen}
                         >
@@ -944,8 +954,8 @@ export default function StoreInfoEdit() {
                         onChange={(e) =>
                           handleRestDayChange(
                             rd.id,
-                            "weekMonth",
-                            e.target.value
+                            'weekMonth',
+                            e.target.value,
                           )
                         }
                       >
@@ -959,7 +969,7 @@ export default function StoreInfoEdit() {
                         className={styles.inputBaseSelect}
                         value={rd.day}
                         onChange={(e) =>
-                          handleRestDayChange(rd.id, "day", e.target.value)
+                          handleRestDayChange(rd.id, 'day', e.target.value)
                         }
                       >
                         {restDayOpts.map((opt) => (
