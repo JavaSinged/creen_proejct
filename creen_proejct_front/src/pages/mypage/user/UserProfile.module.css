@@ -300,17 +300,19 @@
 }
 
 .pageBtn {
-  background: none;
-  border: 1px solid #ddd;
-  padding: 2px 8px;
-  border-radius: 4px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
   cursor: pointer;
-  color: #666;
-}
-
-.pageBtn:disabled {
-  color: #ccc;
-  cursor: default;
+  transition: all 0.2s ease;
 }
 
 .pageInfo {
