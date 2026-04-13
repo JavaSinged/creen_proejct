@@ -257,7 +257,7 @@ public class StoreController {
                 file.transferTo(dest);
 
                 // DB에 저장할 경로 설정 (request 객체에 담기)
-                String storeThumb = "/uploads/store/" + saveFileName;
+                String storeThumb = "uploads/store/" + saveFileName;
                 request.setStoreThumb(storeThumb); 
             }
 
