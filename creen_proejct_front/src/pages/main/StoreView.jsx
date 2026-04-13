@@ -113,7 +113,11 @@ export default function StoreView() {
         <div className={styles.store_image_wrap}>
           {storeInfo.storeThumb ? (
             <img
-              src={`${backHost}/${storeInfo.storeThumb}`}
+              src={
+                storeInfo.storeThumb
+                  ? `${backHost}${storeInfo.storeThumb.startsWith("/") ? "" : "/"}${storeInfo.storeThumb}`
+                  : "/image/default_store.png" // 💡 기본 이미지 경로
+              }
               alt={storeInfo.storeName}
               className={styles.store_main_img}
               onError={(e) => {
