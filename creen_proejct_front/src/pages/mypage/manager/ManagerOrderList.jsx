@@ -14,7 +14,7 @@ const ManagerOrderList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const storeId = localStorage.getItem("storeId") || 1;
+  const storeId = localStorage.getItem("storeId");
 
   const fetchStoreOrders = () => {
     if (!storeId) return;
