@@ -226,6 +226,9 @@ const UserProfile = () => {
                                   결제취소
                                 </span>
                               )}
+                              <div className={styles.orderIdRow}>
+                                &nbsp;&nbsp;(주문번호 :{item.orderId})
+                              </div>
                             </div>
                             <div className={styles.history_date}>
                               {item.orderDate}
