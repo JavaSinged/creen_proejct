@@ -143,7 +143,7 @@ const UserReviewList = () => {
                   alt="리뷰사진"
                   className={styles.review_img}
                   onError={(e) => {
-                    e.target.src = "/img/no-image.png";
+                    e.target.src = "/image/no-image.png";
                   }}
                 />
 
@@ -155,7 +155,7 @@ const UserReviewList = () => {
                           src={
                             review.memberProfile
                               ? `${backHost}${review.memberProfile}`
-                              : "/img/default-user.png"
+                              : "/image/default-user.png"
                           }
                           alt="avatar"
                           style={{

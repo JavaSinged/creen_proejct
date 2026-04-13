@@ -222,7 +222,7 @@ const UserOrderListPage = () => {
                       src={
                         order.storeThumb
                           ? `${backHost}/${order.storeThumb}`
-                          : "/img/no-image.png"
+                          : "/image/no-image.png"
                       }
                       alt={order.menuName || "메뉴"}
                       className={`${styles.menuThumb} ${isCanceled ? styles.canceledImg : ""}`}

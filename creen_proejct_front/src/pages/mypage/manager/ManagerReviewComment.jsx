@@ -133,7 +133,7 @@ const ManagerReviewComment = () => {
                       src={
                         review.memberProfile
                           ? `${import.meta.env.VITE_BACKSERVER}${review.memberProfile}`
-                          : "/img/default-user.png"
+                          : "/image/default-user.png"
                       }
                       alt="profile"
                       className={styles.userAvatar}
@@ -165,7 +165,7 @@ const ManagerReviewComment = () => {
                       alt="리뷰사진"
                       className={styles.reviewImg}
                       onError={(e) => {
-                        e.target.src = "/img/no-image.png";
+                        e.target.src = "/image/no-image.png";
                       }}
                     />
                   )}
