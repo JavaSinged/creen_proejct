@@ -12,7 +12,7 @@
 		FROM MEMBER_TBL m
 		WHERE m.MEMBER_ID = #{memberId}
 
-		<if test='!memberId.equals("admin1111")'>
+		<if test='!memberId.equals("admin123")'>
 			AND m.MEMBER_GRADE = #{memberGrade}
 		</if>
 	</select>

@@ -17,6 +17,8 @@ import kr.co.iei.CreenCarryBackApplication;
 import kr.co.iei.admin.model.service.AdminService;
 import kr.co.iei.admin.model.vo.OrderListByStoreId;
 import kr.co.iei.admin.model.vo.StoreResponse;
+import kr.co.iei.member.model.vo.Review;
+import kr.co.iei.store.model.vo.StoreReviewResponse;
 
 @RestController
 @RequestMapping("/admin")
@@ -100,4 +102,10 @@ public class AdminController {
 		return ResponseEntity.ok(list);
 	}
 
+	
+	@GetMapping("/reviews")
+	public ResponseEntity<?> selectAllReviews(){
+		List<StoreReviewResponse> list = adminService.selectAllReview();
+		return ResponseEntity.ok(list);
+	}
 }

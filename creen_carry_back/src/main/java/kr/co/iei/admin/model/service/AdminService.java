@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 
 import kr.co.iei.admin.model.dao.AdminDao;
 import kr.co.iei.admin.model.vo.OrderListByStoreId;
+import kr.co.iei.member.model.vo.Review;
 import kr.co.iei.store.model.vo.Menu;
 import kr.co.iei.store.model.vo.OrderResponse;
+import kr.co.iei.store.model.vo.StoreReviewResponse;
 
 @Service
 public class AdminService {
@@ -40,6 +42,11 @@ public class AdminService {
 	public Long selectTotalSales(int storeId) {
 		Long totalSales = adminDao.selectTotalSales(storeId);
 		return totalSales;
+	}
+
+	public List<StoreReviewResponse> selectAllReview() {
+		List<StoreReviewResponse> list = adminDao.selectAllReview();
+		return list;
 	}
 
 }

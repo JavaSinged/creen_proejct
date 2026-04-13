@@ -123,6 +123,7 @@ const PaymentPage = () => {
         import.meta.env.VITE_TOSS_CLIENT_KEY,
       );
       const payment = tossPayments.payment({ customerKey: `user_${memberId}` });
+      console.log("🚀 ~ handlePayment ~ payment:", payment);
 
       const orderNameStr =
         cartList.length > 1
