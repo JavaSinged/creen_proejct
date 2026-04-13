@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom"; // 🌟 useParams로 주소창 ID 감지
 import axios from "axios";
 import styles from "./StoreView.module.css";
@@ -7,7 +7,8 @@ import StarIcon from "@mui/icons-material/Star";
 import MenuModal from "../../components/layout/MenuModal";
 import CartBar from "../../components/layout/ui/CartBar";
 import useCartStore from "../../store/useCartStore";
-
+import { AuthContext } from "../../context/AuthContext";
+import Swal from "sweetalert2";
 export default function StoreView() {
   const { id } = useParams(); // 🌟 URL 파라미터 (/storeView/3) 에서 '3'을 직접 추출
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ export default function StoreView() {
   const [selectedMenu, setSelectedMenu] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("전체");
   const [searchTerm, setSearchTerm] = useState("");
-
+  const { isLogin } = useContext(AuthContext);
   const setGlobalStoreName = useCartStore((state) => state.setStoreName);
 
   useEffect(() => {
@@ -94,8 +95,16 @@ export default function StoreView() {
   });
 
   const handleMenuClick = (menu) => {
-    setSelectedMenu(menu);
-    setIsModalOpen(true);
+    if (isLogin) {
+      setSelectedMenu(menu);
+      setIsModalOpen(true);
+    } else {
+      Swal.fire({
+        title: "로그인 후 이용 가능합니다",
+        icon: "warning",
+      });
+      return;
+    }
   };
   return (
     <div className={styles.page_container}>
