@@ -26,5 +26,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		// 가게 이미지용
 		registry.addResourceHandler("/uploads/store/**")
 				.addResourceLocations("file:////192.168.31.26/project/upload/web/store/");
+		
+		// 용기 이미지용
+				registry.addResourceHandler("/uploads/container/**")
+						.addResourceLocations("file:////192.168.31.26/project/upload/web/container/");
+		
+		
 	}
 }

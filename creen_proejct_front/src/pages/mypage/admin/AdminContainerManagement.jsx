@@ -1,25 +1,41 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styles from './AdminContainerManagement.module.css';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import api from '../../../utils/accessToken';
 import Swal from 'sweetalert2';
 
 const AdminContainerManagement = () => {
   //용기
-  const [productName, setProductName] = useState("");
-  const [kgValue, setKgValue] = useState("");
-  const [description, setDescription] = useState("");
+  const location = useLocation();
+  const passedData = location.state?.carbonData;
+  const backHost = import.meta.env.VITE_BACKSERVER;
+
+  const [productName, setProductName] = useState(passedData?.productMaterial || "");
+  const [kgValue, setKgValue] = useState(passedData?.productEmissions || "");
+  const [description, setDescription] = useState(passedData?.productDesc || "");
+
   const [fileName, setFileName] = useState("");
   const [fileSize, setFileSize] = useState(0);
   const [uploadFile, setUploadFile] = useState(null);
 
-  const [previewImg, setPreviewImg] = useState("");
+  const [previewImg, setPreviewImg] = useState(
+    passedData?.productImg
+      ? `${backHost}${passedData.productImg.startsWith('/') ? '' : '/'}${passedData.productImg}`
+      : ""
+  );
+
   const navigate = useNavigate();
   const fileInput = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
-  const finalValue = kgValue.replace('g', '');
+
+  const finalValue = kgValue.toString().replace('g', '');
+  const { productId } = useParams();
+
+
+
+
   // 버튼 누를 때 작동
   const onUploadBtnClick = () => {
     fileInput.current.click();
@@ -95,6 +111,9 @@ const AdminContainerManagement = () => {
     if (!productName) return Swal.fire("알림", "용기 이름을 입력해주세요.", "warning");
     if (!kgValue) return Swal.fire("알림", "용기 탄소 배출량을 입력해주세요.", "warning");
     const formData = new FormData();
+    if (productId) {
+      formData.append("productId", productId);
+    }
     formData.append("productName", productName);
     formData.append("productEmissions", kgValue);
     formData.append("productDesc", description);
@@ -108,7 +127,7 @@ const AdminContainerManagement = () => {
 
       if (response.status === 200 && response.data === "SUCCESS") {
         Swal.fire("성공!", "용기 정보가 저장되었습니다.", "success").then(() => {
-          //navigate("/admin/containers");
+          navigate("/mypage/admin/containers");
           setProductName("");
           setKgValue("");
           setDescription("");
@@ -124,6 +143,7 @@ const AdminContainerManagement = () => {
       Swal.fire("에러", "서버 통신 오류", "error");
     }
   };
+
   return (
     <div>
       <div className={styles.main}>
