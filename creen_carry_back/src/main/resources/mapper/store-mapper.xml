@@ -611,6 +611,9 @@
 		STORE_ADDRESS = #{storeAddress},
 		LATITUDE = #{latitude},
 		LONGITUDE = #{longitude}
+		<if test="storeThumb != null and storeThumb != ''">
+            , STORE_THUMB = #{storeThumb}
+        </if>
 		WHERE STORE_ID =
 		#{storeId}
 	</update>

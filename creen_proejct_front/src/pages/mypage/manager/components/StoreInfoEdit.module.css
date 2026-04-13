@@ -89,6 +89,9 @@
 .imageUploadBox {
   border: 2px dashed #eee;
   border-radius: 12px;
+  height: 350px; /* 💡 높이를 크게 설정 */
+  background-color: #fafafa;
+  background-size: cover; /* 💡 이미지가 박스를 가득 채움 */
   padding: 30px;
   text-align: center;
   background: #fafafa;

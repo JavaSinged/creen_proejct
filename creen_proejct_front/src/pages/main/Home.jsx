@@ -275,18 +275,20 @@ export default function Home() {
                     <img
                       src={
                         store.storeThumb
-                          ? `${backHost}/${store.storeThumb}`
+                          ? `${backHost}${store.storeThumb.startsWith("/") ? "" : "/"}${store.storeThumb}`
                           : "/image/default_store.png"
                       }
                       alt={store.storeName}
-                      style={{ objectFit: "cover" }}
+                      style={{
+                        width: "100%", // 🌟 가로 꽉 채우기
+                        height: "100%", // 🌟 세로 꽉 채우기
+                        objectFit: "cover",
+                      }}
                     />
-                    {isLogin ? (
+                    {isLogin && ( // 🌟 불필요한 : "" 제거 (단축 평가 사용)
                       <div className={styles.card_badge}>
                         {formatTime(numericDist)}
                       </div>
-                    ) : (
-                      ""
                     )}
                   </div>
                   <div className={styles.card_info}>

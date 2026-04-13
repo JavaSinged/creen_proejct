@@ -74,7 +74,7 @@ export default function StoreReviewPage() {
                       src={
                         review.memberProfile
                           ? `${backHost}${review.memberProfile}`
-                          : "/img/default-user.png"
+                          : "/image/default-user.png"
                       }
                       alt="u"
                     />
@@ -113,7 +113,7 @@ export default function StoreReviewPage() {
                       alt="리뷰사진"
                       className={styles.review_img}
                       onError={(e) => {
-                        e.target.src = "/img/no-image.png";
+                        e.target.src = "/image/no-image.png";
                       }}
                     />
                   )}

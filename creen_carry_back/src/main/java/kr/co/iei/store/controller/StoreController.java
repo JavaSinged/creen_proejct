@@ -22,9 +22,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/stores")
@@ -232,15 +237,41 @@ public class StoreController {
     }
 
     //    ------------------- 매장 수정 로직 ----------------------
-    @PostMapping("/update")
-    public ResponseEntity<String> updateStore(@RequestBody StoreSaveRequest request) {
-		System.out.println(request);
+    @PostMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateStore(
+            @RequestPart("data") StoreSaveRequest request, 
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+
         try {
+            // 1. 파일 저장 로직 (작성하신 예시 코드 방식 적용)
+            if (file != null && !file.isEmpty()) {
+                String savePath = "\\\\192.168.31.26\\project\\upload\\web\\store\\"; 
+                File folder = new File(savePath);
+                if (!folder.exists()) folder.mkdirs();
+
+                String originalFileName = file.getOriginalFilename();
+                String extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+                String saveFileName = UUID.randomUUID().toString() + extension;
+
+                File dest = new File(savePath + saveFileName);
+                file.transferTo(dest);
+
+                // DB에 저장할 경로 설정 (request 객체에 담기)
+                String storeThumb = "/uploads/store/" + saveFileName;
+                request.setStoreThumb(storeThumb); 
+            }
+
+            // 2. 서비스 호출 (가게 정보 + 운영 시간 + 이미지 경로 업데이트)
             storeService.updateStoreInfoAndHours(request);
+            
             return ResponseEntity.ok("SUCCESS");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("FILE_UPLOAD_ERROR");
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("FAIL");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("UPDATE_FAIL");
         }
     }
 

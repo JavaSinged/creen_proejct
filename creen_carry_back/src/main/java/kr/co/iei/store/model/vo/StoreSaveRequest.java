@@ -26,4 +26,5 @@ public class StoreSaveRequest {
     private Double latitude;
     private Double longitude;
     private HoursInfo hoursInfo; // 프론트에서 보낸 시간 정보 객체
+    private String storeThumb;
 }
