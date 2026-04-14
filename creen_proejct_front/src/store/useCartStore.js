@@ -11,13 +11,16 @@ const useCartStore = create(
       storeName: "",
       storeId: 0,
 
+      // 🛒 장바구니 담기 (중복 체크 수정)
       addToCart: (newItem) =>
         set((state) => {
           const existingItemIndex = state.cart.findIndex((item) => {
             const isSameMenu = String(item.menuId) === String(newItem.menuId);
+
+            // 🚨 [수정 포인트] 모달에서 'options'로 보내므로 이름을 맞춥니다.
             const isSameOptions =
-              JSON.stringify(item.selectedOptions) ===
-              JSON.stringify(newItem.selectedOptions);
+              JSON.stringify(item.options) === JSON.stringify(newItem.options);
+
             return isSameMenu && isSameOptions;
           });
 
@@ -26,11 +29,12 @@ const useCartStore = create(
             updatedCart[existingItemIndex] = {
               ...updatedCart[existingItemIndex],
               quantity:
-                updatedCart[existingItemIndex].quantity +
-                (newItem.quantity || 1),
-              savedCarbon:
-                updatedCart[existingItemIndex].savedCarbon +
-                (newItem.savedCarbon || 0),
+                Number(updatedCart[existingItemIndex].quantity) +
+                Number(newItem.quantity || 1),
+
+              // 단가는 유지
+              savedCarbon: updatedCart[existingItemIndex].savedCarbon,
+              totalPrice: updatedCart[existingItemIndex].totalPrice,
             };
             return { cart: updatedCart };
           }
@@ -48,25 +52,25 @@ const useCartStore = create(
           storeId: 0,
         }),
 
-      increaseQuantity: (menuId, selectedOptions) =>
+      // ➕ 수량 증가 (이름 options로 통일)
+      increaseQuantity: (menuId, options) =>
         set((state) => ({
           cart: state.cart.map((c) =>
             String(c.menuId) === String(menuId) &&
-            JSON.stringify(c.selectedOptions) ===
-              JSON.stringify(selectedOptions)
-              ? { ...c, quantity: c.quantity + 1 }
+            JSON.stringify(c.options) === JSON.stringify(options)
+              ? { ...c, quantity: Number(c.quantity) + 1 }
               : c,
           ),
         })),
 
-      decreaseQuantity: (menuId, selectedOptions) =>
+      // ➖ 수량 감소 (이름 options로 통일)
+      decreaseQuantity: (menuId, options) =>
         set((state) => ({
           cart: state.cart
             .map((c) =>
               String(c.menuId) === String(menuId) &&
-              JSON.stringify(c.selectedOptions) ===
-                JSON.stringify(selectedOptions)
-                ? { ...c, quantity: c.quantity - 1 }
+              JSON.stringify(c.options) === JSON.stringify(options)
+                ? { ...c, quantity: Number(c.quantity) - 1 }
                 : c,
             )
             .filter((c) => c.quantity > 0),
@@ -80,7 +84,11 @@ const useCartStore = create(
 
       getTotalSavedCarbon: () =>
         Math.round(
-          get().cart.reduce((sum, item) => sum + (item.savedCarbon || 0), 0),
+          get().cart.reduce(
+            (sum, item) =>
+              sum + Number(item.savedCarbon || 0) * Number(item.quantity || 0),
+            0,
+          ),
         ),
     }),
     {

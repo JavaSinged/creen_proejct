@@ -149,7 +149,7 @@ export default function MenuModal({
       menuId: menuData.menuId,
       name: menuData.menuName,
       quantity,
-      totalPrice,
+      totalPrice: unitPrice,
       unitPrice,
       reusableAppliedCarbon,
       optionCarbon,
