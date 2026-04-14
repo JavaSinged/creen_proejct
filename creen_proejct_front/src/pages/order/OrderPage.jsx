@@ -21,7 +21,7 @@ const OrderPage = () => {
   const storeId = useCartStore((state) => state.storeId);
   const storeName = useCartStore((state) => state.storeName);
   const setSuperTotalPrice = useCartStore((state) => state.setSuperTotalPrice);
-  const setDeilveryPrice = useCartStore((state) => state.setDeilveryPrice);
+  const setDeliveryPrice = useCartStore((state) => state.setDeliveryPrice);
   const { increaseQuantity, decreaseQuantity } = useCartStore();
 
   // 상태 관리
@@ -59,10 +59,6 @@ const OrderPage = () => {
   useEffect(() => {
     setNum(deliveryType === 1 ? 0 : deliveryType === 2 ? 1000 : 3000);
   }, [deliveryType]);
-
-  const addOrder = () => {
-    // 주문 추가 로직
-  };
 
   const getDistance = (storeLat, storeLong, lat2, lon2) => {
     const R = 6371; // 지구 반지름 (km)
@@ -210,9 +206,8 @@ const OrderPage = () => {
               <div
                 className={styles.payButton}
                 onClick={() => {
-                  addOrder();
                   setSuperTotalPrice(realTotal);
-                  setDeilveryPrice(num);
+                  setDeliveryPrice(num);
                   navigate("/paymentPage");
                 }}
               >
