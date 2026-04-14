@@ -466,9 +466,11 @@ const CheckoutPage = () => {
                       ? isPickup
                         ? "픽업 완료 시간"
                         : "배달 완료 시간"
-                      : isPickup
-                        ? "픽업 예정 시간"
-                        : "도착 예정 시간"}
+                      : rawOrderStatus !== 9
+                        ? isPickup
+                          ? "픽업 예정 시간"
+                          : "도착 예정 시간"
+                        : "주문이 취소되었습니다."}
                   </span>
                   {rawOrderStatus === 5 && completeDate && (
                     <span style={{ color: "#2f8f46", fontWeight: "bold" }}>
