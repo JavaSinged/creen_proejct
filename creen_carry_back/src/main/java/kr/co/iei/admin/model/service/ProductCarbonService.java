@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import kr.co.iei.admin.model.dao.ProductCarbonDao;
 import kr.co.iei.admin.model.vo.ProductCarbon;
@@ -33,5 +34,9 @@ public class ProductCarbonService {
 	//삭제
 	public Integer deleteCarbon(Integer productId) {
 		return productCarbonDao.deleteCarbon(productId);
+	}
+
+	public Integer saveContainer(ProductCarbon product, MultipartFile uploadFile) {
+		return null;
 	}
 }
