@@ -492,7 +492,9 @@
 
 .delete_btn span {
   position: absolute;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
 
 .text_default {

@@ -111,17 +111,14 @@ const UserReviewList = () => {
             <div key={review.orderId} className={styles.review_card}>
               <div className={styles.card_header}>
                 <div className={styles.store_info}>
-                  <span className={styles.store_icon}>🏪</span>
                   <span className={styles.store_name}>{review.storeName}</span>
                   <span className={styles.menu_detail}>
-                    🍴 {review.menuName}
-                    {review.extraCount > 0 && ` 외 ${review.extraCount}개`} | 💰{" "}
+                    {review.menuName}
+                    {review.extraCount > 0 &&
+                      ` 외 ${review.extraCount}개`} |{" "}
                     {review.totalPrice?.toLocaleString() || 0}원
                   </span>
-                  <span className={styles.order_date}>
-                    <span className={styles.date_icon}>📅</span>
-                    {review.reviewDate}
-                  </span>
+                  <span className={styles.order_date}>{review.reviewDate}</span>
                 </div>
                 <button
                   className={styles.delete_btn}

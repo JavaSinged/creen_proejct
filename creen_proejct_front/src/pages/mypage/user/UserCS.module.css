@@ -1,8 +1,12 @@
 /* 1. 레이아웃 공통 */
 .cs_container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 20px;
+  background-color: var(--color-bg);
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 30px;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
 .top_section {

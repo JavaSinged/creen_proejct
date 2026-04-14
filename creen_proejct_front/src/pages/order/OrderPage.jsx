@@ -49,7 +49,6 @@ const OrderPage = () => {
     axios
       .get(`${import.meta.env.VITE_BACKSERVER}/stores/location/${storeId}`)
       .then((res) => {
-        console.log(res.data);
         setStoreLat(res.data.latitude);
         setStoreLong(res.data.longitude);
       })
