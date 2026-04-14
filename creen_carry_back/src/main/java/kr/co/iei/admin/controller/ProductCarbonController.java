@@ -54,9 +54,9 @@ public class ProductCarbonController {
 		Integer result = productCarbonService.updateProduct(product, uploadFile);
 		
 		if(result > 0) {
-			return ResponseEntity.ok("수정 성공");
+			return ResponseEntity.ok("SUCCESS");
 	}else {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("수정실패");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("FAIL");
 	}
 	}
 	// 값이 없으면 "0"을 보내도록 보정
