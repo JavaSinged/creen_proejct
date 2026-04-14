@@ -61,22 +61,14 @@ const PaymentPage = () => {
   const [itemPrice] = useState(superTotalPrice);
   const cartList = useCartStore((state) => state.cart);
   const memberId = localStorage.getItem("memberId");
+  const memberAddr = localStorage.getItem("memberAddr");
   const storeId = useCartStore((state) => state.storeId);
 
   // 배달 타입 및 탄소 계산
   const deliveryType = deliveryPrice === 0 ? 1 : deliveryPrice === 1000 ? 2 : 3;
   const deliveryCarbon = deliveryType === 3 ? 0 : 300;
-  const totalCarbon =
-    Math.floor(
-      cartList.reduce(
-        (sum, item) =>
-          sum +
-          (item.reusableAppliedCarbon * item.quantity + item.optionCarbon),
-        0,
-      ),
-    ) + deliveryCarbon;
-
-  // 🌟 최종 결제 금액 (실시간 계산)
+  const cartStorage = JSON.parse(localStorage.getItem("cartList"));
+  const totalCarbon = useCartStore((state) => state.finalCarbon);
   const totalPrice = itemPrice + deliveryPrice - ecoPoint;
 
   // 🌟 [핵심] 페이지 로드 시 로컬 스토리지에서 포인트 바로 가져오기
@@ -98,6 +90,7 @@ const PaymentPage = () => {
       usedPoint: ecoPoint,
       deliveryType: deliveryType,
       reviewStatus: 0,
+      deliveryAddress: memberAddr,
       items: cartList.map((item) => ({
         menuId: Number(item.menuId),
         quantity: item.quantity,
@@ -167,7 +160,7 @@ const PaymentPage = () => {
         <div className={styles["payment-top-text"]}>
           <button
             className={styles["back-btn"]}
-            onClick={() => navigate("/shoppingCart")}
+            onClick={() => navigate("/orderPage")}
           >
             장바구니로 돌아가기
           </button>
@@ -183,7 +176,7 @@ const PaymentPage = () => {
                   <RoomIcon />
                   <h2>배송정보</h2>
                 </div>
-                <button
+                {/* <button
                   className={styles["text-btn"]}
                   onClick={() =>
                     navigate("/mypage/user/profile", {
@@ -192,7 +185,7 @@ const PaymentPage = () => {
                   }
                 >
                   주소 변경
-                </button>
+                </button> */}
               </div>
               <div className={styles["form-group"]}>
                 <label>배송 주소</label>
