@@ -22,7 +22,6 @@ export default function AdminStoreManagement() {
     axios
       .get(`${import.meta.env.VITE_BACKSERVER}/stores`)
       .then((res) => {
-        // 매출 데이터가 없으므로 정렬 테스트를 위해 가짜 데이터(sales)를 주입해봅니다.
         console.log(res.data);
 
         const now = new Date();
