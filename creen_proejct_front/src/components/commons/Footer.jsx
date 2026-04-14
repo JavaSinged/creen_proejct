@@ -1,8 +1,23 @@
-import React from "react";
+import React, { useContext } from "react";
 import styles from "./Footer.module.css";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
 
 export default function Footer() {
+  const { user } = useContext(AuthContext);
+
+  // 유저 등급에 따른 고객센터 경로 설정 함수
+  const getCSPath = () => {
+    // user가 없거나 memberGrade가 없을 경우를 대비해 안전하게 접근
+    const grade = user?.memberGrade;
+
+    if (grade === 1) {
+      return "/mypage/user/userCS"; // 일반 유저
+    } else if (grade === 2) {
+      return "/mypage/manager/managerCS"; // 관리자/매니저
+    }
+  };
+
   return (
     <footer className={styles.footer}>
       <div className={styles.container}>
@@ -70,7 +85,6 @@ export default function Footer() {
               </ul>
             </div>
           </div>
-
         </div>
 
         <hr className={styles.divider} />
@@ -85,9 +99,12 @@ export default function Footer() {
             </p>
             <div className={styles.csInfo}>
               <span>CS. 1600-0000</span>
-              <span className={styles.one_divider}>  |  </span>
-              <Link to="/mypage/user/userCS" className={styles.footerLink}>자주 묻는 질문</Link>
-              <span className={styles.one_divider}>  |  </span>
+              <span className={styles.one_divider}> | </span>
+              {/* getCSPath() 호출 결과에 따라 다이나믹하게 링크 변경 */}
+              <Link to={getCSPath()} className={styles.footerLink}>
+                자주 묻는 질문
+              </Link>
+              <span className={styles.one_divider}> | </span>
               <span>partner@greencarry.com</span>
             </div>
           </div>
