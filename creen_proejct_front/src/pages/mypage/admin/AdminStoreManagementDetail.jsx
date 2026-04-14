@@ -260,7 +260,7 @@ const AdminStoreManagementDetail = () => {
                 }`}
                 onClick={() => setCurrentPage(num)}
               >
-                {num}
+                {String(num).padStart(2, "0")}
               </div>
             ))}
           </div>
