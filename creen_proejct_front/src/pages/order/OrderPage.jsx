@@ -286,9 +286,13 @@ const CartItem = ({ cart, increaseQuantity, decreaseQuantity }) => {
               : " 없음"}
           </div>
           <div className={styles.quantityBox}>
-            <button onClick={() => decreaseQuantity(cart.id)}>-</button>
+            <button onClick={() => decreaseQuantity(cart.menuId, cart.options)}>
+              -
+            </button>
             <span>{cart.quantity}</span>
-            <button onClick={() => increaseQuantity(cart.id)}>+</button>
+            <button onClick={() => increaseQuantity(cart.menuId, cart.options)}>
+              +
+            </button>
           </div>
           <p className={styles.itemTotal}>
             소계 : {totalPrice.toLocaleString()}원
