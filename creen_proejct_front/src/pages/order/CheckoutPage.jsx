@@ -14,7 +14,7 @@ const CheckoutPage = () => {
   const location = useLocation();
   const mapElement = useRef(null);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const STORE_INFO = { lat: 37.497952, lng: 127.027619 };
+  const STORE_INFO = { lat: 37.497952, lng: 127.027619 }; // 매장 좌표
   const [orderList, setOrderList] = useState([]);
   const [usedPoint, setUsedPoint] = useState(0);
   const [getPoint, setGetPoint] = useState(0);
@@ -39,37 +39,76 @@ const CheckoutPage = () => {
   const [targetArrivalTime, setTargetArrivalTime] = useState("--:--");
   const isFirst = useRef(true);
 
+  // 🌟 [추가 로직] 숫자 거리 계산 함수 (1km당 6분 적용용)
+  const getNumericDistance = (storeLat, storeLng) => {
+    const myLat = parseFloat(
+      user?.LATITUDE || localStorage.getItem("LATITUDE"),
+    );
+    const myLng = parseFloat(
+      user?.LONGITUDE || localStorage.getItem("LONGITUDE"),
+    );
+    const sLat = parseFloat(storeLat);
+    const sLng = parseFloat(storeLng);
+
+    if (isNaN(myLat) || isNaN(myLng) || isNaN(sLat) || isNaN(sLng)) return null;
+
+    const R = 6371; // 지구 반지름 (km)
+    const dLat = ((sLat - myLat) * Math.PI) / 180;
+    const dLng = ((sLng - myLng) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((myLat * Math.PI) / 180) *
+        Math.cos((sLat * Math.PI) / 180) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
+  useEffect(() => {
+    // 브라우저 히스토리에 현재 상태를 하나 더 추가하여
+    // 뒤로가기를 눌렀을 때 이 페이지에 머물게 함
+    window.history.pushState(null, null, window.location.href);
+
+    const handlePopState = () => {
+      Swal.fire({
+        title: "알림",
+        text: "이미 완료된 주문입니다. 주문 내역으로 이동합니다.",
+        icon: "info",
+        confirmButtonText: "확인",
+      }).then(() => {
+        navigate("/mypage/user/orderList", { replace: true });
+      });
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [navigate]);
+
   useEffect(() => {
     const hasRefreshed = sessionStorage.getItem(`refreshed_${orderId}`);
-
     if (!hasRefreshed && orderId) {
       sessionStorage.setItem(`refreshed_${orderId}`, "true");
       window.location.reload();
     }
   }, [orderId]);
 
-  // 🌟 [추가/수정] 포인트 최신화 로직을 함수로 분리 (재사용을 위해)
   const fetchLatestPoint = async () => {
     const memberId = localStorage.getItem("memberId");
     if (!memberId) return;
-
     try {
       const res = await axios.get(
         `${import.meta.env.VITE_BACKSERVER}/member/${memberId}`,
       );
       const latestPoint = res.data.memberPoint || 0;
-
-      // 1. 로컬 스토리지 업데이트
       localStorage.setItem("memberPoint", latestPoint);
-
-      // 2. 전역 컨텍스트 업데이트 (Header 등 즉시 반영)
       if (user) {
         setUser({ ...user, memberPoint: latestPoint });
       }
-
-      // 3. 다른 탭이나 컴포넌트 감지용 이벤트 발생
       window.dispatchEvent(new Event("storage"));
-      console.log("포인트 동기화 완료:", latestPoint);
     } catch (err) {
       console.error("최신 포인트 갱신 실패:", err);
     }
@@ -86,7 +125,6 @@ const CheckoutPage = () => {
         setDeliveryPrice(Number(res.data.deliveryPrice ?? 0));
         setStoreName(res.data.storeName);
         setDeliveryType(res.data.deliveryType ?? 0);
-
         const status = res.data.orderStatus ?? 0;
         setRawOrderStatus(status);
         setOrderDate(res.data.orderDate);
@@ -109,12 +147,8 @@ const CheckoutPage = () => {
   const updatePoint = (orderId) => {
     axios
       .patch(`${import.meta.env.VITE_BACKSERVER}/stores/updatePoint/${orderId}`)
-      .then((res) => {
-        console.log("포인트 업데이트 API 호출 성공");
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+      .then(() => console.log("포인트 업데이트 API 호출 성공"))
+      .catch((err) => console.log(err));
   };
 
   useEffect(() => {
@@ -132,11 +166,11 @@ const CheckoutPage = () => {
     updatePoint(orderId);
   }, []);
 
-  // 페이지 진입 시 포인트 동기화
   useEffect(() => {
     fetchLatestPoint();
   }, []);
 
+  // 🌟 [수정 로직] 거리 계산을 포함한 도착 시간 타이머
   useEffect(() => {
     if (rawOrderStatus === 5 && completeDate) {
       setTargetArrivalTime(completeDate.split(" ")[1]);
@@ -157,9 +191,14 @@ const CheckoutPage = () => {
       return;
     }
 
+    // 거리 계산 및 배달 시간 산출 (1km당 6분)
+    const distance = getNumericDistance(STORE_INFO.lat, STORE_INFO.lng);
+    const travelTime = deliveryType === 1 ? 0 : Math.ceil((distance || 0) * 6);
+    const totalMinutes = Number(expectedTime) + travelTime;
+
     const safeConfirmDate = confirmDate.replace(" ", "T");
     const targetDate = new Date(safeConfirmDate);
-    targetDate.setMinutes(targetDate.getMinutes() + Number(expectedTime));
+    targetDate.setMinutes(targetDate.getMinutes() + totalMinutes);
 
     const h = String(targetDate.getHours()).padStart(2, "0");
     const m = String(targetDate.getMinutes()).padStart(2, "0");
@@ -184,7 +223,6 @@ const CheckoutPage = () => {
     return () => clearInterval(timerId);
   }, [confirmDate, expectedTime, rawOrderStatus, deliveryType]);
 
-  // 🌟 [수정] 주문 취소 시 포인트 최신화 함수 호출 추가
   const cancelOrder = () => {
     Swal.fire({
       title: "주문 취소",
@@ -202,9 +240,7 @@ const CheckoutPage = () => {
             { status: 9 },
           )
           .then(async () => {
-            // ✅ 취소 성공 직후 최신 포인트 정보를 다시 가져와서 화면과 로컬스토리지를 갱신!
             await fetchLatestPoint();
-
             Swal.fire(
               "취소 완료",
               "주문이 정상적으로 취소되었으며 포인트가 복구되었습니다.",
@@ -419,7 +455,8 @@ const CheckoutPage = () => {
                   </span>
                   {rawOrderStatus === 5 && completeDate && (
                     <span style={{ color: "#2f8f46", fontWeight: "bold" }}>
-                      {completeDate}
+                      {" "}
+                      {completeDate}{" "}
                     </span>
                   )}
                 </div>
@@ -544,11 +581,11 @@ const CheckoutPage = () => {
 
 export default CheckoutPage;
 
-// 하단 컴포넌트들은 동일
 const OrderListMap = ({ orderList }) =>
   orderList.map((cart, index) => (
     <OrderItemList key={`orderList-${index}`} cart={cart} />
   ));
+
 const OrderItemList = ({ cart }) => (
   <div>
     <div className={`${styles.orderRow} ${styles.order_price}`}>
