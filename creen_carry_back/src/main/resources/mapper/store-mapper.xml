@@ -327,6 +327,7 @@
 
 		WHERE o.member_id =
 		#{memberId}
+		and o.order_status > 0
 		ORDER BY o.order_id DESC
 	</select>
 
