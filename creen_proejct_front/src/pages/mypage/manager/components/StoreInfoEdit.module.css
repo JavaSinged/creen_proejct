@@ -33,7 +33,14 @@
   font-size: 14px;
   transition: border-color 0.2s;
 }
-
+.imageUploadBox > img {
+  width: 100%;
+  height: 100%;
+}
+.forminfo {
+  display: flex;
+  flex-direction: column;
+}
 .inputBase:focus,
 .textareaBase:focus {
   border-color: #2e8147;
@@ -105,12 +112,15 @@
 
 .browseBtn {
   display: inline-block;
-  padding: 8px 20px;
+  padding: 8px;
+  text-align: center;
   background: #2e8147;
   color: #fff;
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
+  margin-top: 20px;
+  margin-right: 60px;
 }
 
 /* 영업시간 토글 */

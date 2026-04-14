@@ -308,7 +308,7 @@ export default function StoreInfoEdit() {
 
           // 🌟 서버에서 받은 이미지 경로 설정
           if (data.storeThumb) {
-            setPreviewImg(`${backHost}${data.storeThumb}`);
+            setPreviewImg(`${backHost}/${data.storeThumb}`);
           }
         }
       } catch (error) {
@@ -801,16 +801,27 @@ export default function StoreInfoEdit() {
 
         {/* 이미지 업로드 영역 */}
         <div className={styles.formRow}>
-          <label className={styles.label}>가게 대표 이미지</label>
+          <div className={styles.forminfo}>
+            <label className={styles.label}>가게 대표 이미지</label>
+            <label htmlFor="storeThumb" className={styles.browseBtn}>
+              {previewImg ? "이미지 변경" : "Browse Files"}
+            </label>
+          </div>
           <div className={styles.inputWrap}>
-            <div
-              className={styles.imageUploadBox}
-              style={{
-                backgroundImage: previewImg ? `url(${previewImg})` : "none",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-            >
+            <div className={styles.imageUploadBox}>
+              {/* 🌟 배경 대신 <img> 태그 사용 */}
+              <img
+                src={
+                  previewImg
+                    ? previewImg.startsWith("blob:")
+                      ? previewImg
+                      : `${previewImg}`
+                    : "/image/default_store.png"
+                }
+                alt="가게 미리보기"
+                className={styles.previewImageTag}
+              />
+
               <input
                 type="file"
                 id="storeThumb"
@@ -818,24 +829,24 @@ export default function StoreInfoEdit() {
                 style={{ display: "none" }}
                 onChange={handleImageChange}
               />
+
+              {/* 🌟 이미지 위에 겹쳐질 컨텐츠 */}
               <div
                 className={`${styles.uploadContent} ${previewImg ? styles.hasPreview : ""}`}
               >
                 {!previewImg && (
                   <PhotoCameraIcon style={{ fontSize: 40, color: "#ccc" }} />
                 )}
-                <p>{previewImg ? "" : "가게 대표 이미지"}</p>
-                <p className={styles.uploadHint}>
-                  {previewImg ? "" : "PNG, JPG up to 10MB"}
+                <p className={styles.uploadText}>
+                  {previewImg ? "" : "가게 대표 이미지"}
                 </p>
-                <label htmlFor="storeThumb" className={styles.browseBtn}>
-                  {previewImg ? "이미지 변경" : "Browse Files"}
-                </label>
+                {!previewImg && (
+                  <p className={styles.uploadHint}>PNG, JPG up to 10MB</p>
+                )}
               </div>
             </div>
           </div>
         </div>
-
         {/* 영업시간 및 휴무일 설정 */}
         <div className={styles.sectionDivider}>영업시간 및 휴무일 설정</div>
 

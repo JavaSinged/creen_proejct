@@ -28,13 +28,16 @@
 		member_id AS memberId,
 		store_name AS storeName,
 		store_address AS storeAddress,
-		store_phone AS storePhone,
+		store_phone AS
+		storePhone,
 		store_intro AS storeIntro,
 		store_owner AS storeOwner,
 		store_owner_address AS storeOwnerAddress,
-		store_origin_info AS storeOriginInfo,
+		store_origin_info AS
+		storeOriginInfo,
 		store_owner_no AS storeOwnerNo,
-		store_category AS storeCategory,
+		store_category AS
+		storeCategory,
 		(SELECT NVL(AVG(review_rating), 0)
 		FROM review_tbl r
 		WHERE r.store_id = s.store_id) AS storeRating,
@@ -42,7 +45,8 @@
 		longitude AS LONGITUDE,
 		store_thumb AS storeThumb,
 		TO_CHAR(opening_date, 'YYYY-MM-DD') AS openingDate
-		FROM STORE_TBL s WHERE store_id = #{storeId}
+		FROM STORE_TBL s
+		WHERE store_id = #{storeId}
 	</select>
 
 	<select id="findStoreByMemberId" resultType="store">
@@ -79,10 +83,12 @@
 		o.option_price,
 		o.option_carbon
 		FROM OPTION_TBL o
-		JOIN MENU_OPTION_MAP mom ON o.option_no
+		JOIN MENU_OPTION_MAP
+		mom ON o.option_no
 		= mom.option_no
 		WHERE mom.menu_id = #{menuId}
-		ORDER BY o.option_type
+		ORDER BY
+		o.option_type
 		ASC, o.option_no ASC
 	</select>
 
@@ -282,10 +288,12 @@
 		o.delivery_Address AS deliveryAddress
 
 		FROM order_tbl o
-		JOIN store_tbl s ON o.store_id =
+		JOIN store_tbl s
+		ON o.store_id =
 		s.store_id
 		JOIN
-		order_list_map olm ON o.order_id = olm.order_id
+		order_list_map olm ON o.order_id =
+		olm.order_id
 		JOIN
 		member_tbl m ON
 		o.member_id = m.member_id
@@ -294,7 +302,8 @@
 		JOIN (SELECT
 		order_id,
 		SUM(quantity) AS totalCount,
-		SUM(price * quantity) AS
+		SUM(price * quantity)
+		AS
 		totalPrice,
 		SUM(total_carbon * quantity) AS orderCarbon
 		FROM
@@ -383,10 +392,12 @@
 		o.order_status
 		AS orderStatus,
 		o.delivery_address AS deliveryAddress,
-		o.get_point AS getPoint,
+		o.get_point AS
+		getPoint,
 		o.review_status AS
 		reviewStatus,
-		TO_CHAR(olm.reg_date, 'YYYY-MM-DD HH24:MI') AS orderDate,
+		TO_CHAR(olm.reg_date,
+		'YYYY-MM-DD HH24:MI') AS orderDate,
 
 		od_sum.totalPrice AS totalPrice,
 		od_sum.totalCount AS totalCount,
@@ -399,19 +410,23 @@
 
 		o.delivery_type AS deliveryType,
 		CASE
-		WHEN o.delivery_type = 1 THEN 0
+		WHEN
+		o.delivery_type = 1 THEN 0
 		WHEN o.delivery_type = 2 THEN 1000
 		ELSE 2000
 		END AS deliveryPrice,
 		s.store_address AS storeAddress,
-		m.member_addr AS deliveryAddress
+		m.member_addr AS
+		deliveryAddress
 
 		FROM
 		order_tbl o
-		JOIN store_tbl s ON o.store_id = s.store_id
+		JOIN store_tbl s ON o.store_id =
+		s.store_id
 		JOIN
 		order_list_map olm ON o.order_id = olm.order_id
-		JOIN member_tbl m ON
+		JOIN
+		member_tbl m ON
 		o.member_id = m.member_id
 
 		JOIN (SELECT order_id,
@@ -421,11 +436,13 @@
 		SUM(total_carbon *
 		quantity) AS orderCarbon
 		FROM order_detail
-		GROUP BY order_id) od_sum ON
+		GROUP BY
+		order_id) od_sum ON
 		o.order_id = od_sum.order_id
 
 		JOIN (SELECT od1.*
-		FROM order_detail od1
+		FROM
+		order_detail od1
 		JOIN (SELECT order_id,
 		MIN(order_detail_id) AS
 		min_detail_id
@@ -523,9 +540,12 @@
 		join order_list_map olm on
 		o.order_id = olm.order_id
 		where o.store_id = #{storeId}
+		AND
+		o.order_status = 5
 		group by
 		to_char(olm.reg_date, 'yyyy-mm')
-		order by sale_month
+		order by
+		sale_month
 	</select>
 
 	<select id="selectTotalSales" resultType="Long">
@@ -535,7 +555,8 @@
 		where order_id in (select order_id
 		from
 		order_tbl
-		where store_id = #{storeId})
+		where store_id = #{storeId}
+		AND order_status = 5)
 	</select>
 
 	<update id="rollbackPoint" parameterType="int">
@@ -605,20 +626,24 @@
 		UPDATE STORE_TBL
 		SET
 		STORE_NAME = #{storeName},
-		STORE_INTRO = #{storeIntro},
+		STORE_INTRO =
+		#{storeIntro},
 		STORE_PHONE =
 		#{storePhone},
-		STORE_OWNER_NO = #{storeOwnerNo},
+		STORE_OWNER_NO =
+		#{storeOwnerNo},
 		STORE_ORIGIN_INFO =
 		#{storeOriginInfo},
 		STORE_OWNER_ADDRESS = #{storeOwnerAddress},
-		STORE_CATEGORY = #{storeCategory},
+		STORE_CATEGORY =
+		#{storeCategory},
 		STORE_ADDRESS = #{storeAddress},
-		LATITUDE = #{latitude},
+		LATITUDE =
+		#{latitude},
 		LONGITUDE = #{longitude}
 		<if test="storeThumb != null and storeThumb != ''">
-            , STORE_THUMB = #{storeThumb}
-        </if>
+			, STORE_THUMB = #{storeThumb}
+		</if>
 		WHERE STORE_ID =
 		#{storeId}
 	</update>
@@ -657,11 +682,11 @@
 		=
 		#{orderId}
 	</update>
-	
+
 	<select id="getStoreLocation" resultType="Store">
-		select 
-			latitude,
-			longitude
+		select
+		latitude,
+		longitude
 		from store_tbl
 		where store_id = #{storeId}
 	</select>
