@@ -10,6 +10,7 @@ const useCartStore = create(
       usingEcoPoint: 0,
       storeName: "",
       storeId: 0,
+      finalCarbon: 0,
 
       // 🛒 장바구니 담기 (중복 체크 수정)
       addToCart: (newItem) =>
@@ -79,8 +80,10 @@ const useCartStore = create(
       setSuperTotalPrice: (price) => set({ superTotalPrice: price }),
       setDeliveryPrice: (price) => set({ deliveryPrice: price }),
       setUsingEcoPoint: (price) => set({ usingEcoPoint: price }),
-      setStoreName: (name) => set({ storeName: name }),
-      setStoreId: (id) => set({ storeId: id }),
+
+      setStoreName: (storeName) => set({ storeName: storeName }),
+      setStoreId: (storeId) => set({ storeId: storeId }),
+      setFinalCarbon: (finalCarbon) => set({ finalCarbon: finalCarbon }),
 
       getTotalSavedCarbon: () =>
         Math.round(
