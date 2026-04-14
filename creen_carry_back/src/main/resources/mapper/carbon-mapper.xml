@@ -14,7 +14,7 @@
     </select>
 
     <insert id="insertCarbonProduct">
-    insert into carbon_definition_tbl ( ... )
+    insert into carbon_definition_tbl
     values (
         product_seq.nextval, 
         #{product.productMaterial},   #{product.productEmissions},  #{product.productImg},        #{product.productDesc}         )

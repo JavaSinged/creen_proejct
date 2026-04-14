@@ -4,7 +4,6 @@ import SearchIcon from "@mui/icons-material/Search";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from "@mui/icons-material/Edit";
 import ClearIcon from '@mui/icons-material/Clear';
@@ -12,7 +11,6 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import api from "../../../utils/accessToken";
-import { Select } from "@mui/material";
 
 export default function AdminContainerList() {
     const navigate = useNavigate();
@@ -38,9 +36,7 @@ export default function AdminContainerList() {
             })
             .catch((err) => console.log("데이터 불러오기 실패: ", err));
     }, []);
-    // 🗑️ 삭제 실행 함수
     const handleDelete = (productId) => {
-        // 1. 실수로 지우지 않게 경고창 띄우기
         Swal.fire({
             title: '정말 삭제하시겠습니까?',
             text: "삭제하면 데이터를 복구할 수 없습니다!",
@@ -126,8 +122,8 @@ export default function AdminContainerList() {
                     />
                     <SearchIcon className={styles.search_icon} />
                 </div>
-                <div className={styles.addIcon_box}>
-                    <span className={styles.addIcon}> <AddIcon />추가</span>
+                <div onClick={() => navigate(`/mypage/admin/containers/detail/new`)} className={styles.addPage} >
+                    <span className={styles.AddIconText}> <AddIcon />추가</span>
                 </div>
             </div>
 

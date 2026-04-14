@@ -52,17 +52,28 @@ const AdminContainerManagement = () => {
   // 파일 첨부 취소
   const onRemoveFile = (e) => {
     e.stopPropagation();
-
     if (previewImg) {
       URL.revokeObjectURL(previewImg);
     }
-
     setFileName("");
     setFileSize(0);
     setUploadFile(null);
     setPreviewImg("");
     if (fileInput.current) fileInput.current.value = "";
   };
+
+  useEffect(() => {
+
+    if (productId == "new") {
+
+      setProductName(""),
+        setKgValue(""),
+        setDescription(""),
+        setPreviewImg(""),
+        setUploadFile(null);
+    } else {
+    }
+  }, [productId]);
 
   // 공통 파일 저장 로직
   const handleSaveFile = (file) => {
@@ -150,6 +161,7 @@ const AdminContainerManagement = () => {
       Swal.fire("에러", "서버 통신 오류", "error");
     }
   };
+
 
 
   return (
