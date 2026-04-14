@@ -1,13 +1,12 @@
 /* 1. 대시보드 공통 레이아웃 */
 .dashboardContainer {
   background-color: var(--color-bg);
-  border: none;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
   padding: 30px;
   width: 100%;
   box-sizing: border-box;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-  font-family: var(--font-body);
-  min-height: 100vh;
 }
 
 /*상단 슬라이드 탭 메뉴 */

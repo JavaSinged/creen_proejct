@@ -271,6 +271,19 @@
   color: var(--text-sub);
 }
 
+.timerBadge {
+  display: inline-flex;
+  align-items: center;
+  background-color: #fff1f2; /* 연한 분홍/빨강 배경 */
+  color: #ff4757; /* 강조 폰트색 */
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: bold;
+  margin-right: 8px;
+  border: 1px solid #ffccd2;
+}
+
 .storeHeader {
   margin-bottom: 16px;
   display: flex;
