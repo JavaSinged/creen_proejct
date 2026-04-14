@@ -34,13 +34,13 @@ public class ProductCarbonService {
 			fileName = uploadFile.getOriginalFilename();
 
 			product.setProductImg(fileName);
-		}
-		String savePath = "file://192.168.31.26/project/upload/web/container/";
+		String savePath = "//192.168.31.26/project/upload/web/container/";
 
 		try {
 			uploadFile.transferTo(new File(savePath + fileName));
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
 		}
 
 		if (product.getProductId() != null) {

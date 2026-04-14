@@ -126,9 +126,9 @@ export default function AdminContainerList() {
                     />
                     <SearchIcon className={styles.search_icon} />
                 </div>
-                <FilterAltOutlinedIcon />
-                <select>필터</select>
-                <span> <AddIcon />추가</span>
+                <div className={styles.addIcon_box}>
+                    <span className={styles.addIcon}> <AddIcon />추가</span>
+                </div>
             </div>
 
             <div className={styles.table_wrap}>
@@ -138,8 +138,8 @@ export default function AdminContainerList() {
                             <th className={styles.col_left} onClick={() => handleSort("productMaterial")}>
                                 용기 이름 <UnfoldMoreIcon className={styles.sort_icon} />
                             </th>
-                            <th onClick={() => handleSort("productMaterial")}>
-                                카테고리 <UnfoldMoreIcon className={styles.sort_icon} />
+                            <th onClick={() => handleSort("productDesc")}>
+                                용기 설명 <UnfoldMoreIcon className={styles.sort_icon} />
                             </th>
                             <th onClick={() => handleSort("productEmissions")}>
                                 1개 당 탄소 배출량(g) <UnfoldMoreIcon className={styles.sort_icon} />
@@ -156,7 +156,9 @@ export default function AdminContainerList() {
                                             <img
                                                 src={
                                                     carbon.productImg
-                                                        ? `${backHost}${carbon.productImg.startsWith('/') ? '' : '/'}${carbon.productImg}`
+                                                        ? carbon.productImg.includes("/uploads/")
+                                                            ? `${backHost}${carbon.productImg}`
+                                                            : `${backHost}/upload/container/${carbon.productImg}`
                                                         : "/image/default_container.png"
                                                 }
                                                 alt="용기 이미지"
@@ -169,10 +171,11 @@ export default function AdminContainerList() {
                                     </div>
                                 </td>
                                 <td>
-                                    <span className={styles.badge}>{carbon.productMaterial}</span>
+                                    <span className={styles.badge}>{carbon.productDesc}</span>
                                 </td>
                                 <td>{carbon.productEmissions} g</td>
                                 <td className={styles.iconContain}>
+                                    {/*수정*/}
                                     <button
                                         className={styles.edit_btn}
                                         onClick={() => navigate(`/mypage/admin/containers/detail/${carbon.productId}`, {
@@ -181,6 +184,7 @@ export default function AdminContainerList() {
                                     >
                                         <EditIcon className={styles.edit_icon} />
                                     </button>
+
                                     <button
                                         className={styles.delete_btn}
                                         onClick={() => handleDelete(carbon.productId)}
