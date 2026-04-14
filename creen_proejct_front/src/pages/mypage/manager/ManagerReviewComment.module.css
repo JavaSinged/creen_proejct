@@ -230,11 +230,6 @@
   background-color: #f9f9f9;
 }
 
-.page_btn_nav:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .page_numbers {
   display: flex;
   align-items: center;

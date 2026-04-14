@@ -330,11 +330,6 @@
   background-color: #267a39;
 }
 
-/* 이전/다음 버튼이 비활성화되었을 때 */
-.pageBtn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
 /* 기본 아이템 스타일 (기존 유지하되 아래 내용 추가) */
 .history_item {
   display: flex;

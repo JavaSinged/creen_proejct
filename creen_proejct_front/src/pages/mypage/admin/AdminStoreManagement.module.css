@@ -199,10 +199,6 @@
   transition: all 0.2s;
 }
 
-.page_btn_nav:hover {
-  background-color: #f9f9f9;
-}
-
 .page_numbers {
   display: flex;
   align-items: center;
