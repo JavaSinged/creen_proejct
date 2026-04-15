@@ -310,9 +310,7 @@ const UserProfile = () => {
                           key={number}
                           onClick={() => setCurrentPage(number)}
                           className={
-                            currentPage === number
-                              ? styles.activePage
-                              : styles.page_num
+                            currentPage === number ? styles.activePage : ""
                           }
                         >
                           {number}
