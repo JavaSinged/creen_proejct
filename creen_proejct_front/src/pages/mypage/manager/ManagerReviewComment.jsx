@@ -169,7 +169,7 @@ const ManagerReviewComment = () => {
                   <img
                     src={
                       review.reviewThumb
-                        ? `${review.reviewThumb.startsWith("/") ? "" : "/uploads/review/"}${review.reviewThumb}`
+                        ? `${review.reviewThumb}`
                         : "/image/no-image.png" //
                     }
                     alt="리뷰사진"
