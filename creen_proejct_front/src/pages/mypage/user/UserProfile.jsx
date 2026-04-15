@@ -28,10 +28,8 @@ const UserProfile = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // --- 페이지네이션 계산 시작 ---
+  // 페이지네이션 계산
   const pageGroupSize = 10;
-  const filteredHistory = pointHistory.filter((item) => item.orderStatus >= 1);
-  const totalPages = Math.ceil(filteredHistory.length / itemsPerPage) || 1;
 
   // 1. 현재 페이지가 몇 번째 그룹인지 계산 (예: 11페이지면 2그룹)
   const currentGroup = Math.ceil(currentPage / pageGroupSize);
@@ -43,13 +41,13 @@ const UserProfile = () => {
   // 이 부분이 16개가 아니라 10개에서 끊어주는 핵심 로직입니다!
   const endPage = Math.min(startPage + pageGroupSize - 1, totalPages);
 
-  // 4. 배열에 넣을 때 'endPage'까지만 넣기
+  // 화면에 뿌려줄 페이지 번호 배열 생성
   const pageNumbers = [];
   for (let i = startPage; i <= endPage; i++) {
     pageNumbers.push(i);
   }
-
-  // 4. 현재 페이지에 보여줄 아이템 추출
+  const filteredHistory = pointHistory.filter((item) => item.orderStatus >= 1);
+  const totalPages = Math.ceil(filteredHistory.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentHistoryItems = filteredHistory.slice(
