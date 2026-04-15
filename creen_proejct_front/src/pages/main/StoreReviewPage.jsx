@@ -54,9 +54,7 @@ export default function StoreReviewPage() {
       }
 
       if (reviewResult.status === "fulfilled") {
-        setReviews(
-          Array.isArray(reviewResult.value.data) ? reviewResult.value.data : [],
-        );
+        setReviews(Array.isArray(reviewResult.value.data) ? reviewResult.value.data : []);
       } else {
         console.error("리뷰 로드 실패:", reviewResult.reason);
         setReviews([]);
@@ -127,9 +125,7 @@ export default function StoreReviewPage() {
                     <span className={styles.user_id}>
                       {review.memberId || "익명 사용자"}
                     </span>
-                    <span className={styles.date}>
-                      {review.reviewDate || "-"}
-                    </span>
+                    <span className={styles.date}>{review.reviewDate || "-"}</span>
                   </div>
                 </div>
                 <div className={styles.rating}>
