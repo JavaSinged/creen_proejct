@@ -135,6 +135,9 @@ export default function MenuModal({
         if (result.isConfirmed) {
           clearCart();
           executeAdd();
+        } else if (result.isDismissed) {
+          console.log("취소 버튼 클릭");
+          return;
         }
       });
     } else {
