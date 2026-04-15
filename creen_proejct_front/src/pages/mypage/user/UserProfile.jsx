@@ -29,6 +29,16 @@ const UserProfile = () => {
   const itemsPerPage = 5;
 
   // 페이지네이션 계산
+  const pageGroupSize = 10;
+  // 현재 그룹의 시작 번호와 끝 번호 계산
+  const startPage = (currentGroup - 1) * pageGroupSize + 1;
+  const endPage = Math.min(startPage + pageGroupSize - 1, totalPages);
+
+  // 화면에 뿌려줄 페이지 번호 배열 생성
+  const pageNumbers = [];
+  for (let i = startPage; i <= endPage; i++) {
+    pageNumbers.push(i);
+  }
   const filteredHistory = pointHistory.filter((item) => item.orderStatus >= 1);
   const totalPages = Math.ceil(filteredHistory.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -322,34 +332,33 @@ const UserProfile = () => {
                   {/* 페이지네이션 */}
                   {totalPages > 1 && (
                     <div className={styles.pagination}>
+                      {/* [이전] 버튼: 현재 그룹의 시작보다 하나 전 페이지로 이동 */}
                       <button
-                        className={styles.pageBtn}
-                        onClick={() =>
-                          setCurrentPage((p) => Math.max(1, p - 1))
-                        }
-                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage(startPage - 1)}
+                        disabled={startPage === 1}
                       >
-                        &lt;
+                        이전
                       </button>
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                        (page) => (
-                          <button
-                            key={page}
-                            className={`${styles.pageBtn} ${currentPage === page ? styles.activePage : ""}`}
-                            onClick={() => setCurrentPage(page)}
-                          >
-                            {page}
-                          </button>
-                        ),
-                      )}
+
+                      {/* 계산된 pageNumbers만 출력 */}
+                      {pageNumbers.map((number) => (
+                        <button
+                          key={number}
+                          onClick={() => setCurrentPage(number)}
+                          className={
+                            currentPage === number ? styles.activePage : ""
+                          }
+                        >
+                          {number}
+                        </button>
+                      ))}
+
+                      {/* [다음] 버튼: 현재 그룹의 끝보다 하나 다음 페이지로 이동 */}
                       <button
-                        className={styles.pageBtn}
-                        onClick={() =>
-                          setCurrentPage((p) => Math.min(totalPages, p + 1))
-                        }
-                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage(endPage + 1)}
+                        disabled={endPage === totalPages}
                       >
-                        &gt;
+                        다음
                       </button>
                     </div>
                   )}
