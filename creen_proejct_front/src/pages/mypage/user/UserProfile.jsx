@@ -31,10 +31,8 @@ const UserProfile = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  const filteredHistory = pointHistory.filter((item) => item.orderStatus >= 1);
-
-  // 🌟 [수정] 필터링된 결과(filteredHistory)를 기준으로 페이지네이션 계산
-  const totalPages = Math.ceil(filteredHistory.length / itemsPerPage);
+  // 🌟 [추가] 현재 페이지에 보여줄 내역 계산
+  const totalPages = Math.ceil(pointHistory.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentHistoryItems = pointHistory.slice(
@@ -73,7 +71,7 @@ const UserProfile = () => {
             params: { memberId: user.memberId },
             ...config,
           });
-          setTotalCarbon(Math.floor(carbonRes.data.totalCarbonReduce * 1000));
+          setTotalCarbon(Math.floor(carbonRes.data * 1000));
 
           const commRes = await axios.get(
             `${backHost}/member/community-carbon`,

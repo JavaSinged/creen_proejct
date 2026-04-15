@@ -65,6 +65,7 @@ export default function StoreView() {
     axios
       .get(`${backHost}/stores/${storeId}`)
       .then((res) => {
+        if (res.data.storeName) setGlobalStoreName(res.data.storeName);
         setStoreInfo({
           storeId: res.data.storeId,
           storeIntro: res.data.storeIntro,
@@ -102,7 +103,6 @@ export default function StoreView() {
         title: "로그인 후 이용 가능합니다",
         icon: "warning",
       });
-      navigate("/login");
       return;
     }
   };
@@ -113,7 +113,7 @@ export default function StoreView() {
         <div className={styles.store_image_wrap}>
           {storeInfo.storeThumb ? (
             <img
-              src={storeInfo.storeThumb}
+              src={`${backHost}/${storeInfo.storeThumb}`}
               alt={storeInfo.storeName}
               className={styles.store_main_img}
               onError={(e) => {
