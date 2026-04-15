@@ -96,7 +96,7 @@ export default function StoreView() {
 
         // 🚀 [상점 정보 로드]
         axios
-          .get(`${backHost}/stores/${storeId}`)
+          .get(`${API_BASE_URL}/stores/${storeId}`)
           .then((res) => {
             if (res.data.storeName) setGlobalStoreName(res.data.storeName);
             setStoreInfo({
