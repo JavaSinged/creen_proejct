@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="kr.co.iei.store.model.dao.StoreDao">
+	<!-- 코덱스가 수정함: resultType 불일치와 요일 정렬 안정성을 함께 보정했습니다. -->
 
 	<select id="selectAllStore">
 		SELECT s.*,
