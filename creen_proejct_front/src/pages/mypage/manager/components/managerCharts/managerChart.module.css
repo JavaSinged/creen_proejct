@@ -189,6 +189,24 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
+.orderCountTooltip {
+  position: absolute;
+  top: -32px; /* 바 위쪽으로 배치 */
+  right: 0; /* 오른쪽에 고정 */
+  background-color: #333;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0; /* 투명도 0 */
+  visibility: hidden;
+  transition: all 0.2s ease-in-out;
+  z-index: 10;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
 /* 말풍선 꼬리표 */
 .amountTooltip::after {
   content: "";

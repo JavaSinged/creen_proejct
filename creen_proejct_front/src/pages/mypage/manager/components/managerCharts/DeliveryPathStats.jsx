@@ -47,6 +47,9 @@ const DeliveryPathStats = ({ data }) => {
               <div className={styles.amountTooltip}>
                 {(item.seriesAmount || 0).toLocaleString()}원
               </div>
+              <div className={styles.amountTooltip}>
+                ({item.orderCount || 0}건)
+              </div>
             </div>
           </div>
         ))}
