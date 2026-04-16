@@ -22,7 +22,7 @@ export default function AdminContainerList() {
     if (/^https?:\/\//i.test(imagePath)) {
       return imagePath;
     }
-    return `${backHost}${imagePath.startsWith("/") ? "" : "/"}${imagePath}`;
+    return `${imagePath.startsWith("/") ? "" : "/"}${imagePath}`;
   };
 
   const [searchTerm, setSearchTerm] = useState("");
