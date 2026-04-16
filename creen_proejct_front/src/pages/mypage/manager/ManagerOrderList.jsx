@@ -301,7 +301,9 @@ const ManagerOrderList = () => {
                       >
                         {isCanceled
                           ? "0"
-                          : Number(order.totalPrice).toLocaleString()}
+                          : Number(
+                              order.totalPrice + order.deliveryPrice,
+                            ).toLocaleString()}
                         원
                       </strong>
                     </p>

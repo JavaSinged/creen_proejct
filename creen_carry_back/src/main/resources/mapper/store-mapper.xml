@@ -232,7 +232,7 @@
 		WHEN
 		o.delivery_type = 2 THEN 1000
 		ELSE
-		2000
+		3000
 		END AS deliveryPrice,
 		o.delivery_type AS deliveryType,
 		o.order_status AS
