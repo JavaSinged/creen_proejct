@@ -211,7 +211,7 @@ export default function AdminUserManagement() {
                   </td>
 
                   {/* 상태 뱃지 */}
-                  <td className={styles.col_left}>
+                  <td className={styles.col_center}>
                     <span
                       className={styles.badge}
                       style={{
