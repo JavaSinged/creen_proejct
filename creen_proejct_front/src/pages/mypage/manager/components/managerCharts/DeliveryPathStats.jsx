@@ -45,10 +45,8 @@ const DeliveryPathStats = ({ data }) => {
 
               {/* 🌟 마우스 호버 시 나타날 금액 툴팁 */}
               <div className={styles.amountTooltip}>
-                {(item.seriesAmount || 0).toLocaleString()}원
-              </div>
-              <div className={styles.amountTooltip}>
-                ({item.orderCount || 0}건)
+                {(item.seriesAmount || 0).toLocaleString()}원 (
+                {item.orderCount || 0}건)
               </div>
             </div>
           </div>
