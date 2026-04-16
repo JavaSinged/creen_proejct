@@ -45,6 +45,15 @@ const UserSignup = () => {
   const [timeoutId, setTimeoutId] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
+  const resetMailAuthState = () => {
+    if (timeoutId) window.clearInterval(timeoutId);
+    setTimeoutId(null);
+    setMailAuth(0);
+    setMailAuthCode(null);
+    setMailAuthInput("");
+    setTime(180);
+  };
+
   const inputMember = (e) => {
     const { name, value } = e.target;
     if (name === "memberPhone") {
@@ -61,8 +70,8 @@ const UserSignup = () => {
     setMember({ ...member, [name]: value });
     if (name === "memberId") setCheckId(0);
     if (name === "memberEmail") {
-      setMailAuth(0);
       setCheckEmail(0);
+      resetMailAuthState();
     }
   };
 
@@ -98,17 +107,29 @@ const UserSignup = () => {
         icon: "warning",
         text: "올바른 이메일 형식을 먼저 입력해주세요.",
       });
+      setCheckEmail(0);
+      resetMailAuthState();
       return;
     }
     try {
       // 코덱스가 수정함: 인증 메일 발송 시도마다 이메일 중복 검사를 다시 수행
       const res = await axios.get(
-        `${import.meta.env.VITE_BACKSERVER}/member/emailDupCheck?memberEmail=${member.memberEmail}`,
+        `${import.meta.env.VITE_BACKSERVER}/member/emailDupCheck`,
+        {
+          params: {
+            memberEmail: member.memberEmail.trim(),
+            _: Date.now(),
+          },
+          headers: {
+            "Cache-Control": "no-cache",
+            Pragma: "no-cache",
+          },
+        },
       );
       if (!res.data) {
         Swal.fire({ icon: "error", text: "이미 사용 중인 이메일입니다." });
         setCheckEmail(1);
-        setMailAuth(0);
+        resetMailAuthState();
         return;
       }
       setCheckEmail(2);
@@ -119,8 +140,7 @@ const UserSignup = () => {
       });
       return;
     }
-    setTime(180);
-    if (timeoutId) window.clearInterval(timeoutId);
+    resetMailAuthState();
     setMailAuth(1);
     axios
       .post(`${import.meta.env.VITE_BACKSERVER}/member/email-verification`, {
@@ -135,6 +155,7 @@ const UserSignup = () => {
         setTimeoutId(intervalId);
       })
       .catch((err) => {
+        resetMailAuthState();
         Swal.fire({ icon: "error", text: "메일 발송 중 오류가 발생했습니다." });
       });
   };

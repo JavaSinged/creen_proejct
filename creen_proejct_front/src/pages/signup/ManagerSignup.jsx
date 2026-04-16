@@ -45,6 +45,15 @@ const ManagerSignup = () => {
   const [timeout, setTimeout] = useState(null);
   const [checkEmail, setCheckEmail] = useState(0);
 
+  const resetMailAuthState = () => {
+    if (timeout) window.clearInterval(timeout);
+    setTimeout(null);
+    setMailAuth(0);
+    setMailAuthCode(null);
+    setMailAuthInput("");
+    setTime(180);
+  };
+
   const idRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
   const pwRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/;
@@ -85,7 +94,10 @@ const ManagerSignup = () => {
       setMember((prev) => ({ ...prev, [name]: value }));
     }
 
-    if (name === "memberEmail") setMailAuth(0);
+    if (name === "memberEmail") {
+      setCheckEmail(0);
+      resetMailAuthState();
+    }
 
     // 사업자번호 자동 하이픈 처리
     /*
@@ -135,17 +147,29 @@ const ManagerSignup = () => {
         icon: "warning",
         text: "올바른 이메일 형식을 먼저 입력해주세요.",
       });
+      setCheckEmail(0);
+      resetMailAuthState();
       return;
     }
     try {
       // 코덱스가 수정함: 인증 메일 발송 시도마다 이메일 중복 검사를 다시 수행
       const res = await axios.get(
-        `${import.meta.env.VITE_BACKSERVER}/member/emailDupCheck?memberEmail=${member.memberEmail}`,
+        `${import.meta.env.VITE_BACKSERVER}/member/emailDupCheck`,
+        {
+          params: {
+            memberEmail: member.memberEmail.trim(),
+            _: Date.now(),
+          },
+          headers: {
+            "Cache-Control": "no-cache",
+            Pragma: "no-cache",
+          },
+        },
       );
       if (!res.data) {
         Swal.fire({ icon: "error", text: "이미 사용 중인 이메일입니다." });
         setCheckEmail(1);
-        setMailAuth(0);
+        resetMailAuthState();
         return;
       }
       setCheckEmail(2);
@@ -156,8 +180,7 @@ const ManagerSignup = () => {
       });
       return;
     }
-    setTime(180);
-    if (timeout) window.clearInterval(timeout);
+    resetMailAuthState();
     setMailAuth(1);
     axios
       .post(`${import.meta.env.VITE_BACKSERVER}/member/email-verification`, {
@@ -172,6 +195,7 @@ const ManagerSignup = () => {
         setTimeout(intervalId);
       })
       .catch((err) => {
+        resetMailAuthState();
         Swal.fire({ icon: "error", text: "메일 발송 중 오류가 발생했습니다." });
       });
   };
