@@ -8,9 +8,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class orderDetail {
-    private String menuName;   // 메뉴 이름
-    private String menuImage;  // 메뉴 이미지 경로
-    private int quantity;      // 수량
-    private int price;         // 단가 (또는 합계용)
-    private String options;    // 옵션 정보
+    // 코덱스가 수정함: 주문 상세에서 옵션 문자열과 배달 유형별 금액을 함께 매핑하기 위한 필드 정리.
+    private String menuName;
+    private String menuImage;
+    private int quantity;
+    private int price;
+    private String options;
+    private int deliveryType;
+    private int deliveryFee;
 }

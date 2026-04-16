@@ -1,7 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styles from "./AdminStoreManagementDetail.module.css";
 import {
+  Avatar,
   Box,
+  Chip,
+  CircularProgress,
+  Divider,
+  IconButton,
+  Modal,
   Paper,
   Table,
   TableBody,
@@ -9,79 +15,28 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Avatar,
-  Chip,
-  Modal, // ✨ 모달 추가
-  CircularProgress, // ✨ 로딩 스피너 추가
-  IconButton, // ✨ 닫기 버튼용
   Typography,
-  Divider,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close"; // ✨ 닫기 아이콘 추가
+import CloseIcon from "@mui/icons-material/Close";
+import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
 import Pagination from "../../../components/commons/Pagination";
 
+// 코덱스가 수정함: 관리자 주문 상세 화면에서 배송비와 최종 결제 금액을 함께 표시하도록 정리함.
 const AdminStoreManagementDetail = () => {
-  const [searchKeyword, setSearchKeyword] = useState("");
   const { storeId } = useParams();
   const backHost = import.meta.env.VITE_BACKSERVER;
+
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [orderList, setOrderList] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
-
-  // ✨ 모달 관련 State 추가
   const [openDetailModal, setOpenDetailModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [detailMenus, setDetailMenus] = useState([]);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
-
-  //페이지네이션
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
-  const filteredList = orderList.filter((item) =>
-    item.storeName?.toLowerCase().includes(searchKeyword.toLowerCase()),
-  );
-  const totalPages = Math.ceil(filteredList.length / itemsPerPage);
-  const [pageGroup, setPageGroup] = useState(0);
-  const pageLimit = 5;
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-
-  const sortedList = [...filteredList].sort((a, b) => {
-    if (!sortConfig.key) return 0;
-    let aValue = a[sortConfig.key];
-    let bValue = b[sortConfig.key];
-
-    if (typeof aValue === "number" && typeof bValue === "number") {
-      return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
-    }
-    return sortConfig.direction === "asc"
-      ? String(aValue).localeCompare(String(bValue))
-      : String(bValue).localeCompare(String(aValue));
-  });
-
-  const currentOrders = sortedList.slice(indexOfFirstItem, indexOfLastItem);
-  const startPage = Math.floor((currentPage - 1) / pageLimit) * pageLimit + 1;
-  const endPage = Math.min(startPage + pageLimit - 1, totalPages);
-
-  const handlePrevGroup = () => {
-    if (pageGroup > 0) {
-      setPageGroup(pageGroup - 1);
-      setCurrentPage((pageGroup - 1) * pageLimit + 1);
-    }
-  };
-  const handleNextGroup = () => {
-    const maxGroup = Math.floor((totalPages - 1) / pageLimit);
-    if (pageGroup < maxGroup) {
-      setPageGroup(pageGroup + 1);
-      setCurrentPage((pageGroup + 1) * pageLimit + 1);
-    }
-  };
-  const handlePageClick = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
 
   const statusMap = {
     0: "결제대기",
@@ -92,6 +47,66 @@ const AdminStoreManagementDetail = () => {
     5: "배달완료",
     9: "주문취소",
   };
+
+  useEffect(() => {
+    axios
+      .get(`${backHost}/admin/${storeId}`)
+      .then((res) => {
+        setOrderList(Array.isArray(res.data) ? res.data : []);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [backHost, storeId]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchKeyword, sortConfig]);
+
+  const handleSort = (key) => {
+    let direction = "asc";
+
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+
+    setSortConfig({ key, direction });
+  };
+
+  const filteredAndSortedOrders = useMemo(() => {
+    const normalizedSearchKeyword = searchKeyword.trim().toLowerCase();
+    const filteredOrders = orderList.filter((item) =>
+      (item.storeName || "").toLowerCase().includes(normalizedSearchKeyword),
+    );
+
+    if (!sortConfig.key) {
+      return filteredOrders;
+    }
+
+    return [...filteredOrders].sort((a, b) => {
+      const aValue = a?.[sortConfig.key] ?? "";
+      const bValue = b?.[sortConfig.key] ?? "";
+
+      if (typeof aValue === "number" && typeof bValue === "number") {
+        return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
+      }
+
+      return sortConfig.direction === "asc"
+        ? String(aValue).localeCompare(String(bValue))
+        : String(bValue).localeCompare(String(aValue));
+    });
+  }, [orderList, searchKeyword, sortConfig]);
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredAndSortedOrders.length / itemsPerPage),
+  );
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentOrders = filteredAndSortedOrders.slice(
+    indexOfFirstItem,
+    indexOfLastItem,
+  );
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -114,39 +129,19 @@ const AdminStoreManagementDetail = () => {
     }
   };
 
-  useEffect(() => {
-    axios
-      .get(`${backHost}/admin/${storeId}`)
-      .then((res) => {
-        setOrderList(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, [storeId]);
-
-  const handleSort = (key) => {
-    let direction = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
-    }
-    setSortConfig({ key, direction });
-  };
-
-  // ✨ 행 클릭 시 상세 메뉴를 불러오는 함수
   const handleRowClick = async (order) => {
     setSelectedOrder(order);
     setOpenDetailModal(true);
     setIsLoadingDetail(true);
 
     try {
-      // 🚀 백엔드에 새로 만들 '상세메뉴만 가져오는 API' 호출
       const res = await axios.get(
         `${backHost}/admin/order-detail/${order.orderId}`,
       );
-      setDetailMenus(res.data);
+      setDetailMenus(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error("상세 메뉴를 불러오는데 실패했습니다.", err);
+      console.error("주문 상세 메뉴를 불러오지 못했습니다.", err);
+      setDetailMenus([]);
     } finally {
       setIsLoadingDetail(false);
     }
@@ -158,7 +153,15 @@ const AdminStoreManagementDetail = () => {
     setDetailMenus([]);
   };
 
-  // 모달 스타일 설정
+  const detailMenuSubtotal = detailMenus.reduce((sum, menu) => {
+    return sum + (menu.price || 0) * (menu.quantity || 0);
+  }, 0);
+  const detailDeliveryFee =
+    detailMenus[0]?.deliveryFee ??
+    Math.max((selectedOrder?.totalPrice || 0) - detailMenuSubtotal, 0);
+  const detailTotalPrice =
+    selectedOrder?.totalPrice ?? detailMenuSubtotal + detailDeliveryFee;
+
   const modalStyle = {
     position: "absolute",
     top: "50%",
@@ -213,7 +216,6 @@ const AdminStoreManagementDetail = () => {
                 <TableRow
                   key={item.orderId}
                   hover
-                  // ✨ 행 클릭 이벤트 추가 (마우스 커서 변경)
                   onClick={() => handleRowClick(item)}
                   style={{ cursor: "pointer" }}
                 >
@@ -235,38 +237,37 @@ const AdminStoreManagementDetail = () => {
                     </Box>
                   </TableCell>
 
-                  {/* ✨ 원래 백엔드 데이터 포맷(요약본)에 맞게 수정됨 */}
                   <TableCell>
                     <Box className={styles.infoBox}>
                       <img
                         src={
-                          `${item.menuList?.[0]?.menuImage}` ||
+                          item.menuList?.[0]?.menuImage ||
                           "/image/default_menu.png"
                         }
                         className={styles.productImage}
+                        alt={item.menuList?.[0]?.menuName || "주문 상품"}
                       />
                       <Box>
                         <p className={styles.mainText}>
-                          {item.menuList?.length > 0 && (
-                            <>
-                              {item.menuList[0].menuName}
-
-                              {item.menuList.length > 1 &&
-                                ` 외 ${item.menuList.length - 1}개`}
-                            </>
-                          )}
+                          {item.menuList?.length > 0
+                            ? `${item.menuList[0].menuName}${
+                                item.menuList.length > 1
+                                  ? ` 외 ${item.menuList.length - 1}개`
+                                  : ""
+                              }`
+                            : "상품 정보 없음"}
                         </p>
                       </Box>
                     </Box>
                   </TableCell>
 
-                  <TableCell>{item.totalPrice?.toLocaleString()}원</TableCell>
+                  <TableCell>{(item.totalPrice || 0).toLocaleString()}원</TableCell>
 
                   <TableCell>{item.storeName}</TableCell>
 
                   <TableCell>
                     <Chip
-                      label={statusMap[item.orderStatus] || "알수없음"}
+                      label={statusMap[item.orderStatus] || "알 수 없음"}
                       size="small"
                       sx={{
                         ...getStatusStyle(statusMap[item.orderStatus]),
@@ -288,10 +289,8 @@ const AdminStoreManagementDetail = () => {
         />
       </Paper>
 
-      {/* ✨ 상세 주문 모달 UI 추가 */}
       <Modal open={openDetailModal} onClose={handleCloseModal}>
         <Box sx={modalStyle}>
-          {/* 헤더 부분 */}
           <Box
             display="flex"
             justifyContent="space-between"
@@ -299,7 +298,7 @@ const AdminStoreManagementDetail = () => {
             mb={2}
           >
             <Typography variant="h6" fontWeight="bold">
-              주문 상세내역 (No.{selectedOrder?.orderId})
+              주문 상세 내역 (No.{selectedOrder?.orderId})
             </Typography>
             <IconButton onClick={handleCloseModal}>
               <CloseIcon />
@@ -307,14 +306,12 @@ const AdminStoreManagementDetail = () => {
           </Box>
           <Divider sx={{ mb: 3 }} />
 
-          {/* 로딩 중일 때 스피너 표시 */}
           {isLoadingDetail ? (
             <Box display="flex" justifyContent="center" py={4}>
               <CircularProgress />
             </Box>
           ) : (
             <Box display="flex" flexDirection="column" gap={2}>
-              {/* 가져온 상세 메뉴 리스트 출력 */}
               {detailMenus.map((menu, idx) => (
                 <Box key={idx} display="flex" alignItems="center" gap={2}>
                   <Avatar
@@ -333,7 +330,7 @@ const AdminStoreManagementDetail = () => {
                   <Box textAlign="right">
                     <Typography variant="body2">{menu.quantity}개</Typography>
                     <Typography fontWeight="bold">
-                      {(menu.price * menu.quantity).toLocaleString()}원
+                      {((menu.price || 0) * (menu.quantity || 0)).toLocaleString()}원
                     </Typography>
                   </Box>
                 </Box>
@@ -341,22 +338,47 @@ const AdminStoreManagementDetail = () => {
 
               <Divider sx={{ my: 2 }} />
 
-              {/* 총 결제 금액 */}
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-              >
-                <Typography variant="subtitle1" fontWeight="bold">
-                  총 결제 금액
-                </Typography>
-                <Typography
-                  variant="h6"
-                  color="var(--color-brand)"
-                  fontWeight="bold"
+              <Box display="flex" flexDirection="column" gap={1}>
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
                 >
-                  {selectedOrder?.totalPrice?.toLocaleString()}원
-                </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    메뉴 금액
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {detailMenuSubtotal.toLocaleString()}원
+                  </Typography>
+                </Box>
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Typography variant="body2" color="text.secondary">
+                    배송비
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {detailDeliveryFee.toLocaleString()}원
+                  </Typography>
+                </Box>
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    최종 결제 금액
+                  </Typography>
+                  <Typography
+                    variant="h6"
+                    color="var(--color-brand)"
+                    fontWeight="bold"
+                  >
+                    {detailTotalPrice.toLocaleString()}원
+                  </Typography>
+                </Box>
               </Box>
             </Box>
           )}
