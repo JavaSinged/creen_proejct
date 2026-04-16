@@ -9,6 +9,7 @@ import StorefrontIcon from "@mui/icons-material/Storefront";
 import Collapse from "@mui/material/Collapse";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 import axios from "axios";
+import Pagination from "../../../components/commons/Pagination";
 
 const UserProfile = () => {
   const { user } = useContext(AuthContext);
@@ -290,38 +291,11 @@ const UserProfile = () => {
                     );
                   })}
 
-                  {/* 페이지네이션 버튼부 */}
-                  {totalPages > 1 && (
-                    <div className={styles.pagination}>
-                      <button
-                        className={styles.page_btn}
-                        onClick={() => setCurrentPage(startPage - 1)}
-                        disabled={startPage === 1}
-                      >
-                        이전
-                      </button>
-                      {pageNumbers.map((number) => (
-                        <button
-                          key={number}
-                          onClick={() => setCurrentPage(number)}
-                          className={
-                            currentPage === number
-                              ? styles.activePage
-                              : styles.page_num
-                          }
-                        >
-                          {number}
-                        </button>
-                      ))}
-                      <button
-                        className={styles.page_btn}
-                        onClick={() => setCurrentPage(endPage + 1)}
-                        disabled={endPage === totalPages}
-                      >
-                        다음
-                      </button>
-                    </div>
-                  )}
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                  />
                 </>
               ) : (
                 <div className={styles.empty_msg}>최근 내역이 없습니다. 🌱</div>
