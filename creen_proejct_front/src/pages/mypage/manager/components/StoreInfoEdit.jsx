@@ -1,4 +1,4 @@
-/* global naver */
+﻿/* global naver */
 import React, { useContext, useState, useEffect } from "react";
 import axios from "axios";
 import styles from "./StoreInfoEdit.module.css";
@@ -9,10 +9,11 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import "react-datepicker/dist/react-datepicker.css";
 import { AuthContext } from "../../../../context/AuthContext";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
+import Swal from "sweetalert2";
 
 export default function StoreInfoEdit() {
-  const [selectedFile, setSelectedFile] = useState(null); // 실제 서버 전송용 파일
-  const [previewImg, setPreviewImg] = useState(""); // 화면 표시용 (Blob URL)
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewImg, setPreviewImg] = useState("");
   const backHost = import.meta.env.VITE_BACKSERVER;
   const { user } = useContext(AuthContext) || {};
   const storeId = user?.storeId || null;
@@ -109,14 +110,21 @@ export default function StoreInfoEdit() {
 
   const [restDays, setRestDays] = useState([]);
 
+  const showAlert = (text, icon = "warning") =>
+    Swal.fire({
+      text,
+      icon,
+      confirmButtonText: "확인",
+    });
+
   const categories = [
     { value: "한식", label: "한식" },
-    { value: "양식", label: "양식" },
+    { value: "분식", label: "분식" },
     { value: "중식", label: "중식" },
     { value: "일식", label: "일식" },
-    { value: "피자", label: "피자" },
+    { value: "양식", label: "양식" },
     { value: "치킨", label: "치킨" },
-    { value: "샐러드", label: "샐러드" },
+    { value: "패스트푸드", label: "패스트푸드" },
     { value: "커피/디저트", label: "커피/디저트" },
   ];
 
@@ -152,7 +160,7 @@ export default function StoreInfoEdit() {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert("파일 크기는 5MB 이하만 가능합니다.");
+        showAlert("파일 크기는 5MB 이하만 가능합니다.");
         return;
       }
       setSelectedFile(file);
@@ -191,7 +199,7 @@ export default function StoreInfoEdit() {
         }));
       } else {
         setFormData((prev) => ({ ...prev, storeAddress: combinedAddress }));
-        alert("주소에 해당하는 위치(위/경도)를 찾을 수 없습니다.");
+        showAlert("주소에 해당하는 위치(위/경도)를 찾을 수 없습니다.");
       }
     });
   };
@@ -304,9 +312,6 @@ export default function StoreInfoEdit() {
         const response = await axios.get(`${backHost}/stores/info/${storeId}`);
         if (response.status === 200 && response.data) {
           const data = response.data;
-          // ... (기존 setFormData 생략)
-
-          // 🌟 서버에서 받은 이미지 경로 설정
           if (data.storeThumb) {
             setPreviewImg(data.storeThumb);
           }
@@ -329,7 +334,7 @@ export default function StoreInfoEdit() {
 
         if (response.status === 200 && response.data) {
           const data = response.data;
-          console.log("🚀 ~ fetchStoreData ~ data:", data);
+          console.log("?? ~ fetchStoreData ~ data:", data);
 
           const addrMatch = (data.storeAddress || "").match(
             /^\((.*?)\)\s+(.*)$/,
@@ -438,7 +443,6 @@ export default function StoreInfoEdit() {
               });
             });
 
-            // 🌟 1. 항상 모든 요일의 세팅값을 만듭니다 (0 패딩 포함)
             normalHours.forEach((timeInfo) => {
               const dayKey = timeInfo.dayOfWeek?.toLowerCase();
               const diffIndex = fetchedDiffTimes.findIndex(
@@ -456,7 +460,6 @@ export default function StoreInfoEdit() {
                   const [rawStH, rawStM] = timeInfo.openTime.split(":");
                   const [rawEdH, rawEdM] = timeInfo.closeTime.split(":");
 
-                  // 혹시라도 DB에 "9:0" 처럼 들어가있다면 Select Box 바인딩이 안 되므로 강제로 "09:00" 포맷을 맞춤
                   stH = rawStH?.padStart(2, "0") || "09";
                   stM = rawStM?.padStart(2, "0") || "00";
                   edH = rawEdH?.padStart(2, "0") || "22";
@@ -474,7 +477,6 @@ export default function StoreInfoEdit() {
               }
             });
 
-            // 🌟 2. 조건에 상관없이 무조건 diffTimes와 restDays를 덮어씌웁니다. (토글할 때를 대비)
             setDiffTimes(fetchedDiffTimes);
             setRestDays(fetchedRestDays);
 
@@ -501,7 +503,7 @@ export default function StoreInfoEdit() {
               } else {
                 const [sH, sM] = firstOpen.split(":");
                 const [eH, eM] = firstClose.split(":");
-                // sameTime에도 0 패딩을 강제로 맞춥니다.
+
                 setSameTime({
                   startH: sH.padStart(2, "0"),
                   startM: sM.padStart(2, "0"),
@@ -511,36 +513,37 @@ export default function StoreInfoEdit() {
               }
             } else {
               setHoursType("diff");
-              // diffTimes는 이미 위에서 세팅했으므로 생략해도 됩니다.
             }
           }
         }
       } catch (error) {
-        console.error("가게 정보를 불러오는 중 오류가 발생했습니다.", error);
+        console.error(
+          "媛寃??뺣낫瑜?遺덈윭?ㅻ뒗 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.",
+          error,
+        );
       }
     };
 
     fetchStoreData();
   }, [storeId]);
 
-  // --- 🌟 폼 제출 (백엔드 Payload 규격에 맞게 매핑) ---
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 벨리데이션 체크 (기존 코드 유지)
-    if (!formData.storeName.trim()) return alert("가게명을 입력해주세요.");
-    if (!formData.storeIntro.trim()) return alert("가게 소개를 입력해주세요.");
+    if (!formData.storeName.trim()) return showAlert("가게명을 입력해주세요.");
+    if (!formData.storeIntro.trim())
+      return showAlert("가게 소개를 입력해주세요.");
     if (formData.storePhone.length < 9)
-      return alert("올바른 가게 번호(9자리 이상)를 입력해주세요.");
+      return showAlert("올바른 가게 번호(9자리 이상)를 입력해주세요.");
     if (!formData.storeAddress.trim())
-      return alert("가게 주소를 입력해주세요.");
+      return showAlert("가게 주소를 입력해주세요.");
     if (!formData.latitude || !formData.longitude)
-      return alert("주소 검색을 통해 정확한 위치를 설정해주세요.");
+      return showAlert("주소 검색을 통해 정확한 위치를 설정해주세요.");
     if (formData.businessNumber.length !== 12)
-      return alert("사업자 번호(10자리)를 올바르게 입력해주세요.");
-    if (!formData.openDate) return alert("개업일자를 선택해주세요.");
+      return showAlert("사업자 번호(10자리)를 올바르게 입력해주세요.");
+    if (!formData.openDate) return showAlert("개업일자를 선택해주세요.");
     if (!formData.storeOriginInfo.trim())
-      return alert("원산지 정보를 입력해주세요.");
+      return showAlert("원산지 정보를 입력해주세요.");
 
     try {
       const closedDays = diffTimes
@@ -550,7 +553,6 @@ export default function StoreInfoEdit() {
         (rd) => !closedDays.includes(rd.day),
       );
 
-      // 1️⃣ 일반 데이터를 담은 JSON 객체 생성
       const payload = {
         storeId: storeId,
         storeName: formData.storeName,
@@ -572,21 +574,17 @@ export default function StoreInfoEdit() {
         },
       };
 
-      // 2️⃣ FormData 생성 및 데이터 추가
       const sendData = new FormData();
 
-      // 일반 데이터는 'data'라는 키에 Blob 형태로 추가 (백엔드 설정에 따라 다를 수 있음)
       sendData.append(
         "data",
         new Blob([JSON.stringify(payload)], { type: "application/json" }),
       );
 
-      // 3️⃣ 실제 선택된 파일이 있으면 'file' 키로 추가
       if (selectedFile) {
         sendData.append("file", selectedFile);
       }
 
-      // 4️⃣ axios 요청 시 Content-Type 설정
       const response = await axios.post(
         `${import.meta.env.VITE_BACKSERVER}/stores/update`,
         sendData,
@@ -598,19 +596,19 @@ export default function StoreInfoEdit() {
       );
 
       if (response.status === 200 || response.data === "SUCCESS") {
-        alert("정보 변경이 완료되었습니다.");
+        await showAlert("정보 변경이 완료되었습니다.", "success");
         window.location.reload();
       }
     } catch (error) {
-      console.error("저장 실패", error);
-      alert("서버 오류가 발생했습니다. 다시 시도해주세요.");
+      console.error("????ㅽ뙣", error);
+      showAlert("서버 오류가 발생했습니다. 다시 시도해주세요.", "error");
     }
   };
 
   return (
     <div className={styles.container}>
       <form onSubmit={handleSubmit} className={styles.infoForm}>
-        {/* 가게명 */}
+        {/* 媛寃뚮챸 */}
         <div className={styles.formRow}>
           <label className={styles.label}>가게명</label>
           <div className={styles.inputWrap}>
@@ -626,7 +624,7 @@ export default function StoreInfoEdit() {
           </div>
         </div>
 
-        {/* 가게 소개 */}
+        {/* 媛寃??뚭컻 */}
         <div className={styles.formRow}>
           <label className={styles.label}>가게 소개</label>
           <div className={styles.inputWrap}>
@@ -635,13 +633,13 @@ export default function StoreInfoEdit() {
               value={formData.storeIntro}
               onChange={handleInputChange}
               className={styles.textareaBase}
-              placeholder="가게에 대한 소개글을 입력해주세요 (1000자 이내)"
+              placeholder="가게 소개를 입력해주세요. (1000자 이내)"
               maxLength={1000}
             />
           </div>
         </div>
 
-        {/* 가게 전화번호 */}
+        {/* 媛寃??꾪솕踰덊샇 */}
         <div className={styles.formRow}>
           <label className={styles.label}>가게 전화번호</label>
           <div className={styles.inputWrap}>
@@ -657,7 +655,7 @@ export default function StoreInfoEdit() {
           </div>
         </div>
 
-        {/* 가게 주소 */}
+        {/* 媛寃?二쇱냼 */}
         <div className={styles.formRow}>
           <label className={styles.label}>가게 주소</label>
           <div className={styles.inputWrap}>
@@ -667,7 +665,7 @@ export default function StoreInfoEdit() {
                 name="storeAddress"
                 value={formData.storeAddress}
                 onChange={handleInputChange}
-                placeholder="(우편번호) 주소를 검색하고 상세주소를 이어서 입력하세요"
+                placeholder="(우편번호) 주소를 검색하고 상세주소를 입력하세요"
                 className={styles.inputBase}
               />
               <button
@@ -681,7 +679,7 @@ export default function StoreInfoEdit() {
           </div>
         </div>
 
-        {/* 사업자 번호 */}
+        {/* ?ъ뾽??踰덊샇 */}
         <div className={styles.formRow}>
           <label className={styles.label}>사업자 번호</label>
           <div className={styles.inputWrap}>
@@ -697,7 +695,7 @@ export default function StoreInfoEdit() {
           </div>
         </div>
 
-        {/* 🌟 개업일자 */}
+        {/* ?뙚 媛쒖뾽?쇱옄 */}
         <div className={styles.formRow}>
           <label className={styles.label}>개업일자</label>
           <div className={styles.inputWrap}>
@@ -729,7 +727,7 @@ export default function StoreInfoEdit() {
                 }}
               />
 
-              {/* 달력 팝업 */}
+              {/* ?щ젰 ?앹뾽 */}
               {showCalendar && (
                 <div
                   style={{
@@ -763,7 +761,7 @@ export default function StoreInfoEdit() {
           </div>
         </div>
 
-        {/* 카테고리 */}
+        {/* 移댄뀒怨좊━ */}
         <div className={styles.formRow}>
           <label className={styles.label}>카테고리</label>
           <div className={styles.inputWrap}>
@@ -784,7 +782,7 @@ export default function StoreInfoEdit() {
           </div>
         </div>
 
-        {/* 원산지 정보 */}
+        {/* ?먯궛吏 ?뺣낫 */}
         <div className={styles.formRow}>
           <label className={styles.label}>원산지 정보</label>
           <div className={styles.inputWrap}>
@@ -793,13 +791,13 @@ export default function StoreInfoEdit() {
               value={formData.storeOriginInfo}
               onChange={handleInputChange}
               className={styles.textareaBase}
-              placeholder="원산지 정보를 입력해주세요 (1000자 이내)"
+              placeholder="원산지 정보를 입력해주세요. (1000자 이내)"
               maxLength={1000}
             />
           </div>
         </div>
 
-        {/* 이미지 업로드 영역 */}
+        {/* ?대?吏 ?낅줈???곸뿭 */}
         <div className={styles.formRow}>
           <div className={styles.forminfo}>
             <label className={styles.label}>가게 대표 이미지</label>
@@ -809,7 +807,7 @@ export default function StoreInfoEdit() {
           </div>
           <div className={styles.inputWrap}>
             <div className={styles.imageUploadBox}>
-              {/* 🌟 배경 대신 <img> 태그 사용 */}
+              {/* ?뙚 諛곌꼍 ???<img> ?쒓렇 ?ъ슜 */}
               <img
                 src={
                   previewImg
@@ -830,7 +828,7 @@ export default function StoreInfoEdit() {
                 onChange={handleImageChange}
               />
 
-              {/* 🌟 이미지 위에 겹쳐질 컨텐츠 */}
+              {/* ?뙚 ?대?吏 ?꾩뿉 寃뱀퀜吏?而⑦뀗痢?*/}
               <div
                 className={`${styles.uploadContent} ${previewImg ? styles.hasPreview : ""}`}
               >
@@ -847,11 +845,11 @@ export default function StoreInfoEdit() {
             </div>
           </div>
         </div>
-        {/* 영업시간 및 휴무일 설정 */}
-        <div className={styles.sectionDivider}>영업시간 및 휴무일 설정</div>
+        {/* ?곸뾽?쒓컙 諛??대Т???ㅼ젙 */}
+        <div className={styles.sectionDivider}>운영시간 및 휴무일 설정</div>
 
         <div className={styles.formRow}>
-          <label className={styles.label}>영업시간</label>
+          <label className={styles.label}>운영시간</label>
           <div className={styles.inputWrap}>
             <div className={styles.hoursToggleGroup}>
               <button
@@ -861,7 +859,7 @@ export default function StoreInfoEdit() {
                 }`}
                 onClick={() => setHoursType("same")}
               >
-                매일 같은 시간에 영업해요{" "}
+                매일 같은 시간으로 운영해요{" "}
                 {hoursType === "same" && (
                   <span className={styles.checkIcon}>✓</span>
                 )}
@@ -873,7 +871,7 @@ export default function StoreInfoEdit() {
                 }`}
                 onClick={() => setHoursType("diff")}
               >
-                요일별로 다르게 영업해요{" "}
+                요일별로 다르게 운영해요{" "}
                 {hoursType === "diff" && (
                   <span className={styles.checkIcon}>✓</span>
                 )}
@@ -891,7 +889,7 @@ export default function StoreInfoEdit() {
                         checked={is24h}
                         onChange={(e) => setIs24h(e.target.checked)}
                       />
-                      <label htmlFor="is24h">24시간 영업</label>
+                      <label htmlFor="is24h">24시간 운영</label>
                     </div>
                   </div>
                   <div className={styles.timeInputRow}>
@@ -1017,7 +1015,7 @@ export default function StoreInfoEdit() {
           </div>
         </div>
 
-        {/* 휴무일 설정 */}
+        {/* ?대Т???ㅼ젙 */}
         <div className={styles.formRow}>
           <label className={styles.label}>휴무일</label>
           <div className={styles.inputWrap}>
@@ -1066,7 +1064,7 @@ export default function StoreInfoEdit() {
                       onClick={() => handleRemoveRestDay(rd.id)}
                       className={styles.deleteTextBtn}
                     >
-                      삭제 🗑️
+                      삭제
                     </button>
                   </div>
                 ))
