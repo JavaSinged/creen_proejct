@@ -156,7 +156,10 @@ const ManagerMenuEdit = () => {
 
   const addContainer = (target) => {
     if (selectedContainers.find((c) => c.productId === target.productId))
-      return alert("이미 추가된 용기입니다.");
+      return Swal.fire({
+        icon: "warning",
+        text: "이미 추가된 용기입니다.",
+      });
 
     setSelectedContainers([
       ...selectedContainers,
@@ -267,11 +270,19 @@ const ManagerMenuEdit = () => {
       });
   };
 
-  const handleDelete = () => {
-    if (
-      !window.confirm("메뉴를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")
-    )
-      return;
+  const handleDelete = async () => {
+    const result = await Swal.fire({
+      icon: "warning", // 느낌표 아이콘
+      title: "정말 삭제하시겠습니까?",
+      text: "이 작업은 되돌릴 수 없습니다.",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#aaa",
+      confirmButtonText: "삭제",
+      cancelButtonText: "취소",
+    });
+
+    if (!result.isConfirmed) return;
     axios
       .delete(`${import.meta.env.VITE_BACKSERVER}/menus/${menuId}`)
       .then(() => {
