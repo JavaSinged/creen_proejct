@@ -193,15 +193,16 @@
 		od.option_string AS
 		optionString,
 		CASE
-			WHEN o.delivery_type = 1 THEN 0
-			WHEN o.delivery_type = 2 THEN 1000
-			WHEN o.delivery_type = 3 THEN 3000
-			ELSE 0
+		WHEN o.delivery_type = 1 THEN 0
+		WHEN o.delivery_type = 2 THEN 1000
+		WHEN o.delivery_type = 3 THEN 3000
+		ELSE 0
 		END AS deliveryFee
 		FROM order_detail
 		od
 		JOIN order_tbl o
-		ON od.order_id = o.order_id
+		ON od.order_id
+		= o.order_id
 		JOIN menu_tbl m
 		ON od.menu_id =
 		m.menu_id
@@ -506,21 +507,24 @@
 	<select id="selectStatsOrderInfo" resultType="statsOrderInfo">
 		SELECT
 		o.DELIVERY_TYPE AS deliveryType,
-		SUM(od.PRICE * od.QUANTITY) AS
-		seriesAmount
+		SUM(
+		(od.PRICE * od.QUANTITY) +
+		CASE
+		WHEN o.DELIVERY_TYPE = 1 THEN 0
+		WHEN o.DELIVERY_TYPE = 2 THEN 1000
+		WHEN o.DELIVERY_TYPE = 3 THEN 3000
+		ELSE 0
+		END
+		) AS seriesAmount
 		FROM order_list_map m
-		JOIN order_tbl o ON m.order_id =
-		o.order_id
-
+		JOIN order_tbl o ON m.order_id = o.order_id
 		JOIN order_detail od ON o.order_id = od.order_id
 		WHERE
 		o.store_id = #{storeId}
 		AND o.order_status = 5
-		AND TO_CHAR(m.reg_date,
-		'YYYY-MM') = #{yearMonth}
+		AND TO_CHAR(m.reg_date, 'YYYY-MM') = #{yearMonth}
 		GROUP BY o.delivery_type
-		ORDER BY
-		o.delivery_type ASC
+		ORDER BY o.delivery_type ASC
 	</select>
 
 	<select id="selectStoreReviewStats" resultType="map">
@@ -574,21 +578,27 @@
 
 	<update id="rollbackPoint" parameterType="int">
 		UPDATE member_tbl m
-		SET (member_point, total_carbon_reduce) = (
+		SET
+		(member_point, total_carbon_reduce) = (
 		SELECT
-		m.member_point + o.used_point - o.get_point,
-		GREATEST(m.total_carbon_reduce - (o.get_point / 1000.0), 0)
+		m.member_point +
+		o.used_point - o.get_point,
+		GREATEST(m.total_carbon_reduce -
+		(o.get_point / 1000.0), 0)
 		FROM order_tbl o
-		WHERE o.member_id = m.member_id
+		WHERE o.member_id =
+		m.member_id
 		AND o.order_id = #{orderId}
 		AND o.point_reward = 1
 		)
-		WHERE EXISTS (
+		WHERE
+		EXISTS (
 		SELECT 1
 		FROM order_tbl o
 		WHERE o.member_id = m.member_id
-		AND o.order_id = #{orderId}
-		AND o.point_reward = 1 
+		AND
+		o.order_id = #{orderId}
+		AND o.point_reward = 1
 		)
 	</update>
 
@@ -616,7 +626,8 @@
 		FROM operating_hours_tbl
 		WHERE store_id = #{storeId}
 		ORDER BY
-		DECODE(UPPER(day_of_week), 'MON', 1, 'TUE', 2, 'WED', 3, 'THU', 4, 'FRI',
+		DECODE(UPPER(day_of_week), 'MON', 1, 'TUE', 2, 'WED', 3, 'THU', 4,
+		'FRI',
 		5,
 		'SAT', 6, 'SUN', 7)
 	</select>
