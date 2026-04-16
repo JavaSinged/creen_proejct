@@ -193,21 +193,25 @@
 		od.option_string AS
 		optionString,
 		CASE
-			WHEN o.delivery_type = 1 THEN 0
-			WHEN o.delivery_type = 2 THEN 1000
-			WHEN o.delivery_type = 3 THEN 3000
-			ELSE 0
+		WHEN o.delivery_type = 1 THEN 0
+		WHEN o.delivery_type =
+		2 THEN 1000
+		WHEN o.delivery_type = 3 THEN 3000
+		ELSE 0
 		END AS deliveryFee
 		FROM order_detail
 		od
 		JOIN order_tbl o
-		ON od.order_id = o.order_id
-		JOIN menu_tbl m
+		ON od.order_id
+		= o.order_id
+		JOIN
+		menu_tbl m
 		ON od.menu_id =
 		m.menu_id
 		WHERE od.order_id =
 		#{orderId}
-		ORDER BY od.order_detail_id
+		ORDER
+		BY od.order_detail_id
 	</select>
 
 	<select id="searchOrderInfo" parameterType="int"
@@ -505,22 +509,40 @@
 
 	<select id="selectStatsOrderInfo" resultType="statsOrderInfo">
 		SELECT
+		deliveryType,
+		SUM(orderTotal) AS seriesAmount,
+		COUNT(order_id) AS
+		orderCount
+		FROM (
+		/* 주문(order_id)별로 각각 계산 */
+		SELECT
+		o.order_id,
 		o.DELIVERY_TYPE AS deliveryType,
-		SUM(od.PRICE * od.QUANTITY) AS
-		seriesAmount
+		/* 해당 주문의 (메뉴 총합) + (배달비 1번) */
+		(SELECT SUM(od.PRICE * od.QUANTITY)
+		FROM order_detail od
+		WHERE
+		od.order_id = o.order_id) +
+		CASE
+		WHEN o.DELIVERY_TYPE = 1 THEN 0
+		WHEN
+		o.DELIVERY_TYPE = 2 THEN 1000
+		WHEN o.DELIVERY_TYPE = 3 THEN 3000
+		ELSE 0
+		END AS orderTotal
 		FROM order_list_map m
 		JOIN order_tbl o ON m.order_id =
 		o.order_id
-
-		JOIN order_detail od ON o.order_id = od.order_id
 		WHERE
 		o.store_id = #{storeId}
 		AND o.order_status = 5
-		AND TO_CHAR(m.reg_date,
-		'YYYY-MM') = #{yearMonth}
-		GROUP BY o.delivery_type
-		ORDER BY
-		o.delivery_type ASC
+		AND
+		TO_CHAR(m.reg_date, 'YYYY-MM') = #{yearMonth}
+		GROUP BY o.order_id,
+		o.DELIVERY_TYPE
+		)
+		GROUP BY deliveryType
+		ORDER BY deliveryType ASC
 	</select>
 
 	<select id="selectStoreReviewStats" resultType="map">
@@ -574,21 +596,27 @@
 
 	<update id="rollbackPoint" parameterType="int">
 		UPDATE member_tbl m
-		SET (member_point, total_carbon_reduce) = (
+		SET
+		(member_point, total_carbon_reduce) = (
 		SELECT
-		m.member_point + o.used_point - o.get_point,
-		GREATEST(m.total_carbon_reduce - (o.get_point / 1000.0), 0)
+		m.member_point +
+		o.used_point - o.get_point,
+		GREATEST(m.total_carbon_reduce -
+		(o.get_point / 1000.0), 0)
 		FROM order_tbl o
-		WHERE o.member_id = m.member_id
+		WHERE o.member_id =
+		m.member_id
 		AND o.order_id = #{orderId}
 		AND o.point_reward = 1
 		)
-		WHERE EXISTS (
+		WHERE
+		EXISTS (
 		SELECT 1
 		FROM order_tbl o
 		WHERE o.member_id = m.member_id
-		AND o.order_id = #{orderId}
-		AND o.point_reward = 1 
+		AND
+		o.order_id = #{orderId}
+		AND o.point_reward = 1
 		)
 	</update>
 
@@ -616,7 +644,8 @@
 		FROM operating_hours_tbl
 		WHERE store_id = #{storeId}
 		ORDER BY
-		DECODE(UPPER(day_of_week), 'MON', 1, 'TUE', 2, 'WED', 3, 'THU', 4, 'FRI',
+		DECODE(UPPER(day_of_week), 'MON', 1, 'TUE', 2, 'WED', 3, 'THU', 4,
+		'FRI',
 		5,
 		'SAT', 6, 'SUN', 7)
 	</select>
