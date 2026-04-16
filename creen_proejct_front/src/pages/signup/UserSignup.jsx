@@ -4,7 +4,7 @@ import { useDaumPostcodePopup } from "react-daum-postcode";
 import axios from "axios";
 import Swal from "sweetalert2";
 import useEcoEffects from "../../hooks/useEcoEffects";
-import "./UserSignup.module.css";
+import styles from "./UserSignup.module.css";
 
 const UserSignup = () => {
   const {
