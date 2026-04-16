@@ -144,7 +144,9 @@ export default function Home() {
 
         console.error("데이터 로딩 에러:", err);
         setStoreList([]);
-        setLoadError("매장 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.");
+        setLoadError(
+          "매장 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.",
+        );
         setLoading(false);
       });
 
@@ -272,7 +274,7 @@ export default function Home() {
 
         <div className={styles.card_wrap}>
           {isLoading ? (
-            [1, 2, 3, 4].map((n) => (
+            [1, 2, 3].map((n) => (
               <div
                 key={n}
                 className={`${styles.card_item} ${styles.skeleton_card}`}
@@ -294,7 +296,9 @@ export default function Home() {
               const sLng = store.LONGITUDE || store.longitude;
               const numericDist = getNumericDistance(sLat, sLng);
               const storeName = String(store?.storeName ?? "매장 이름 없음");
-              const storeCategory = String(store?.storeCategory ?? "카테고리 없음");
+              const storeCategory = String(
+                store?.storeCategory ?? "카테고리 없음",
+              );
               const storeRating = Number(store?.storeRating ?? 0);
               const reviewCount = Number(store?.reviewCount ?? 0);
               const storeThumb =
