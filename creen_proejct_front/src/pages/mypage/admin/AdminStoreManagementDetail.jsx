@@ -22,6 +22,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
+import Pagination from "../../../components/commons/Pagination";
 
 const AdminStoreManagementDetail = () => {
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -280,38 +281,11 @@ const AdminStoreManagementDetail = () => {
           </Table>
         </TableContainer>
 
-        <div className={styles.pagination}>
-          <button
-            className={styles.page_btn_nav}
-            onClick={handlePrevGroup}
-            disabled={pageGroup === 0}
-          >
-            <ChevronLeftIcon fontSize="small" /> 이전
-          </button>
-
-          <div className={styles.page_numbers}>
-            {Array.from(
-              { length: endPage - startPage + 1 },
-              (_, i) => startPage + i,
-            ).map((num) => (
-              <div
-                key={num}
-                className={`${styles.page_num} ${currentPage === num ? styles.active : ""}`}
-                onClick={() => setCurrentPage(num)}
-              >
-                {String(num).padStart(2, "0")}
-              </div>
-            ))}
-          </div>
-
-          <button
-            className={styles.page_btn_nav}
-            onClick={handleNextGroup}
-            disabled={endPage === totalPages}
-          >
-            다음 <ChevronRightIcon fontSize="small" />
-          </button>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       </Paper>
 
       {/* ✨ 상세 주문 모달 UI 추가 */}
