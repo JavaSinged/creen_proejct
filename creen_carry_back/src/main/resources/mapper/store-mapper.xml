@@ -191,9 +191,17 @@
 		od.quantity,
 		od.price,
 		od.option_string AS
-		optionString
+		optionString,
+		CASE
+			WHEN o.delivery_type = 1 THEN 0
+			WHEN o.delivery_type = 2 THEN 1000
+			WHEN o.delivery_type = 3 THEN 3000
+			ELSE 0
+		END AS deliveryFee
 		FROM order_detail
 		od
+		JOIN order_tbl o
+		ON od.order_id = o.order_id
 		JOIN menu_tbl m
 		ON od.menu_id =
 		m.menu_id
@@ -224,7 +232,7 @@
 		WHEN
 		o.delivery_type = 2 THEN 1000
 		ELSE
-		2000
+		3000
 		END AS deliveryPrice,
 		o.delivery_type AS deliveryType,
 		o.order_status AS
@@ -417,7 +425,7 @@
 		WHEN
 		o.delivery_type = 1 THEN 0
 		WHEN o.delivery_type = 2 THEN 1000
-		ELSE 2000
+		ELSE 3000
 		END AS deliveryPrice,
 		s.store_address AS storeAddress,
 		m.member_addr AS

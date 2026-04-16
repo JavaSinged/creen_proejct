@@ -16,6 +16,9 @@ import kr.co.iei.store.model.vo.StoreReviewResponse;
 
 @Service
 public class AdminService {
+	private static final int DELIVERY_FEE_WALK = 0;
+	private static final int DELIVERY_FEE_BICYCLE = 1000;
+	private static final int DELIVERY_FEE_CAR = 3000;
 
 	@Autowired
 	private AdminDao adminDao;
@@ -36,6 +39,7 @@ public class AdminService {
 		for (OrderListByStoreId o : list) {
 			List<Menu> menuList = adminDao.selectMenuListByOrderId(o.getOrderId());
 			o.setMenuList(menuList);
+			o.setTotalPrice((o.getTotalPrice() == null ? 0 : o.getTotalPrice()) + resolveDeliveryFee(o.getDeliveryType()));
 		}
 		return list;
 	}
@@ -52,7 +56,24 @@ public class AdminService {
 
 	public List<orderDetail> selectOrderDetailByOrderId(int orderId) {
 		List<orderDetail> detailList = adminDao.selectOrderDetailByOrderId(orderId);
+
+		for (orderDetail detail : detailList) {
+			detail.setDeliveryFee(resolveDeliveryFee(detail.getDeliveryType()));
+		}
 		return detailList;
+	}
+
+	// 코덱스가 수정함: DB에는 delivery_type만 저장되어 있어서 서비스 계층에서 금액으로 변환해 사용함.
+	private int resolveDeliveryFee(int deliveryType) {
+		switch (deliveryType) {
+		case 2:
+			return DELIVERY_FEE_BICYCLE;
+		case 3:
+			return DELIVERY_FEE_CAR;
+		case 1:
+		default:
+			return DELIVERY_FEE_WALK;
+		}
 	}
 
 }
