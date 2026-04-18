@@ -592,7 +592,7 @@ const CheckoutPage = () => {
                 </div>
 
                 <div className={styles.orderRow}>
-                  <span>{isPickup ? "포장 / 픽업" : "에코 딜리버리"}</span>
+                  <span>{isPickup ? "포장 / 픽업" : "배달팁"}</span>
                   <span>{deliveryPrice.toLocaleString()} 원</span>
                 </div>
 
