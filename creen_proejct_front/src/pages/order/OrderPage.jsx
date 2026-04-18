@@ -10,6 +10,7 @@ import ParkIcon from "@mui/icons-material/Park";
 import CloseIcon from "@mui/icons-material/Close";
 import { useLocation, useNavigate } from "react-router-dom";
 import useCartStore from "../../store/useCartStore";
+import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket';
 import axios from "axios";
 
 const OrderPage = () => {
@@ -111,7 +112,7 @@ const OrderPage = () => {
           /* 🌟 장바구니가 비었을 때 보여줄 화면 */
           <section className={styles.emptySection}>
             <div className={styles.emptyCard}>
-              <div className={styles.emptyIcon}>🛒</div>
+              <div className={styles.emptyIcon}><ShoppingBasketIcon/></div>
               <h2>장바구니가 비어있습니다</h2>
               <p>맛있는 음식을 담으러 가볼까요?</p>
               <button
