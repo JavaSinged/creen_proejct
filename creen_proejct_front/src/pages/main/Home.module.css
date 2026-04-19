@@ -8,7 +8,7 @@
 /* 1. 상단 배너 */
 .banner_wrap {
   width: 100%;
-  height: 550px; /* 배너 높이 */
+  height: 550px;
   background-color: #f5f5f5;
 }
 
@@ -25,12 +25,12 @@
   background-repeat: no-repeat;
   display: flex;
   align-items: end;
-  justify-content: flex-start; /* 텍스트 왼쪽 정렬 */
+  justify-content: flex-start;
 }
 
 .banner_text_box {
   width: 100%;
-  padding: 0 10%; /* content_wrap과 동일한 여백 유지 */
+  padding: 0 10%;
 }
 
 .banner_title {
@@ -52,10 +52,10 @@
 /* 카테고리 바 여백 조정 */
 .category_wrap {
   display: flex;
-  justify-content: space-around; /* 요소를 균등하게 배치 */
+  justify-content: space-around;
   align-items: center;
   background-color: #ffffff;
-  border: 2px solid #c4d7b8; /* 선 두께를 조금 줄여 세련되게 */
+  border: 2px solid #c4d7b8;
   border-radius: 100px;
   padding: 10px 25px;
   margin-top: -40px;
@@ -81,18 +81,26 @@
 }
 
 .empty_msg {
-  grid-column: 1 / -1; /* 카드 그리드 전체 너비 차지 */
+  grid-column: 1 / -1;
   text-align: center;
   color: var(--text-sub);
   padding: 40px 0;
   font-size: 14px;
 }
 
+.empty_msg_box {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
 .category_img_circle {
-  width: 65px; /* 크기를 조금 더 키워 가독성 확보 */
+  width: 65px;
   height: 65px;
   border-radius: 50%;
-  background-color: #ffffff; /* 배경을 흰색으로 하고 border를 주는 게 더 깔끔할 수 있습니다 */
+  background-color: #ffffff;
   border: 1px solid #eee;
   display: flex;
   justify-content: center;
@@ -108,7 +116,7 @@
 }
 
 .category_icon {
-  width: 80%; /* 원 안에서 이미지가 꽉 차지 않고 여백이 있도록 조절 */
+  width: 80%;
   height: 80%;
   object-fit: contain;
 }
@@ -124,7 +132,7 @@
 /* 4. 검색창 영역 */
 .search_container {
   display: flex;
-  justify-content: flex-end; /* 오른쪽 정렬 */
+  justify-content: flex-end;
   margin: 40px 0;
 }
 
@@ -150,11 +158,11 @@
   color: #666;
 }
 
-/* 5. 매장 카드 그리드 (★ 핵심 부분) */
+/* 5. 매장 카드 그리드 */
 .card_wrap {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3열로 균등 분할 */
-  gap: 30px; /* 카드 사이 간격 */
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
 }
 
 /* 카드 개별 스타일 */
@@ -167,14 +175,14 @@
 }
 
 .card_item:hover {
-  transform: translateY(-5px); /* 마우스 올렸을 때 살짝 떠오르는 효과 */
+  transform: translateY(-5px);
 }
 
 /* 카드 이미지 영역 */
 .image_wrap {
   height: 200px;
-  background-color: var(--color-surface); /* 임시 이미지 배경 */
-  position: relative; /* 배지 위치를 위해 필요 */
+  background-color: var(--color-surface);
+  position: relative;
 }
 
 .image_wrap > img {
@@ -183,7 +191,7 @@
   object-fit: contain;
 }
 
-/* 카드 좌측 하단 배지 (10 miles) */
+/* 카드 좌측 하단 배지 */
 .card_badge {
   position: absolute;
   bottom: 15px;
@@ -219,17 +227,21 @@
   margin-bottom: 10px;
 }
 
+.dist_text {
+  color: var(--color-brand);
+  font-weight: 600;
+}
+
 .store_rating_wrap {
   display: flex;
   align-items: center;
-  gap: 4px; /* 별과 숫자 사이 간격 */
-  margin-top: 5px;
+  gap: 4px;
+  margin-top: 6px;
 }
 
 .stars_box {
   display: flex;
   align-items: center;
-  /* MUI 아이콘 높이가 제각각일 때를 대비해 세로 정렬 */
 }
 
 .rating_number {
@@ -240,8 +252,13 @@
   margin-left: 2px;
 }
 
-/* 스켈레톤 ui */
-/* --- 스켈레톤 UI 애니메이션 (반짝이는 효과) --- */
+.review_count {
+  font-size: 0.85rem;
+  color: #888;
+  font-weight: 500;
+}
+
+/* 스켈레톤 UI 애니메이션 */
 @keyframes skeleton-shimmer {
   0% {
     background-color: #f2f2f2;
@@ -254,14 +271,12 @@
   }
 }
 
-/* 스켈레톤 카드는 마우스 효과 제거 */
 .skeleton_card {
   pointer-events: none;
-  background-color: #fff !important; /* 배경색을 흰색으로 고정하거나 기존색 유지 */
+  background-color: #fff !important;
   border: 1px solid #eee;
 }
 
-/* 스켈레톤 공통 애니메이션 적용 */
 .skeleton_img,
 .skeleton_title,
 .skeleton_tags,
@@ -271,47 +286,255 @@
   border-radius: 8px;
 }
 
-/* 이미지 영역 스켈레톤 (기존 image_wrap과 높이 동일하게) */
 .skeleton_img {
   width: 100%;
-  height: 200px; /* .image_wrap의 height와 동일 */
-  border-radius: 16px 16px 0 0; /* 카드 상단 곡률 맞춤 */
+  height: 200px;
+  border-radius: 16px 16px 0 0;
 }
 
-/* 제목 영역 스켈레톤 */
 .skeleton_title {
   width: 60%;
   height: 24px;
   margin-bottom: 12px;
 }
 
-/* 태그 영역 스켈레톤 */
 .skeleton_tags {
   width: 40%;
   height: 18px;
   margin-bottom: 12px;
 }
 
-/* 별점 영역 스켈레톤 */
 .skeleton_rating {
   width: 30%;
   height: 18px;
 }
-.store_rating_wrap {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 6px;
+
+/* ===== 태블릿 반응형 (1200px 이하) ===== */
+@media (max-width: 1200px) {
+  .content_wrap {
+    padding: 0 5% 60px 5%;
+  }
+
+  .banner_text_box {
+    padding: 0 5%;
+  }
+
+  .banner_title {
+    font-size: 2rem;
+  }
+
+  /* 카테고리 여백 조정 */
+  .category_wrap {
+    padding: 8px 15px;
+    margin-top: -30px;
+  }
+
+  .category_img_circle {
+    width: 55px;
+    height: 55px;
+  }
+
+  .category_item p {
+    font-size: 0.9rem;
+  }
+
+  /* 카드 2열 */
+  .card_wrap {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+  }
 }
 
-.rating_number {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: #333;
+/* ===== 모바일 반응형 (768px 이하) ===== */
+@media (max-width: 768px) {
+  /* 배너 높이 축소 */
+  .banner_wrap {
+    height: 300px;
+  }
+
+  .banner_text_box {
+    padding: 0 20px;
+  }
+
+  .banner_title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+
+  .content_wrap {
+    padding: 0 20px 40px 20px;
+  }
+
+  /* 카테고리 가로 스크롤 */
+  .category_wrap {
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 15px;
+    padding: 12px 20px;
+    margin-top: -25px;
+    border-radius: 20px;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+
+  .category_wrap::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+
+  .category_item {
+    flex-shrink: 0;
+    min-width: 70px;
+  }
+
+  .category_img_circle {
+    width: 50px;
+    height: 50px;
+  }
+
+  .category_item p {
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  /* 검색창 전체 너비 */
+  .search_container {
+    justify-content: stretch;
+    margin: 30px 0 20px 0;
+  }
+
+  .search_wrap {
+    width: 100%;
+    padding: 12px 20px;
+  }
+
+  .search_wrap input {
+    font-size: 0.95rem;
+  }
+
+  /* 카드 1열 */
+  .card_wrap {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .card_item {
+    border-radius: 12px;
+  }
+
+  .image_wrap {
+    height: 180px;
+  }
+
+  .card_info {
+    padding: 15px;
+  }
+
+  .store_name {
+    font-size: 1.1rem;
+  }
+
+  .store_tags {
+    font-size: 0.8rem;
+    gap: 8px;
+  }
+
+  .store_rating_wrap {
+    gap: 3px;
+  }
+
+  .rating_number {
+    font-size: 0.85rem;
+  }
+
+  .review_count {
+    font-size: 0.8rem;
+  }
+
+  .card_badge {
+    bottom: 10px;
+    left: 10px;
+    padding: 5px 10px;
+    font-size: 0.75rem;
+  }
+
+  .empty_msg {
+    font-size: 13px;
+    padding: 30px 20px;
+  }
+
+  .empty_msg_box {
+    min-height: 150px;
+  }
 }
 
-.review_count {
-  font-size: 0.85rem;
-  color: #888;
-  font-weight: 500;
+/* ===== 작은 모바일 (480px 이하) ===== */
+@media (max-width: 480px) {
+  .banner_wrap {
+    height: 250px;
+  }
+
+  .banner_title {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+  }
+
+  .content_wrap {
+    padding: 0 15px 30px 15px;
+  }
+
+  .category_wrap {
+    padding: 10px 15px;
+    gap: 12px;
+  }
+
+  .category_item {
+    min-width: 60px;
+  }
+
+  .category_img_circle {
+    width: 45px;
+    height: 45px;
+  }
+
+  .category_item p {
+    font-size: 0.75rem;
+  }
+
+  .search_wrap {
+    padding: 10px 15px;
+  }
+
+  .search_wrap input {
+    font-size: 0.9rem;
+  }
+
+  .image_wrap {
+    height: 160px;
+  }
+
+  .card_info {
+    padding: 12px;
+  }
+
+  .store_name {
+    font-size: 1rem;
+  }
+
+  .store_tags {
+    font-size: 0.75rem;
+  }
+
+  .rating_number {
+    font-size: 0.8rem;
+  }
+
+  .review_count {
+    font-size: 0.75rem;
+  }
+
+  .card_badge {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
 }
