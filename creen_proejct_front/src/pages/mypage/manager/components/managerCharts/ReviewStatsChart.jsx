@@ -65,10 +65,7 @@ const ReviewStatsChart = ({ data }) => {
     tooltip: {
       enabled: true,
       y: {
-        formatter: (val) => `${val}%`, // 숫 뒤에 % 표시
-        title: {
-          formatter: (seriesName) => `별점 ${seriesName}`, // "5점" -> "별점 5점"으로 표시
-        },
+        formatter: (val) => `${val}%`,
       },
     },
   };
