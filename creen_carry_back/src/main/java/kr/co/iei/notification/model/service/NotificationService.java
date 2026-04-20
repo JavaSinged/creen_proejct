@@ -21,13 +21,14 @@ public class NotificationService {
 			emitters.remove(memberId);
 		}
 
-		SseEmitter emitter = new SseEmitter(60 * 60 * 1000L);
+		SseEmitter emitter = new SseEmitter(60 * 60 * 1000L); //1시간동안 sse emitter 연결
 		emitters.put(memberId, emitter);
 
 		emitter.onCompletion(() -> emitters.remove(memberId));
 		emitter.onTimeout(() -> emitters.remove(memberId));
 		emitter.onError((e) -> emitters.remove(memberId));
-
+			//연결이 끊기면 주소 삭제 -> 메모리 정리
+		
 		try {
 			emitter.send(SseEmitter.event().name("connect").data("connected!"));
 		} catch (IOException e) {
@@ -40,7 +41,7 @@ public class NotificationService {
 	//noti sender
 	public void sendNotification(String memberId, String eventName, String message, String navUrl) {
 		SseEmitter emitter = emitters.get(memberId);
-		Map<String, Object> data = new HashMap<>();
+		Map<String, Object> data = new HashMap<>();		//서버가 sse를 통해 data를 보낼 수 있는 필드가 하나뿐이라 message와 navUrl을 data에 묶어 전송 
 		data.put("message", message);
 		data.put("navUrl", navUrl);
 		if (emitter != null) {
