@@ -336,4 +336,9 @@ public class MemberService {
 		return currentPoint;
 	}
 
+	public int AddPointEvent(String memberId) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

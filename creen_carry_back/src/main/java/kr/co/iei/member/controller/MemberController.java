@@ -435,5 +435,12 @@ public class MemberController {
         int currentPoint = memberService.getPointByMemberId(memberId);
         return ResponseEntity.ok(currentPoint); 
     }
+	@PostMapping("/Addpoint/{memberId}")
+	public ResponseEntity<?> AddPointEvent(@PathVariable String memberId) {
+		System.out.println(memberId);
+		int result = memberService.AddPointEvent(memberId);
+		
+		return ResponseEntity.ok(result);
+	}
 
 }
