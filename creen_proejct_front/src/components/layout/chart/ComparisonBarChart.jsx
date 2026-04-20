@@ -58,8 +58,8 @@ const CarbonComparisonChart = () => {
   }
 
   const series = [
-    { name: "2025 ~ 2026", data: chartData.currentSeries },
     { name: "2024 ~ 2025", data: chartData.pastSeries },
+    { name: "2025 ~ 2026", data: chartData.currentSeries },
   ];
 
   const chartOptions = {
@@ -82,7 +82,7 @@ const CarbonComparisonChart = () => {
       colors: ["transparent"],
     },
     // 전역 변수 컬러에 맞춤: 포인트 오렌지, 브랜드 그린
-    colors: ["#2e8147", "#ffb300"],
+    colors: ["#ffb300", "#2e8147"],
     xaxis: {
       categories: chartData.categories,
       labels: {
