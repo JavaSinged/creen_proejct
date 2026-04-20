@@ -448,11 +448,11 @@ button {
   .find-content {
     flex-direction: column;
     gap: 30px;
-    padding: 80px 15px 40px 15px; /* 상단 여백 줘서 헤더랑 안 겹치게 */
+    padding: 80px 15px 40px 15px !important; /* 상단 여백 줘서 헤더랑 안 겹치게 */
     margin-top: 0;
     width: 100%;
     min-height: 100vh; /* 컨텐츠 영역도 최소 높이 확보 */
-    box-sizing: border-box;
+    box-sizing: border-box !important;
   }
   .info-section {
     width: 100%;
@@ -465,9 +465,11 @@ button {
   }
   .login-card,
   .find-card {
-    width: 95%;
-    max-width: 450px;
-    padding: 30px 25px;
+    width: calc(100% - 30px) !important; /* 화면 양옆 여백 15px씩 확보 */
+    max-width: 420px !important;
+    padding: 30px 15px !important; /* 패딩을 확 줄여서 내부 공간 확보 */
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
   }
   .illustration-section {
     width: 100%;
