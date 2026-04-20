@@ -51,10 +51,10 @@ public class NotificationService {
 	}
 
 	@Scheduled(fixedRate = 30000)
-	public void sendHeartbeat() {
+	public void sendPing() {
 		emitters.forEach((memberId, emitter) -> {
 			try {
-				emitter.send(SseEmitter.event().name("ping") // 이벤트 이름을 "ping" 혹은 "heartbeat"로
+				emitter.send(SseEmitter.event().name("ping") 
 						.data("heartbeat"));
 			} catch (IOException e) {
 				emitters.remove(memberId);
