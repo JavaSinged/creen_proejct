@@ -460,6 +460,22 @@ button {
     align-items: center;
     text-align: center;
   }
+  .input-with-btn {
+    display: flex !important;
+    gap: 8px !important;
+    width: 100% !important;
+    flex-wrap: nowrap !important; /* 줄바꿈 금지 */
+  }
+  .flex-input {
+    flex: 1 !important;
+    min-width: 0 !important; /* 인풋이 공간 없으면 스스로 줄어들게 함 */
+  }
+
+  .verify-send-btn {
+    flex-shrink: 0 !important; /* 버튼이 절대 안 잘리게 고정 */
+    font-size: 0.85rem !important;
+    padding: 0 10px !important;
+  }
   .main-title {
     font-size: 2rem;
   }
