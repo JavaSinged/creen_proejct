@@ -432,15 +432,27 @@ button {
 /* --- 11. 🌟 📱 모바일 대응 미디어 쿼리 (통합) 🌟 --- */
 @media (max-width: 1024px) {
   .screen-container {
-    background-attachment: scroll;
-    background-size: cover;
+    /* 🌟 1. scroll을 fixed로 변경 (배경은 가만히 있고 내용만 움직이게) */
+    background-attachment: fixed !important;
+    background-size: cover !important;
+    background-position: center !important;
+
+    /* 🌟 2. 높이 설정 최적화 */
+    height: auto; /* 고정 높이 해제 */
+    min-height: 100vh; /* 최소 화면 높이는 확보 */
+    overflow-y: visible; /* 스크롤은 브라우저 기본 스크롤 사용 */
+    position: relative; /* absolute에서 생기는 높이 꼬임 방지 */
   }
+
   .main-content,
   .find-content {
     flex-direction: column;
-    gap: 40px;
-    padding: 20px;
-    margin-top: 20px;
+    gap: 30px;
+    padding: 80px 15px 40px 15px !important; /* 상단 여백 줘서 헤더랑 안 겹치게 */
+    margin-top: 0;
+    width: 100%;
+    min-height: 100vh; /* 컨텐츠 영역도 최소 높이 확보 */
+    box-sizing: border-box !important;
   }
   .info-section {
     width: 100%;
@@ -453,9 +465,11 @@ button {
   }
   .login-card,
   .find-card {
-    width: 95%;
-    max-width: 450px;
-    padding: 30px 25px;
+    width: calc(100% - 30px) !important; /* 화면 양옆 여백 15px씩 확보 */
+    max-width: 420px !important;
+    padding: 30px 15px !important; /* 패딩을 확 줄여서 내부 공간 확보 */
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
   }
   .illustration-section {
     width: 100%;
@@ -485,6 +499,7 @@ button {
     padding: 15px;
     font-size: 1rem;
   }
+  /*주석*/
   .card-footer {
     gap: 15px;
     font-size: 0.75rem;
