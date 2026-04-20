@@ -39,6 +39,7 @@ const ManagerOrderList = () => {
     axios
       .get(`${backHost}/stores/orders/owner/${storeId}`)
       .then((res) => {
+        console.log(res.data);
         setOrderList(Array.isArray(res.data) ? res.data : []);
       })
       .catch((err) => {
