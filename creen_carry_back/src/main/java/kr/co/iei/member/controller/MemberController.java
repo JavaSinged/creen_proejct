@@ -216,7 +216,7 @@ public class MemberController {
 		}
 	}
 
-	// 🌟 [수정된 부분] 유저 정보 업데이트
+	// 유저 정보 업데이트
 	@PostMapping("/updateProfile")
 	public ResponseEntity<?> updateProfile(@RequestParam String memberId, @RequestParam String memberName,
 			@RequestParam String memberPhone, @RequestParam(required = false) Integer memberGrade, // 400 에러 방지용
