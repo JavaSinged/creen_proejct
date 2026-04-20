@@ -64,8 +64,6 @@ const ManagerOrderList = () => {
     const cleaned = phone.replace(/[^0-9]/g, "");
     if (cleaned.length === 11) {
       return cleaned.replace(/(\d{3})(\d{4})(\d{4})/, "$1-****-$3");
-    } else if (cleaned.length === 10) {
-      return cleaned.replace(/(\d{3})(\d{3})(\d{4})/, "$1-***-$3");
     }
     return phone;
   };
@@ -309,19 +307,17 @@ const ManagerOrderList = () => {
                   </div>
 
                   <div className={styles.deliveryInfo}>
-                    <p className={isCanceled ? styles.strikeThrough : ""}>
-                      <strong>배달 방식:</strong>{" "}
+                    <p>
+                      <strong>방식:</strong>{" "}
                       {order.deliveryType === 1 ? "픽업" : "배달"}
                     </p>
-                    <p className={isCanceled ? styles.strikeThrough : ""}>
+                    {/* ✨ SQL에서 추가한 memberPhone 데이터 사용 */}
+                    <p>
                       <strong>연락처:</strong>{" "}
-                      {maskPhoneNumber(order.customerPhone || order.userPhone)}
+                      {maskPhoneNumber(order.memberPhone)}
                     </p>
-                    <p
-                      className={`${styles.address} ${isCanceled ? styles.strikeThrough : ""}`}
-                    >
-                      <strong>주소:</strong>{" "}
-                      {maskAddress(order.deliveryAddress)}
+                    <p className={styles.address}>
+                      <strong>주소:</strong> {order.deliveryAddress}
                     </p>
                   </div>
                 </div>
@@ -340,12 +336,14 @@ const ManagerOrderList = () => {
                     {isCompleted && (
                       <span
                         className={
-                          order.isReviewed
+                          order.reviewStatus === 1
                             ? styles.reviewDone
                             : styles.reviewPending
                         }
                       >
-                        {order.isReviewed ? "● 리뷰 작성완료" : "○ 리뷰 미작성"}
+                        {order.reviewStatus === 1
+                          ? "● 리뷰 작성됨"
+                          : "○ 리뷰 미작성"}
                       </span>
                     )}
                   </div>
