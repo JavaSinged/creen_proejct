@@ -203,7 +203,7 @@ const UserReviewList = () => {
                             display: "inline-block",
                           }}
                         >
-                          ↳ 사장님 답글
+                          ↳ 사장님 답글..
                         </span>
                         <br />
                         {review.reviewCommentContent}
