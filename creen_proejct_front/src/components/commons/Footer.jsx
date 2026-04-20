@@ -41,7 +41,7 @@ export default function Footer() {
               </a>
               <span className={styles.one_divider}>|</span>
               <a
-                href="https://www.erdcloud.com/d/itPtb4kbn5yTwFpjg"
+                href="https://www.erdcloud.com/d/vfPwB6RWxmZKjAJ9i"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.footerLink}
@@ -50,7 +50,7 @@ export default function Footer() {
               </a>
               <span className={styles.one_divider}>|</span>
               <a
-                href="https://www.figma.com/design/23TrLwzZlitTNLkalzGG44/GreenCarry?node-id=994-3555&t=3N6NHCV4HpVGbcYF-1"
+                href="https://www.figma.com/design/23TrLwzZlitTNLkalzGG44/GreenCarry?node-id=0-1&p=f"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.footerLink}
