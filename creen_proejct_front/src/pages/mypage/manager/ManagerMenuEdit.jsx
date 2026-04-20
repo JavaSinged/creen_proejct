@@ -560,13 +560,22 @@ const ManagerMenuEdit = () => {
                     <input
                       type="number"
                       step="0.01"
+                      min="0" //
                       placeholder="탄소량"
                       style={{ width: "80px" }}
                       value={
                         sec.k === "size" ? tempSize.carbon : tempGeneral.carbon
                       }
+                      onKeyDown={(e) => {
+                        if (e.key === "-" || e.key === "e") {
+                          e.preventDefault();
+                        }
+                      }}
                       onChange={(e) => {
                         const val = e.target.value;
+
+                        if (val < 0) return;
+
                         sec.k === "size"
                           ? setTempSize({ ...tempSize, carbon: val })
                           : setTempGeneral({ ...tempGeneral, carbon: val });
