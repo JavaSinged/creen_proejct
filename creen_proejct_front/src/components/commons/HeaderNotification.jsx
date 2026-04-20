@@ -36,6 +36,12 @@ const HeaderNotification = () => {
         "color: #2e7d32; font-weight: bold;",
       );
     };
+    eventSource.addEventListener("ping", (event) => {
+      console.log(
+        "%c📡 Heartbeat 수신: 연결 유지 중...",
+        "color: #9e9e9e; font-style: italic;",
+      );
+    });
 
     // 2. 메시지 수신 (기존 eventSource.addEventListener("orderUpdate", ...))
     eventSource.addEventListener("orderUpdate", async (event) => {
