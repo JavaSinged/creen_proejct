@@ -56,8 +56,8 @@ const TotalSalesChart = () => {
   }
 
   const series = [
-    { name: "2025 ~ 2026", data: chartData.currentSeries },
     { name: "2024 ~ 2025", data: chartData.pastSeries },
+    { name: "2025 ~ 2026", data: chartData.currentSeries },
   ];
 
   const options = {
@@ -72,7 +72,8 @@ const TotalSalesChart = () => {
         borderRadius: 4,
       },
     },
-    colors: ["#2e8147", "#ffb300"],
+
+    colors: ["#ffb300", "#2e8147"],
     dataLabels: { enabled: false },
     xaxis: {
       categories: chartData.categories,
