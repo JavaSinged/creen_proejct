@@ -447,10 +447,12 @@ button {
   .main-content,
   .find-content {
     flex-direction: column;
-    gap: 40px;
-    padding: 100px 20px 50px 20px; /* 상단 여백 줘서 헤더랑 안 겹치게 */
+    gap: 30px;
+    padding: 80px 15px 40px 15px; /* 상단 여백 줘서 헤더랑 안 겹치게 */
     margin-top: 0;
+    width: 100%;
     min-height: 100vh; /* 컨텐츠 영역도 최소 높이 확보 */
+    box-sizing: border-box;
   }
   .info-section {
     width: 100%;
