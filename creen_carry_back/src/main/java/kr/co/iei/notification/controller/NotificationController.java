@@ -49,7 +49,7 @@ public class NotificationController {
     @PatchMapping("/read/all")
     public ResponseEntity<String> markAllAsRead(@RequestParam String memberId) {
         // Service에 updateAllReadStatus를 추가했다면 호출
-        // notificationService.markAllAsRead(memberId);
+        notificationService.markAllAsRead(memberId);
         return ResponseEntity.ok("all read success");
     }
     
