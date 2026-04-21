@@ -42,23 +42,42 @@ const Login = () => {
   useEffect(() => {
     let inputKeys = [];
     const konamiCode = "ArrowUpArrowUpArrowDownArrowDown";
+    const leafImagePath = "/image/leaf.png"; // 🌟 경로 확인 필수!
 
     const triggerLeafRain = () => {
-      for (let i = 0; i < 600; i++) {
+      const leafCount = 500; // 🌟 600개는 너무 무거울 수 있어 100~150개를 추천합니다.
+
+      for (let i = 0; i < leafCount; i++) {
         const leaf = document.createElement("div");
         leaf.className = "easter-egg-leaf";
-        leaf.innerHTML = "🍃"; // 나뭇잎 이모지
-        leaf.style.left = Math.random() * 130 + "vw";
-        leaf.style.top = -(Math.random() * 130) + "vh";
-        leaf.style.animationDuration = Math.random() * 1 + 3 + "s";
-        leaf.style.opacity = Math.random();
-        leaf.style.fontSize = Math.random() * 20 + 10 + "px";
+
+        // 🌟 이미지 설정 및 크기 부여
+        leaf.style.backgroundImage = `url(${leafImagePath})`;
+        leaf.style.backgroundSize = "contain";
+        leaf.style.backgroundRepeat = "no-repeat";
+
+        // 랜덤 크기 설정 (15px ~ 35px)
+        const size = Math.random() * 20 + 15 + "px";
+        leaf.style.width = size;
+        leaf.style.height = size;
+
+        // 위치 및 애니메이션 설정
+        leaf.style.left = Math.random() * 100 + "vw";
+        leaf.style.top = -(Math.random() * 100) + "vh"; //
+
+        // 애니메이션 속도 랜덤 (3초 ~ 6초)
+        const duration = Math.random() * 3 + 2 + "s";
+        leaf.style.animationDuration = duration;
+
+        // 떨어지는 타이밍 분산
+        leaf.style.animationDelay = Math.random() * 2 + "s";
 
         document.body.appendChild(leaf);
 
+        // 6초 후 제거
         setTimeout(() => {
           leaf.remove();
-        }, 6000);
+        }, 7000);
       }
     };
 
@@ -69,13 +88,15 @@ const Login = () => {
       if (inputKeys.join("") === konamiCode) {
         triggerLeafRain();
 
+        // 🌟 Swal 호출 (swalCustomClass가 정의되어 있어야 합니다)
         Swal.fire({
           title: "🍃 Nature Power!",
           text: "에코 에너지가 쏟아집니다!",
           icon: "success",
           showConfirmButton: false,
           timer: 2000,
-          customClass: swalCustomClass,
+          background: "#f0fff0",
+          color: "#2e7d32",
         });
         inputKeys = [];
       }
@@ -192,7 +213,12 @@ const Login = () => {
     setMember((prev) => ({ ...prev, memberGrade: tab === "personal" ? 1 : 2 }));
   };
 
-  const persistLoginSession = (loginUser, accessToken, refreshToken, memberId) => {
+  const persistLoginSession = (
+    loginUser,
+    accessToken,
+    refreshToken,
+    memberId,
+  ) => {
     // 브라우저 저장소 접근은 한 곳으로 모아두면 배포 환경 이슈를 추적하기 쉽습니다.
     if (!isBrowser) {
       return;
@@ -289,7 +315,10 @@ const Login = () => {
     setIsSubmitting(true);
 
     try {
-      const res = await axios.post(`${API_BASE_URL}/member/login`, loginPayload);
+      const res = await axios.post(
+        `${API_BASE_URL}/member/login`,
+        loginPayload,
+      );
       const { member: loginUser, accessToken, refreshToken } = res.data ?? {};
 
       if (loginUser && Number(loginUser.memberStatus) === 2) {
