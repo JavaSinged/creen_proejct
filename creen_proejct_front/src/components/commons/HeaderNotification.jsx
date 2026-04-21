@@ -135,7 +135,8 @@ const HeaderNotification = () => {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);return (
+  }, []);
+  return (
     <div className={styles.noti_icon_wrap} ref={dropdownRef}>
       <NotificationsNoneIcon
         className={styles.bell_icon}
@@ -168,23 +169,25 @@ const HeaderNotification = () => {
                     </span>
                   </div>
                 ))}
-                
+
                 {/* 💡 [수정] 알림이 있을 때만 오른쪽 아래에 '지우기' 버튼 표시 */}
-                <div style={{ 
-                  display: "flex", 
-                  justifyContent: "flex-end", 
-                  padding: "8px 15px",
-                  borderTop: "1px solid #f9f9f9" 
-                }}>
-                  <button 
-                    onClick={handleClearAll} 
-                    style={{ 
-                      background: "none", 
-                      border: "none", 
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    padding: "8px 15px",
+                    borderTop: "1px solid #f9f9f9",
+                  }}
+                >
+                  <button
+                    onClick={handleClearAll}
+                    style={{
+                      background: "none",
+                      border: "none",
                       color: "#bbb", // 조금 더 연한 회색으로 처리
-                      fontSize: "11px", 
-                      cursor: "pointer", 
-                      textDecoration: "underline" 
+                      fontSize: "11px",
+                      cursor: "pointer",
+                      textDecoration: "underline",
                     }}
                   >
                     지우기
@@ -199,5 +202,5 @@ const HeaderNotification = () => {
       )}
     </div>
   );
-
+};
 export default HeaderNotification;
