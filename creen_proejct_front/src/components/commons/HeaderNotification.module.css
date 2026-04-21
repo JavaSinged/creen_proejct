@@ -93,3 +93,25 @@
   font-size: 13px;
   color: #999;
 }
+
+@media (max-width: 768px) {
+  .noti_icon_wrap {
+    position: static;
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
+    margin-right: 0;
+    justify-content: center;
+  }
+
+  .noti_dropdown {
+    top: 50%;
+    left: 48px;
+    right: auto;
+    transform: translateY(-50%);
+    width: min(240px, calc(100vw - 140px));
+    min-width: 200px;
+    max-width: min(280px, calc(100vw - 96px));
+    padding: 10px;
+  }
+}

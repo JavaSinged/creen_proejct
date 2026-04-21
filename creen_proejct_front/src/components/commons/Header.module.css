@@ -269,6 +269,7 @@
     padding: 20px;
     box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
     transition: right 0.3s ease-in-out;
+    overflow-x: visible;
     overflow-y: auto;
     z-index: 999;
   }
@@ -296,6 +297,13 @@
     padding: 15px 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     transition: background-color 0.2s;
+  }
+
+  .notification_wrap {
+    position: relative;
+    width: 100%;
+    justify-content: flex-start;
+    overflow: visible;
   }
 
   .cart_icon_wrap:hover,
