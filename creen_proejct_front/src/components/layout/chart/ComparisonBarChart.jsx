@@ -122,17 +122,17 @@ const CarbonComparisonChart = () => {
       <div className={styles.headerFlex}>
         <div>
           <h3 className={styles.title}>절감된 탄소량 통계</h3>
-          <p className={styles.subTitle}>Past 6 months</p>
         </div>
         <div className={styles.valueGroup}>
           <div className={styles.carbonValue}>{currentTotal.toFixed(3)} Kg</div>
           <span
-            className={styles.badge}
+            className={styles.badge2}
             style={{ color: growthRate >= 0 ? "#2e8147" : "#e74c3c" }}
           >
             {growthRate >= 0 ? "↑" : "↓"} {Math.abs(growthRate).toFixed(1)}%
           </span>
         </div>
+        <p className={styles.subTitle}>Past 6 months</p>
       </div>
       {chartData.categories?.length > 0 && (
         <Chart
