@@ -322,11 +322,30 @@ a {
   font-weight: 800;
   cursor: pointer;
   margin-bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 .pay-btn:hover,
 .point-cancel-btn:hover {
   opacity: 0.92;
+}
+
+.pay-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.88;
+}
+
+.pay-btn:disabled::before {
+  content: "";
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: pay-button-spin 0.7s linear infinite;
 }
 
 .pay-notice {
@@ -432,5 +451,15 @@ a {
   .pay-btn {
     height: 50px;
     font-size: 16px;
+  }
+}
+
+@keyframes pay-button-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
   }
 }
