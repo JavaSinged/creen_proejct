@@ -421,7 +421,10 @@ const CheckoutPage = () => {
             주문내역 확인
           </button>
 
-          <p className={styles.orderNumber}>
+          <p
+            className={styles.orderNumber}
+            onClick={() => navigate("/mypage/user/orderList")}
+          >
             ECO-{orderDate ? orderDate.substring(0, 10).replace(/-/g, "") : ""}-
             {orderId}
           </p>

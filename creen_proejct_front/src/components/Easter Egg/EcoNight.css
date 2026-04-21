@@ -1,0 +1,63 @@
+/* 🌟 정전 오버레이: 빛샘 현상 완벽 차단 및 애니메이션 최적화 */
+.blackout-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99998;
+  pointer-events: none; /* 클릭은 아래로 통과 */
+
+  /* 🌟 0.98을 1(완벽한 블랙)로 변경. 이제 마우스 밖은 절대 안 보임! */
+  background: radial-gradient(
+    circle 135px at var(--mouse-x) var(--mouse-y),
+    /* 손전등 크기도 150->120으로 줄임 */ rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.85) 50%,
+    rgba(0, 0, 0, 1) 80%,
+    /* 80% 거리부터는 빛 투과율 0% */ rgba(0, 0, 0, 1) 100%
+  );
+
+  /* 애니메이션 방식을 background에서 opacity로 변경하여 더 자연스럽게 */
+  animation: flicker-out 1s ease-out forwards;
+}
+
+/* 코딱지만한 숨겨진 랜덤 쿠폰 (변경 없음) */
+.secret-coupon {
+  position: fixed;
+  background: #000;
+  color: var(--color-bg);
+  padding: 12px 20px;
+  border: 1px dashed var(--color-bg);
+  border-radius: 5px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  z-index: 99997;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  pointer-events: all;
+  user-select: none;
+  transition: transform 0.1s ease-out;
+}
+
+.secret-coupon:active {
+  transform: scale(1.1);
+}
+
+/* 🌟 형광등 깜빡이는 효과 (투명도를 조절해서 완벽하게 제어) */
+@keyframes flicker-out {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  20% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 1;
+  }
+}

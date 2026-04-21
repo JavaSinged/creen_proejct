@@ -814,7 +814,7 @@ export default function StoreInfoEdit() {
                     ? previewImg.startsWith("blob:")
                       ? previewImg
                       : `${previewImg}`
-                    : "/image/no-image.png"
+                    : ""
                 }
                 alt="가게 미리보기"
                 className={styles.previewImageTag}

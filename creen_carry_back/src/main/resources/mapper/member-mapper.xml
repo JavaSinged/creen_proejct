@@ -309,4 +309,19 @@
 		member_id =
 		#{memberId}
 	</select>
+
+	<select id="checkEasterEgg" resultType="int">
+		SELECT COUNT(*) FROM EASTER_EGG
+		WHERE MEMBER_ID = #{memberId} AND EGG_NAME = #{eggName}
+	</select>
+
+	<update id="addMemberPoint">
+		UPDATE MEMBER SET TOTAL_POINT = TOTAL_POINT + #{reward}
+		WHERE MEMBER_ID = #{memberId}
+	</update>
+
+	<insert id="insertEasterEgg">
+		INSERT INTO EASTER_EGG (EGG_ID, MEMBER_ID, EGG_NAME, REWARD_POINTS)
+		VALUES (SEQ_EASTER_EGG.NEXTVAL, #{memberId}, #{eggName}, #{reward})
+	</insert>
 </mapper>
