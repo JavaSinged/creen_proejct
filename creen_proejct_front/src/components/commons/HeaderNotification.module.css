@@ -96,7 +96,7 @@
 
 @media (max-width: 768px) {
   .noti_icon_wrap {
-    position: relative;
+    position: static;
     width: 30px;
     min-width: 30px;
     height: 30px;
@@ -106,7 +106,7 @@
 
   .noti_dropdown {
     top: 50%;
-    left: calc(100% + 12px);
+    left: 48px;
     right: auto;
     transform: translateY(-50%);
     width: min(240px, calc(100vw - 140px));
