@@ -316,7 +316,7 @@
 	</select>
 
 	<update id="addMemberPoint">
-		UPDATE MEMBER SET TOTAL_POINT = TOTAL_POINT + #{reward}
+		UPDATE MEMBER_tbl SET member_point = member_point + #{reward}
 		WHERE MEMBER_ID = #{memberId}
 	</update>
 
