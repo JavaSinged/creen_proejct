@@ -17,6 +17,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import Collapse from "@mui/material/Collapse";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import axios from "axios";
+import { withButtonLoading } from "../../../utils/buttonLoading";
 
 export default function UserInfoEdit() {
   const { user, setUser } = useContext(AuthContext);
@@ -110,7 +111,7 @@ export default function UserInfoEdit() {
     }
   };
 
-  const handleProfileSubmit = async () => {
+  const handleProfileSubmit = withButtonLoading(async () => {
     if (!profileData.memberName || !profileData.memberPhone) {
       return Swal.fire(
         "알림",
@@ -154,10 +155,10 @@ export default function UserInfoEdit() {
     } catch (err) {
       Swal.fire("에러", "수정 중 오류 발생", err);
     }
-  };
+  });
 
   // 비밀번호 변경 핸들러
-  const handlePwSubmit = async () => {
+  const handlePwSubmit = withButtonLoading(async () => {
     const { currentPw, newPw, confirmPw } = pwData;
     if (!currentPw || !newPw || !confirmPw)
       return Swal.fire("알림", "모든 필드를 입력해주세요.", "warning");
@@ -208,7 +209,7 @@ export default function UserInfoEdit() {
           : "서버 오류가 발생했습니다.";
       Swal.fire("에러", msg, "error");
     }
-  };
+  });
 
   const handlePwChange = (e) => {
     const { name, value } = e.target;
@@ -242,7 +243,7 @@ export default function UserInfoEdit() {
   };
 
   // 주소 저장
-  const updateAddress = async () => {
+  const updateAddress = withButtonLoading(async () => {
     console.log("1. 함수 시작");
     if (!newAddress.memberAddrCode || !newAddress.memberDetailAddr.trim()) {
       Swal.fire({
@@ -338,10 +339,10 @@ export default function UserInfoEdit() {
         error.response?.data?.message || "주소 변경 중 오류가 발생했습니다.";
       Swal.fire("에러", errorMsg, "error");
     }
-  };
+  });
 
   // 회원 탈퇴 핸들러 (Swal 적용)
-  const handleDeleteClick = async () => {
+  const handleDeleteClick = withButtonLoading(async () => {
     //탈퇴 시 진행중인 배달 조회
     if (!user.memberId) return;
     try {
@@ -366,7 +367,7 @@ export default function UserInfoEdit() {
       console.error("주문 상태 조회 실패:", err);
       Swal.fire("에러", "서버와 통신 중 오류가 발생했습니다.", "error");
     }
-  };
+  });
 
   if (loading)
     return (

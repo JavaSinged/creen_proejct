@@ -7,6 +7,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import axios from "axios";
 import StarsIcon from "@mui/icons-material/Stars";
+import { withButtonLoading } from "../../../utils/buttonLoading";
 
 const ManagerCS = () => {
   const { user } = useContext(AuthContext);
@@ -226,11 +227,11 @@ const QnASection = ({ setSearchKeyword, user, setActiveTab }) => {
     setInquiry({ ...inquiry, [name]: value });
   };
   //1:1문의하기 > 등록
-  const insertQna = (e) => {
+  const insertQna = withButtonLoading(async () => {
     if (!ValidateInquiry(inquiry.qnaTitle, inquiry.qnaContent)) {
       return;
     }
-    axios
+    return axios
       .post(`${import.meta.env.VITE_BACKSERVER}/cs/inquiries/submit`, inquiry)
       .then((res) => {
         console.log(res);
@@ -257,7 +258,7 @@ const QnASection = ({ setSearchKeyword, user, setActiveTab }) => {
           confirmButtonText: "확인",
         });
       });
-  };
+  });
   return (
     <div className={styles.qna_wrap}>
       <div className={styles.qna_guide}>
@@ -371,8 +372,8 @@ const AnswerSection = ({ user, setSearchKeyword }) => {
   };
 
   //1:1문의내역 > 삭제
-  const deleteInquiry = (qnaNo) => {
-    Swal.fire({
+  const deleteInquiry = withButtonLoading(async (_event, qnaNo) => {
+    return Swal.fire({
       title: "정말 삭제하시겠습니까?",
       text: "삭제된 문의는 복구할 수 없습니다.",
       icon: "warning",
@@ -413,10 +414,10 @@ const AnswerSection = ({ user, setSearchKeyword }) => {
         }
       }
     });
-  };
+  });
 
   ////1:1문의내역 > 수정
-  const updateInquiry = (item, index) => {
+  const updateInquiry = withButtonLoading(async (_event, item, index) => {
     if (answerStatus === 0) {
       if (!ValidateInquiry(updateData.qnaTitle, updateData.qnaContent)) {
         return;
@@ -438,7 +439,7 @@ const AnswerSection = ({ user, setSearchKeyword }) => {
           qnaTitle: updateData.qnaTitle || item.qnaTitle,
           qnaContent: updateData.qnaContent || item.qnaContent,
         };
-        axios
+        return axios
           .put(
             `${import.meta.env.VITE_BACKSERVER}/cs/inquiries/update`,
             dataSend,
@@ -470,7 +471,7 @@ const AnswerSection = ({ user, setSearchKeyword }) => {
           });
       }
     }
-  };
+  });
 
   //수정 및 삭제 후 리스트 출력 분리
   const fetchInquiryList = () => {
@@ -587,8 +588,8 @@ const AnswerSection = ({ user, setSearchKeyword }) => {
                       <>
                         <button
                           className={styles.edit_btn}
-                          onClick={() => {
-                            updateInquiry(item, i);
+                          onClick={(e) => {
+                            updateInquiry(e, item, i);
                           }}
                         >
                           저장
@@ -618,8 +619,8 @@ const AnswerSection = ({ user, setSearchKeyword }) => {
                         </button>
                         <button
                           className={styles.delete_btn}
-                          onClick={() => {
-                            deleteInquiry(item.qnaNo);
+                          onClick={(e) => {
+                            deleteInquiry(e, item.qnaNo);
                           }}
                         >
                           삭제

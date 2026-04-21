@@ -18,6 +18,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import useCartStore from "../../store/useCartStore";
+import { withButtonLoading } from "../../utils/buttonLoading";
 
 export default function Header() {
   const clearCart = useCartStore((state) => state.clearCart);
@@ -71,17 +72,17 @@ export default function Header() {
     });
   };
 
-  const handleLogoutClick = () => {
+  const handleLogoutClick = withButtonLoading(async () => {
     clearCart();
     setMobileMenuOpen(false);
-    fireStyledSwal(
+    return fireStyledSwal(
       "success",
       "로그아웃 완료",
       "안전하게 로그아웃 되었습니다. 메인으로 이동합니다."
     ).then(() => {
       logout();
     });
-  };
+  });
 
   const handleMyPageClick = () => {
     setMobileMenuOpen(false);

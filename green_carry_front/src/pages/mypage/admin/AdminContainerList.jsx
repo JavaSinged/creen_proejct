@@ -12,6 +12,7 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import api from "../../../utils/accessToken";
 import Pagination from "../../../components/commons/Pagination";
+import { withButtonLoading } from "../../../utils/buttonLoading";
 
 export default function AdminContainerList() {
   const navigate = useNavigate();
@@ -46,8 +47,8 @@ export default function AdminContainerList() {
       .catch((err) => console.log("데이터 불러오기 실패:", err));
   }, [backHost]);
 
-  const handleDelete = (productId) => {
-    Swal.fire({
+  const handleDelete = withButtonLoading(async (_event, productId) => {
+    return Swal.fire({
       title: "정말 삭제하시겠습니까?",
       text: "삭제하면 데이터를 복구할 수 없습니다.",
       icon: "warning",
@@ -74,7 +75,7 @@ export default function AdminContainerList() {
           });
       }
     });
-  };
+  });
 
   const handleSort = (key) => {
     let direction = "asc";
@@ -228,7 +229,7 @@ export default function AdminContainerList() {
                   </button>
                   <button
                     className={styles.delete_btn}
-                    onClick={() => handleDelete(carbon.productId)}
+                    onClick={(e) => handleDelete(e, carbon.productId)}
                   >
                     <ClearIcon className={styles.delete_icon} />
                   </button>

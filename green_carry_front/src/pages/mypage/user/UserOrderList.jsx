@@ -8,6 +8,7 @@ import { AuthContext } from "../../../context/AuthContext"; // 🌟 AuthContext 
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Pagination from "../../../components/commons/Pagination";
+import { withButtonLoading } from "../../../utils/buttonLoading";
 
 const UserOrderListPage = () => {
   const backHost = import.meta.env.VITE_BACKSERVER;
@@ -69,7 +70,7 @@ const UserOrderListPage = () => {
   }, [startDate, endDate]);
 
   // 🌟 주문 취소 및 실시간 포인트 복구 로직
-  const cancelOrder = (orderId) => {
+  const cancelOrder = withButtonLoading(async (_event, orderId) => {
     Swal.fire({
       title: "주문 취소",
       text: "정말 주문을 취소하시겠습니까?",
@@ -118,7 +119,7 @@ const UserOrderListPage = () => {
           });
       }
     });
-  };
+  });
 
   const filteredAndSortedOrders = useMemo(() => {
     let filtered = [...orderList];
@@ -262,7 +263,7 @@ const UserOrderListPage = () => {
                         className={styles.cancelBtn}
                         onClick={(e) => {
                           e.stopPropagation();
-                          cancelOrder(order.orderId);
+                          cancelOrder(e, order.orderId);
                         }}
                       >
                         주문 취소

@@ -6,6 +6,7 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import useCartStore from "../../store/useCartStore";
 import Swal from "sweetalert2";
+import { withButtonLoading } from "../../utils/buttonLoading";
 
 export default function MenuModal({
   isOpen,
@@ -116,13 +117,13 @@ export default function MenuModal({
   };
 
   // 장바구니 담기
-  const handleAddToCart = () => {
+  const handleAddToCart = withButtonLoading(async () => {
     const currentId = Number(currentStoreId);
     const savedId = Number(cartStoreId);
 
     // 장바구니가 비어있지 않고, 저장된 매장 ID가 현재 매장 ID와 다를 때만 경고창
     if (cart.length > 0 && savedId !== 0 && savedId !== currentId) {
-      Swal.fire({
+      return Swal.fire({
         title: "장바구니에는 한 곳의 매장만 담을 수 있습니다.",
         text: "현재 담긴 메뉴를 삭제하고 이 매장의 메뉴를 담으시겠습니까?",
         icon: "warning",
@@ -146,7 +147,7 @@ export default function MenuModal({
       // 장바구니가 비어있거나 같은 매장일 때
       executeAdd();
     }
-  };
+  });
 
   // 2. 실제 장바구니에 데이터를 넣는 함수
   const executeAdd = () => {

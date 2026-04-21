@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Pagination from "../../../components/commons/Pagination";
+import { withButtonLoading } from "../../../utils/buttonLoading";
 
 const ManagerOrderList = () => {
   const [orderList, setOrderList] = useState([]);
@@ -69,8 +70,12 @@ const ManagerOrderList = () => {
   };
 
   // 공통 API 호출 함수
-  const requestStatusUpdate = (orderId, nextStatus, expectedTime = null) => {
-    axios
+  const requestStatusUpdate = async (
+    orderId,
+    nextStatus,
+    expectedTime = null,
+  ) => {
+    return axios
       .patch(`${backHost}/stores/order/${orderId}/status`, {
         status: nextStatus,
         expectedTime: expectedTime,
@@ -108,7 +113,8 @@ const ManagerOrderList = () => {
   };
 
   // 주문 상태 업데이트 로직
-  const updateOrderStatus = (orderId, currentStatus, deliveryType) => {
+  const updateOrderStatus = withButtonLoading(
+    async (_event, orderId, currentStatus, deliveryType) => {
     const nextStatus = currentStatus + 1;
     const isPickup = deliveryType === 1;
 
@@ -135,9 +141,9 @@ const ManagerOrderList = () => {
             output.innerText = input.value;
           });
         },
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.isConfirmed) {
-          requestStatusUpdate(orderId, nextStatus, result.value);
+          await requestStatusUpdate(orderId, nextStatus, result.value);
         }
       });
     } else {
@@ -160,15 +166,15 @@ const ManagerOrderList = () => {
         showCancelButton: true,
         confirmButtonText: "확인",
         cancelButtonText: "취소",
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.isConfirmed) {
-          requestStatusUpdate(orderId, nextStatus);
+          await requestStatusUpdate(orderId, nextStatus);
         }
       });
     }
-  };
+  });
 
-  const cancelOrder = (orderId) => {
+  const cancelOrder = withButtonLoading(async (_event, orderId) => {
     Swal.fire({
       title: "주문 취소",
       text: "정말 이 주문을 취소(거절)하시겠습니까?",
@@ -177,7 +183,7 @@ const ManagerOrderList = () => {
       confirmButtonColor: "#d33",
       confirmButtonText: "취소 확정",
       cancelButtonText: "돌아가기",
-    }).then((result) => {
+      }).then((result) => {
       if (result.isConfirmed) {
         axios
           .patch(`${backHost}/stores/order/${orderId}/status`, { status: 9 })
@@ -191,7 +197,7 @@ const ManagerOrderList = () => {
           });
       }
     });
-  };
+  });
 
   const sortedOrders = [...orderList].sort(
     (a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime(),
@@ -361,8 +367,9 @@ const ManagerOrderList = () => {
                     {order.orderStatus >= 1 && order.orderStatus < 5 && (
                       <button
                         className={styles.nextStepBtn}
-                        onClick={() =>
+                        onClick={(e) =>
                           updateOrderStatus(
+                            e,
                             order.orderId,
                             order.orderStatus,
                             order.deliveryType,
@@ -375,7 +382,7 @@ const ManagerOrderList = () => {
                     {order.orderStatus === 1 && (
                       <button
                         className={styles.cancelBtn}
-                        onClick={() => cancelOrder(order.orderId)}
+                        onClick={(e) => cancelOrder(e, order.orderId)}
                       >
                         주문 거절
                       </button>

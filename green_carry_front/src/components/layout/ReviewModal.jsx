@@ -3,6 +3,7 @@ import api from "../../utils/accessToken";
 import Swal from "sweetalert2";
 import styles from "./ReviewModal.module.css";
 import CloseIcon from "@mui/icons-material/Close";
+import { withButtonLoading } from "../../utils/buttonLoading";
 
 export default function ReviewModal({ order, onClose }) {
   const backHost = import.meta.env.VITE_BACKSERVER;
@@ -22,7 +23,7 @@ export default function ReviewModal({ order, onClose }) {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = withButtonLoading(async () => {
     console.log("지금 order 객체 내용:", order);
     if (content.length < 10) {
       return Swal.fire("알림", "리뷰를 10자 이상 작성해주세요.", "warning");
@@ -60,7 +61,7 @@ export default function ReviewModal({ order, onClose }) {
 
       Swal.fire("등록 실패", finalMsg, "error");
     }
-  };
+  });
 
   return (
     <div className={styles.modal_overlay}>

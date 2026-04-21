@@ -6,6 +6,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { withButtonLoading } from "../../../utils/buttonLoading";
 
 const UserDelAccount = () => {
   const { user, logout } = useContext(AuthContext); // 현재 로그인한 유저 정보
@@ -79,7 +80,7 @@ const UserDelAccount = () => {
     MemberDate();
   }, [user]);
 
-  const handleDeleteAccount = async () => {
+  const handleDeleteAccount = withButtonLoading(async () => {
     // 둘다 안했을 때
     if (!password && !isAgreed) {
       Swal.fire({
@@ -145,7 +146,7 @@ const UserDelAccount = () => {
         confirmButtonColor: "#e74c3c",
       });
     }
-  };
+  });
 
   return (
     <div className={styles.wrapper}>

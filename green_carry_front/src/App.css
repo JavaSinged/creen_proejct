@@ -114,6 +114,34 @@ canvas {
   max-width: 100%;
 }
 
+[data-loading="true"] {
+  position: relative;
+  pointer-events: none;
+}
+
+[data-loading="true"]::before {
+  content: "";
+  width: 1em;
+  height: 1em;
+  margin-right: 8px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  vertical-align: -0.15em;
+  animation: button-spin 0.7s linear infinite;
+}
+
+@keyframes button-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 main {
   flex: 1;
   background-color: var(--color-bg);

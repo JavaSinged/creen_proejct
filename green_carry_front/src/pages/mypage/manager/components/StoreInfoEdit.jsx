@@ -10,6 +10,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { AuthContext } from "../../../../context/AuthContext";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import Swal from "sweetalert2";
+import { withSubmitButtonLoading } from "../../../../utils/buttonLoading";
 
 export default function StoreInfoEdit() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -527,7 +528,7 @@ export default function StoreInfoEdit() {
     fetchStoreData();
   }, [storeId]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = withSubmitButtonLoading(async (e) => {
     e.preventDefault();
 
     if (!formData.storeName.trim()) return showAlert("가게명을 입력해주세요.");
@@ -603,7 +604,7 @@ export default function StoreInfoEdit() {
       console.error("????ㅽ뙣", error);
       showAlert("서버 오류가 발생했습니다. 다시 시도해주세요.", "error");
     }
-  };
+  });
 
   return (
     <div className={styles.container}>

@@ -3,6 +3,7 @@ import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import styles from "./HeaderNotification.module.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { withButtonLoading } from "../../utils/buttonLoading";
 
 const HeaderNotification = () => {
   const [unreadCount, setUnreadCount] = useState(0);
@@ -87,7 +88,7 @@ const HeaderNotification = () => {
   }, [memberId, backHost]);
 
   // 개별 클릭 시
-  const handleNotiClick = async (notiId, navUrl) => {
+  const handleNotiClick = withButtonLoading(async (_event, notiId, navUrl) => {
     try {
       if (notiId) {
         await axios.patch(`${backHost}/api/notification/read/${notiId}`);
@@ -100,7 +101,7 @@ const HeaderNotification = () => {
     } catch (err) {
       console.error("읽음 처리 실패:", err);
     }
-  };
+  });
 
   // 💡 [수정] 종 아이콘 클릭 시 빨간 배지 초기화
   const handleIconClick = () => {
@@ -121,8 +122,9 @@ const HeaderNotification = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
   // '지우기' 버튼 클릭 시 호출되는 함수
-  const handleClearAll = async () => {
+  const handleClearAll = withButtonLoading(async (event) => {
     try {
+      event?.stopPropagation();
       // 1. DB의 모든 알림을 'Y'로 업데이트 (이게 핵심!)
       await axios.patch(`${backHost}/api/notification/read/all`, null, {
         params: { memberId },
@@ -136,7 +138,7 @@ const HeaderNotification = () => {
     } catch (err) {
       console.error("지우기 실패:", err);
     }
-  };
+  });
 
   return (
     <div className={styles.noti_icon_wrap} ref={dropdownRef}>
@@ -161,7 +163,7 @@ const HeaderNotification = () => {
                   <div
                     key={noti.notiId || Math.random()}
                     className={styles.noti_item}
-                    onClick={() => handleNotiClick(noti.notiId, noti.navUrl)}
+                    onClick={(e) => handleNotiClick(e, noti.notiId, noti.navUrl)}
                   >
                     <p className={styles.noti_msg}>{noti.message}</p>
                     <span className={styles.noti_time}>
@@ -180,8 +182,7 @@ const HeaderNotification = () => {
                 >
                   <button
                     onClick={(e) => {
-                      e.stopPropagation(); // 드롭다운이 닫히지 않게 이벤트 전파 방지
-                      handleClearAll();
+                      handleClearAll(e);
                     }}
                     style={{
                       background: "none",

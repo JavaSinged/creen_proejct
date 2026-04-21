@@ -6,6 +6,7 @@ import axios from "axios";
 import Pagination from "../../../components/commons/Pagination";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { withButtonLoading } from "../../../utils/buttonLoading";
 
 const ManagerReviewComment = () => {
   const [reviews, setReviews] = useState([]);
@@ -57,7 +58,7 @@ const ManagerReviewComment = () => {
     setReplyInputs((prev) => ({ ...prev, [orderId]: text }));
   };
 
-  const submitReply = async (orderId) => {
+  const submitReply = withButtonLoading(async (_event, orderId) => {
     const content = replyInputs[orderId];
     if (!content || content.trim().length < 5) {
       return Swal.fire("알림", "답글을 5자 이상 작성해주세요.", "warning");
@@ -82,9 +83,9 @@ const ManagerReviewComment = () => {
       console.error(err);
       Swal.fire("실패", "답글 등록 중 서버 오류가 발생했습니다.", "error");
     }
-  };
+  });
 
-  const deleteReview = (orderId) => {
+  const deleteReview = withButtonLoading(async (_event, orderId) => {
     Swal.fire({
       title: "리뷰를 삭제하시겠습니까?",
       text: "삭제된 리뷰는 복구할 수 없습니다.",
@@ -109,7 +110,7 @@ const ManagerReviewComment = () => {
         }
       }
     });
-  };
+  });
 
   return (
     <div className={styles.page}>
@@ -132,7 +133,7 @@ const ManagerReviewComment = () => {
               >
                 <button
                   className={styles.deleteBtn}
-                  onClick={() => deleteReview(review.orderId)}
+                  onClick={(e) => deleteReview(e, review.orderId)}
                   title="리뷰 삭제"
                 >
                   삭제
@@ -207,7 +208,7 @@ const ManagerReviewComment = () => {
                         />
                         <button
                           className={styles.submitBtn}
-                          onClick={() => submitReply(review.orderId)}
+                          onClick={(e) => submitReply(e, review.orderId)}
                         >
                           등록
                         </button>

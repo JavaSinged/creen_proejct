@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Pagination from "../../../components/commons/Pagination";
+import { withButtonLoading } from "../../../utils/buttonLoading";
 
 const UserReviewList = () => {
   const [reviews, setReviews] = useState([]);
@@ -51,7 +52,7 @@ const UserReviewList = () => {
     setCurrentPage(1);
   }, [startDate, endDate]);
 
-  const deleteReview = (orderId) => {
+  const deleteReview = withButtonLoading(async (_event, orderId) => {
     Swal.fire({
       title: "리뷰를 삭제하시겠습니까?",
       text: "삭제된 리뷰는 복구할 수 없으며 에코 포인트가 차감될 수 있습니다.",
@@ -78,7 +79,7 @@ const UserReviewList = () => {
         }
       }
     });
-  };
+  });
 
   const filteredReviews = reviews.filter((review) => {
     if (!review.reviewDate) return true;
@@ -136,7 +137,7 @@ const UserReviewList = () => {
                 </div>
                 <button
                   className={styles.delete_btn}
-                  onClick={() => deleteReview(review.orderId)}
+                  onClick={(e) => deleteReview(e, review.orderId)}
                 >
                   삭제
                 </button>

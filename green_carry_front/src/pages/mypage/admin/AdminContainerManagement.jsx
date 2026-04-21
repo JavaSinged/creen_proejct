@@ -5,6 +5,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import api from "../../../utils/accessToken";
 import Swal from "sweetalert2";
+import { withButtonLoading } from "../../../utils/buttonLoading";
 
 const AdminContainerManagement = () => {
   const location = useLocation();
@@ -132,7 +133,7 @@ const AdminContainerManagement = () => {
     setKgValue(value);
   };
 
-  const handleSaveSubmit = async () => {
+  const handleSaveSubmit = withButtonLoading(async () => {
     if (!productName.trim()) {
       return Swal.fire("알림", "용기 이름을 입력해주세요.", "warning");
     }
@@ -172,7 +173,7 @@ const AdminContainerManagement = () => {
       console.error(err);
       Swal.fire("에러", "서버 통신 중 오류가 발생했습니다.", "error");
     }
-  };
+  });
 
   return (
     <div>

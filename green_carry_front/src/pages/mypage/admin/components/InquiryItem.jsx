@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import styles from "../AdminDashboard.module.css";
+import { withButtonLoading } from "../../../../utils/buttonLoading";
 
 export default function InquiryItem({
   inq,
@@ -18,7 +19,7 @@ export default function InquiryItem({
   const [answerInput, setAnswerInput] = useState("");
   const isExpanded = expandedId === inq.qnaNo;
 
-  const submitAnswer = async () => {
+  const submitAnswer = withButtonLoading(async () => {
     if (!answerInput.trim()) {
       Swal.fire({
         icon: "warning",
@@ -57,7 +58,7 @@ export default function InquiryItem({
         confirmButtonColor: "#d33",
       });
     }
-  };
+  });
 
   return (
     <div className={styles.inquiryItem}>

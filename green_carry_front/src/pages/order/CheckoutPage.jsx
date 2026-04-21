@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import useCartStore from "../../store/useCartStore";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { withButtonLoading } from "../../utils/buttonLoading";
 import { AuthContext } from "../../context/AuthContext";
 
 const CheckoutPage = () => {
@@ -232,8 +233,8 @@ const CheckoutPage = () => {
   ]);
 
   // 7. 주문 취소 처리
-  const cancelOrder = () => {
-    Swal.fire({
+  const cancelOrder = withButtonLoading(async () => {
+    return Swal.fire({
       title: "주문 취소",
       text: "정말 주문을 취소하시겠습니까?",
       icon: "warning",
@@ -264,7 +265,7 @@ const CheckoutPage = () => {
           });
       }
     });
-  };
+  });
 
   // 나머지 데이터 연동 및 폴링 설정
   useEffect(() => {

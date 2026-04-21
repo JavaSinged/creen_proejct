@@ -17,6 +17,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Collapse from "@mui/material/Collapse";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
+import { withButtonLoading } from "../../../utils/buttonLoading";
 
 export default function ManagerInfoEdit() {
   const { user, setUser } = useContext(AuthContext);
@@ -86,7 +87,7 @@ export default function ManagerInfoEdit() {
     }
   };
 
-  const handleProfileSubmit = async () => {
+  const handleProfileSubmit = withButtonLoading(async () => {
     if (!profileData.memberName || !profileData.memberPhone) {
       return Swal.fire(
         "알림",
@@ -149,7 +150,7 @@ export default function ManagerInfoEdit() {
     } catch (err) {
       Swal.fire("에러", "수정 중 오류 발생", "error");
     }
-  };
+  });
 
   const handlePwChange = (e) => {
     const { name, value } = e.target;
