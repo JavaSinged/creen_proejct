@@ -96,20 +96,22 @@
 
 @media (max-width: 768px) {
   .noti_icon_wrap {
-    position: static;
-    width: auto;
+    position: relative;
+    width: 30px;
     min-width: 30px;
+    height: 30px;
     margin-right: 0;
-    justify-content: flex-start;
+    justify-content: center;
   }
 
   .noti_dropdown {
-    top: calc(100% + 10px);
-    left: 0;
+    top: 50%;
+    left: calc(100% + 12px);
     right: auto;
-    width: calc(100% - 20px);
-    min-width: 220px;
-    max-width: min(320px, calc(100vw - 64px));
+    transform: translateY(-50%);
+    width: min(240px, calc(100vw - 140px));
+    min-width: 200px;
+    max-width: min(280px, calc(100vw - 96px));
     padding: 10px;
   }
 }
