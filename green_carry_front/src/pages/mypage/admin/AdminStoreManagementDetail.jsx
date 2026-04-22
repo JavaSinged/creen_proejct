@@ -88,7 +88,9 @@ const AdminStoreManagementDetail = () => {
       const bValue = b?.[sortConfig.key] ?? "";
 
       if (typeof aValue === "number" && typeof bValue === "number") {
-        return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
+        return sortConfig.direction === "asc"
+          ? aValue - bValue
+          : bValue - aValue;
       }
 
       return sortConfig.direction === "asc"
@@ -261,7 +263,9 @@ const AdminStoreManagementDetail = () => {
                     </Box>
                   </TableCell>
 
-                  <TableCell>{(item.totalPrice || 0).toLocaleString()}원</TableCell>
+                  <TableCell>
+                    {(item.totalPrice || 0).toLocaleString()}원
+                  </TableCell>
 
                   <TableCell>{item.storeName}</TableCell>
 
@@ -330,7 +334,10 @@ const AdminStoreManagementDetail = () => {
                   <Box textAlign="right">
                     <Typography variant="body2">{menu.quantity}개</Typography>
                     <Typography fontWeight="bold">
-                      {((menu.price || 0) * (menu.quantity || 0)).toLocaleString()}원
+                      {(
+                        (menu.price || 0) * (menu.quantity || 0)
+                      ).toLocaleString()}
+                      원
                     </Typography>
                   </Box>
                 </Box>
@@ -357,7 +364,7 @@ const AdminStoreManagementDetail = () => {
                   alignItems="center"
                 >
                   <Typography variant="body2" color="text.secondary">
-                    배송비
+                    배달비
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     {detailDeliveryFee.toLocaleString()}원

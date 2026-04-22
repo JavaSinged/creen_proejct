@@ -115,64 +115,66 @@ const ManagerOrderList = () => {
   // 주문 상태 업데이트 로직
   const updateOrderStatus = withButtonLoading(
     async (_event, orderId, currentStatus, deliveryType) => {
-    const nextStatus = currentStatus + 1;
-    const isPickup = deliveryType === 1;
+      const nextStatus = currentStatus + 1;
+      const isPickup = deliveryType === 1;
 
-    if (currentStatus === 1) {
-      Swal.fire({
-        title: isPickup ? "예상 픽업 소요 시간" : "예상 배달 소요 시간",
-        html: `
+      if (currentStatus === 1) {
+        Swal.fire({
+          title: isPickup ? "예상 픽업 소요 시간" : "예상 배달 소요 시간",
+          html: `
           <div style="margin: 20px 0;">
             <b id="range-value" style="font-size: 2.5rem; color: #2f8f46;">15</b>
             <span style="font-size: 1.2rem; font-weight: bold;">분</span>
           </div>
         `,
-        input: "range",
-        inputAttributes: { min: "5", max: "120", step: "1" },
-        inputValue: 15,
-        showCancelButton: true,
-        confirmButtonText: "주문 수락",
-        cancelButtonText: "취소",
-        confirmButtonColor: "#2f8f46",
-        didOpen: () => {
-          const input = Swal.getInput();
-          const output = Swal.getHtmlContainer().querySelector("#range-value");
-          input.addEventListener("input", () => {
-            output.innerText = input.value;
-          });
-        },
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          await requestStatusUpdate(orderId, nextStatus, result.value);
+          input: "range",
+          inputAttributes: { min: "5", max: "120", step: "1" },
+          inputValue: 15,
+          showCancelButton: true,
+          confirmButtonText: "주문 수락",
+          cancelButtonText: "취소",
+          confirmButtonColor: "#2f8f46",
+          didOpen: () => {
+            const input = Swal.getInput();
+            const output =
+              Swal.getHtmlContainer().querySelector("#range-value");
+            input.addEventListener("input", () => {
+              output.innerText = input.value;
+            });
+          },
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            await requestStatusUpdate(orderId, nextStatus, result.value);
+          }
+        });
+      } else {
+        let confirmMsg = "";
+        if (currentStatus === 2) confirmMsg = "조리를 시작하시겠습니까?";
+        else if (currentStatus === 3) {
+          confirmMsg = isPickup
+            ? "픽업 준비가 완료되었습니까?"
+            : "배달을 출발시키겠습니까?";
+        } else if (currentStatus === 4) {
+          confirmMsg = isPickup
+            ? "픽업이 완료되었습니까?"
+            : "배달이 완료되었습니까?";
         }
-      });
-    } else {
-      let confirmMsg = "";
-      if (currentStatus === 2) confirmMsg = "조리를 시작하시겠습니까?";
-      else if (currentStatus === 3) {
-        confirmMsg = isPickup
-          ? "픽업 준비가 완료되었습니까?"
-          : "배달을 출발시키겠습니까?";
-      } else if (currentStatus === 4) {
-        confirmMsg = isPickup
-          ? "픽업이 완료되었습니까?"
-          : "배달이 완료되었습니까?";
-      }
 
-      Swal.fire({
-        title: "상태 변경",
-        text: confirmMsg,
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: "확인",
-        cancelButtonText: "취소",
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          await requestStatusUpdate(orderId, nextStatus);
-        }
-      });
-    }
-  });
+        Swal.fire({
+          title: "상태 변경",
+          text: confirmMsg,
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonText: "확인",
+          cancelButtonText: "취소",
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            await requestStatusUpdate(orderId, nextStatus);
+          }
+        });
+      }
+    },
+  );
 
   const cancelOrder = withButtonLoading(async (_event, orderId) => {
     Swal.fire({
@@ -183,7 +185,7 @@ const ManagerOrderList = () => {
       confirmButtonColor: "#d33",
       confirmButtonText: "취소 확정",
       cancelButtonText: "돌아가기",
-      }).then((result) => {
+    }).then((result) => {
       if (result.isConfirmed) {
         axios
           .patch(`${backHost}/stores/order/${orderId}/status`, { status: 9 })
@@ -323,7 +325,11 @@ const ManagerOrderList = () => {
                   <div className={styles.deliveryInfo}>
                     <p>
                       <strong>방식:</strong>{" "}
-                      {order.deliveryType === 1 ? "픽업" : "배달"}
+                      {order.deliveryType === 1
+                        ? "픽업"
+                        : order.deliveryType === 2
+                          ? "도보/자전거"
+                          : "오토바이"}
                     </p>
                     {/* ✨ SQL에서 추가한 memberPhone 데이터 사용 */}
                     <p>
