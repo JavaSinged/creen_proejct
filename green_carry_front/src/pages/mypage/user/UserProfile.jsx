@@ -15,10 +15,12 @@ const UserProfile = () => {
   const { user } = useContext(AuthContext);
   const backHost = import.meta.env.VITE_BACKSERVER;
 
+  // 🌟 포인트 초기값 설정 및 상태 관리
   const [point, setPoint] = useState(() => {
     const savedPoint = localStorage.getItem("memberPoint");
     return savedPoint ? Number(savedPoint) : 0;
   });
+
   const [totalCarbon, setTotalCarbon] = useState(0);
   const [communityPoint, setCommunityPoint] = useState(0);
   const [pointHistory, setPointHistory] = useState([]);
@@ -28,12 +30,10 @@ const UserProfile = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const itemsPerPage = 5;
-  const pageGroupSize = 10;
 
-  // 🌟 필터는 형님의 기존 로직(status >= 1) 그대로 유지!
+  // 필터 로직 (기존 유지)
   const filteredHistory = pointHistory.filter((item) => item.orderStatus >= 1);
   const totalPages = Math.ceil(filteredHistory.length / itemsPerPage) || 1;
-
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentHistoryItems = filteredHistory.slice(
@@ -55,21 +55,42 @@ const UserProfile = () => {
       ? (totalCarbon / 1000).toFixed(1) + "kg"
       : totalCarbon.toLocaleString() + "g";
 
+  // 🌟 [핵심] 데이터 동기화 함수
   const fetchUserData = useCallback(async () => {
-    if (!user?.memberId) return;
+    // memberId를 AuthContext에서 먼저 찾고, 없으면 로컬스토리지에서 가져옴
+    const memberId = user?.memberId || localStorage.getItem("memberId");
+
+    if (!memberId) return;
+
     try {
       const token = localStorage.getItem("accessToken");
       const config = { headers: { Authorization: `Bearer ${token}` } };
+
+      // 1. 최신 포인트 잔액 가져오기 (형님이 말씀하신 API)
+      const pointRes = await axios.get(
+        `${backHost}/member/point/${memberId}`,
+        config,
+      );
+      const latestPoint = pointRes.data; // 서버 응답이 숫자일 경우
+
+      // 🌟 로컬스토리지와 State 동시 갱신 (새로고침 대응)
+      localStorage.setItem("memberPoint", latestPoint);
+      setPoint(latestPoint);
+
+      // 2. 포인트 내역 가져오기
       const historyRes = await axios.get(
-        `${backHost}/member/point-history/${user.memberId}`,
+        `${backHost}/member/point-history/${memberId}`,
         config,
       );
       setPointHistory(historyRes.data);
+
+      // 3. 탄소량 데이터 가져오기
       const carbonRes = await axios.get(`${backHost}/member/total-carbon`, {
-        params: { memberId: user.memberId },
+        params: { memberId: memberId },
         ...config,
       });
       setTotalCarbon(Math.floor(carbonRes.data.totalCarbonReduce * 1000));
+
       const commRes = await axios.get(`${backHost}/member/community-carbon`);
       setCommunityPoint(commRes.data);
     } catch (err) {
@@ -83,24 +104,27 @@ const UserProfile = () => {
     if (!openHistory) setCurrentPage(1);
   };
 
+  // 🌟 [수정] 5초 주기 폴링(Polling) 적용
   useEffect(() => {
-    // 1. 처음 컴포넌트가 떴을 때 한 번 즉시 실행
-    fetchUserData();
+    fetchUserData(); // 최초 실행
 
-    // 2. 5초마다 서버에서 최신 데이터(포인트, 내역 등)를 가져옴
-    // 프로젝트 발표 때는 "실시간성 확보를 위해 폴링을 구현했다"고 하시면 됩니다.
     const pollingId = setInterval(() => {
       fetchUserData();
+      console.log("포인트/탄소량 실시간 동기화 완료 🌱");
     }, 5000); // 5초 주기
 
-    // 3. [중요] 컴포넌트가 사라질 때(언마운트) 인터벌을 꼭 꺼줘야 메모리가 안 터집니다.
-    return () => clearInterval(pollingId);
+    return () => clearInterval(pollingId); // 언마운트 시 인터벌 해제
   }, [fetchUserData]);
 
+  // AuthContext의 유저 정보가 바뀌었을 때 처리 (선택사항)
   useEffect(() => {
-    if (user?.memberPoint !== undefined) setPoint(user.memberPoint);
+    if (user?.memberPoint !== undefined) {
+      setPoint(user.memberPoint);
+      localStorage.setItem("memberPoint", user.memberPoint);
+    }
   }, [user]);
 
+  // 게이지 바 애니메이션
   useEffect(() => {
     const targetPoint = 10000;
     const calculatedPercent = Math.min((totalCarbon / targetPoint) * 100, 100);
@@ -110,7 +134,7 @@ const UserProfile = () => {
 
   return (
     <div className={styles.right}>
-      {/* 상단 대시보드 (기존 유지) */}
+      {/* 상단 에코 등급 섹션 */}
       <div className={styles.user_grade}>
         <div className={styles.ecoGrade}>
           <div className={styles.grade_header}>
@@ -126,6 +150,7 @@ const UserProfile = () => {
             </p>
           </div>
         </div>
+
         <section className={styles.right_main}>
           <div className={styles.icon_content}>
             <div className={styles.icon}>
@@ -169,7 +194,7 @@ const UserProfile = () => {
           <p>보유 포인트 : {point.toLocaleString()}P</p>
         </div>
 
-        {/* 에코포인트 설명 (기존 유지) */}
+        {/* 에코 포인트 설명 */}
         <div className={styles.collapse_wrapper}>
           <div className={styles.collapse_header} onClick={toggleEco}>
             <p>에코 포인트란?</p>
@@ -189,7 +214,7 @@ const UserProfile = () => {
           </Collapse>
         </div>
 
-        {/* 🌟 적립/사용 내역 (형님의 CSS 스타일 완벽 적용) */}
+        {/* 적립/사용 내역 */}
         <div className={styles.collapse_wrapper}>
           <div className={styles.collapse_header} onClick={toggleHistory}>
             <p>
@@ -209,7 +234,6 @@ const UserProfile = () => {
               {currentHistoryItems.length > 0 ? (
                 <>
                   {currentHistoryItems.map((item) => {
-                    // 🌟 SQL 별칭 orderStatus 사용
                     const isCancelled = item.orderStatus === 9;
                     const isPending =
                       item.orderStatus >= 1 && item.orderStatus <= 4;
@@ -234,7 +258,6 @@ const UserProfile = () => {
                               >
                                 {item.storeName}
                               </strong>
-                              {/* 🌟 형님의 cancel_badge 스타일 적용 */}
                               {isCancelled && (
                                 <span className={styles.cancel_badge}>
                                   주문취소
@@ -253,7 +276,6 @@ const UserProfile = () => {
                         </div>
                         <div className={styles.history_right}>
                           {isCancelled ? (
-                            /* 🌟 취소 시 형님의 text_cancelled 스타일로 "취소 완료" 표시 */
                             <span
                               className={styles.text_cancelled}
                               style={{ fontWeight: "bold" }}
@@ -262,7 +284,6 @@ const UserProfile = () => {
                             </span>
                           ) : (
                             <div style={{ textAlign: "right" }}>
-                              {/* 🌟 사용 내역 (-) 형님의 minus_point 스타일 */}
                               {hasUsed && (
                                 <span
                                   className={styles.minus_point}
@@ -271,7 +292,6 @@ const UserProfile = () => {
                                   -{item.usedPoint.toLocaleString()}P
                                 </span>
                               )}
-                              {/* 🌟 적립 내역 (+) 형님의 plus_point 스타일 */}
                               {hasGet && (
                                 <span
                                   className={
