@@ -6,6 +6,8 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background-size: 100%;
+  background-position: center;
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
