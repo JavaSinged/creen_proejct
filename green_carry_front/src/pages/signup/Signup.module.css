@@ -286,3 +286,50 @@
     opacity: 1;
   }
 }
+
+@media (max-width: 1024px) {
+  /* 1. 모바일에서만 스크롤 부활 & 높이 해제 */
+  .signup_container {
+    position: relative !important; /* fixed 풀고 relative로 */
+    height: auto !important;
+    min-height: 100vh !important;
+    overflow-y: auto !important; /* 스크롤 허용 */
+    padding: 40px 15px !important; /* 모바일용 여백 */
+    /* 데스크톱에 있던 background 관련 설정은 여기서 무시되게 덮어씁니다 */
+    background-size: 0 !important; /* 부모 배경은 숨김 (before에서 처리) */
+  }
+
+  /* 2. 모바일 전용 빈틈없는 배경 레이어 생성 */
+  .signup_container::before {
+    content: "";
+    position: fixed !important; /* 모바일에서 스크롤해도 배경 고정 */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: var(--bg-image); /* JSX에서 주는 배경 변수 */
+    background-size: cover !important; /* 세로가 길어도 무조건 꽉 채움! */
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    z-index: -2;
+    animation: bg-breathe-mobile 15s ease-in-out infinite alternate !important;
+    will-change: transform;
+  }
+
+  /* 3. 모바일 오버레이 짤림 방지 */
+  .signup_container::after {
+    position: fixed !important; /* absolute면 모바일에서 스크롤 시 끊깁니다 */
+  }
+
+  /* ... (기존에 있던 폼, 버튼 크기 조절 등 다른 모바일 코드들 유지) ... */
+}
+
+/* --- 모바일 전용 화질 보호 줌인 애니메이션 (미디어 쿼리 밖이나 안에 자유롭게 추가) --- */
+@keyframes bg-breathe-mobile {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.05);
+  } /* 모바일은 5%만 키워야 안 깨집니다 */
+}
