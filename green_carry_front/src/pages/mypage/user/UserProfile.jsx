@@ -34,9 +34,7 @@ const UserProfile = () => {
   const pageGroupSize = 10;
 
   // 🌟 [수정] SQL 조건에 맞춰 사용/적립 내역이 있는 데이터만 필터링
-  const filteredHistory = pointHistory.filter(
-    (item) => item.getPoint > 0 || item.usedPoint > 0,
-  );
+  const filteredHistory = pointHistory.filter((item) => item.orderStatus >= 1);
   const totalPages = Math.ceil(filteredHistory.length / itemsPerPage) || 1;
 
   const currentGroup = Math.ceil(currentPage / pageGroupSize);
