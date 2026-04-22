@@ -296,7 +296,7 @@
     overflow-y: auto !important; /* 스크롤 허용 */
     padding: 40px 15px !important; /* 모바일용 여백 */
     /* 데스크톱에 있던 background 관련 설정은 여기서 무시되게 덮어씁니다 */
-    background-size: 0 !important; /* 부모 배경은 숨김 (before에서 처리) */
+    background-size: 100% !important; /* 부모 배경은 숨김 (before에서 처리) */
   }
 
   /* 2. 모바일 전용 빈틈없는 배경 레이어 생성 */
