@@ -12,11 +12,9 @@ import axios from "axios";
 import Pagination from "../../../components/commons/Pagination";
 
 const UserProfile = () => {
-  // Context 및 외부 설정
   const { user } = useContext(AuthContext);
   const backHost = import.meta.env.VITE_BACKSERVER;
 
-  // 상태 관리 (State)
   const [point, setPoint] = useState(() => {
     const savedPoint = localStorage.getItem("memberPoint");
     return savedPoint ? Number(savedPoint) : 0;
@@ -29,30 +27,20 @@ const UserProfile = () => {
   const [progress, setProgress] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // 상수 및 페이지네이션 관련 계산 (Derived State)
   const itemsPerPage = 5;
   const pageGroupSize = 10;
 
+  // 🌟 필터는 형님의 기존 로직(status >= 1) 그대로 유지!
   const filteredHistory = pointHistory.filter((item) => item.orderStatus >= 1);
   const totalPages = Math.ceil(filteredHistory.length / itemsPerPage) || 1;
-
-  const currentGroup = Math.ceil(currentPage / pageGroupSize);
-  const startPage = (currentGroup - 1) * pageGroupSize + 1;
-  const endPage = Math.min(startPage + pageGroupSize - 1, totalPages);
-
-  const pageNumbers = [];
-  for (let i = startPage; i <= endPage; i++) {
-    pageNumbers.push(i);
-  }
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentHistoryItems = filteredHistory.slice(
     indexOfFirstItem,
-    indexOfLastItem
+    indexOfLastItem,
   );
 
-  // 헬퍼 함수 및 등급/포맷팅 계산
   const getEcoGrade = (currentCarbon) => {
     if (currentCarbon < 1000) return { name: "꼬마 씨앗 🌰", next: 1000 };
     if (currentCarbon < 3000) return { name: "파릇파릇 새싹 🌱", next: 3000 };
@@ -62,35 +50,28 @@ const UserProfile = () => {
   };
 
   const myGradeInfo = getEcoGrade(totalCarbon);
-
   const formattedCarbon =
     totalCarbon >= 100000
       ? (totalCarbon / 1000).toFixed(1) + "kg"
       : totalCarbon.toLocaleString() + "g";
 
-  // 데이터 패칭 및 이벤트 핸들러 (useCallback / Functions)
   const fetchUserData = useCallback(async () => {
     if (!user?.memberId) return;
     try {
       const token = localStorage.getItem("accessToken");
       const config = { headers: { Authorization: `Bearer ${token}` } };
-
       const historyRes = await axios.get(
         `${backHost}/member/point-history/${user.memberId}`,
-        config
+        config,
       );
       setPointHistory(historyRes.data);
-
       const carbonRes = await axios.get(`${backHost}/member/total-carbon`, {
         params: { memberId: user.memberId },
         ...config,
       });
       setTotalCarbon(Math.floor(carbonRes.data.totalCarbonReduce * 1000));
-
       const commRes = await axios.get(`${backHost}/member/community-carbon`);
       setCommunityPoint(commRes.data);
-
-      console.log("데이터 새로고침 성공");
     } catch (err) {
       console.error("데이터 동기화 실패", err);
     }
@@ -102,16 +83,8 @@ const UserProfile = () => {
     if (!openHistory) setCurrentPage(1);
   };
 
-  // 생명주기 관리 (useEffect)
   useEffect(() => {
-    const handleAutoUpdate = () => {
-      const savedPoint = localStorage.getItem("memberPoint");
-      if (savedPoint) setPoint(Number(savedPoint));
-      fetchUserData();
-    };
-    window.addEventListener("pointUpdated", handleAutoUpdate);
     fetchUserData();
-    return () => window.removeEventListener("pointUpdated", handleAutoUpdate);
   }, [fetchUserData]);
 
   useEffect(() => {
@@ -125,9 +98,9 @@ const UserProfile = () => {
     return () => clearTimeout(timer);
   }, [totalCarbon]);
 
-  // JSX 렌더링
   return (
     <div className={styles.right}>
+      {/* 상단 대시보드 (기존 유지) */}
       <div className={styles.user_grade}>
         <div className={styles.ecoGrade}>
           <div className={styles.grade_header}>
@@ -138,14 +111,11 @@ const UserProfile = () => {
             <h2 className={styles.grade_name}>{myGradeInfo.name}</h2>
             <p className={styles.grade_subtitle}>
               {myGradeInfo.next
-                ? `다음 레벨까지 ${(
-                  myGradeInfo.next - totalCarbon
-                ).toLocaleString()}g`
+                ? `다음 레벨까지 ${(myGradeInfo.next - totalCarbon).toLocaleString()}g`
                 : "🎉 최고 등급 달성!"}
             </p>
           </div>
         </div>
-
         <section className={styles.right_main}>
           <div className={styles.icon_content}>
             <div className={styles.icon}>
@@ -189,6 +159,7 @@ const UserProfile = () => {
           <p>보유 포인트 : {point.toLocaleString()}P</p>
         </div>
 
+        {/* 에코포인트 설명 (기존 유지) */}
         <div className={styles.collapse_wrapper}>
           <div className={styles.collapse_header} onClick={toggleEco}>
             <p>에코 포인트란?</p>
@@ -208,11 +179,12 @@ const UserProfile = () => {
           </Collapse>
         </div>
 
+        {/* 🌟 적립/사용 내역 (형님의 CSS 스타일 완벽 적용) */}
         <div className={styles.collapse_wrapper}>
           <div className={styles.collapse_header} onClick={toggleHistory}>
             <p>
-              적립 내역{" "}
-              <span className={styles.history_sub}>최근 3개월 적립 내역</span>
+              적립/사용 내역{" "}
+              <span className={styles.history_sub}>최근 3개월 내역</span>
             </p>
             <div className={styles.hs_icon}>
               {openHistory ? (
@@ -227,24 +199,21 @@ const UserProfile = () => {
               {currentHistoryItems.length > 0 ? (
                 <>
                   {currentHistoryItems.map((item) => {
+                    // 🌟 SQL 별칭 orderStatus 사용
                     const isCancelled = item.orderStatus === 9;
                     const isPending =
                       item.orderStatus >= 1 && item.orderStatus <= 4;
-                    const actualGetPoint =
-                      isCancelled && item.pointReward === 0
-                        ? 0
-                        : item.getPoint;
+                    const hasUsed = item.usedPoint > 0;
+                    const hasGet = item.getPoint > 0;
 
                     return (
                       <div
                         key={item.orderId}
-                        className={`${styles.history_item} ${isCancelled ? styles.item_cancelled : ""
-                          }`}
+                        className={`${styles.history_item} ${isCancelled ? styles.item_cancelled : ""}`}
                       >
                         <div className={styles.history_left}>
                           <StorefrontIcon
-                            className={`${styles.store_icon} ${isCancelled ? styles.icon_cancelled : ""
-                              }`}
+                            className={`${styles.store_icon} ${isCancelled ? styles.icon_cancelled : ""}`}
                           />
                           <div>
                             <div className={styles.store_name_row}>
@@ -255,9 +224,10 @@ const UserProfile = () => {
                               >
                                 {item.storeName}
                               </strong>
+                              {/* 🌟 형님의 cancel_badge 스타일 적용 */}
                               {isCancelled && (
                                 <span className={styles.cancel_badge}>
-                                  결제취소
+                                  주문취소
                                 </span>
                               )}
                               {isPending && (
@@ -272,31 +242,45 @@ const UserProfile = () => {
                           </div>
                         </div>
                         <div className={styles.history_right}>
-                          {isPending ? (
-                            <span className={styles.point_pending}>
-                              적립 예정
-                            </span>
-                          ) : isCancelled && actualGetPoint === 0 ? (
-                            <span className={styles.text_cancelled}>
-                              적립 취소
+                          {isCancelled ? (
+                            /* 🌟 취소 시 형님의 text_cancelled 스타일로 "취소 완료" 표시 */
+                            <span
+                              className={styles.text_cancelled}
+                              style={{ fontWeight: "bold" }}
+                            >
+                              취소 완료
                             </span>
                           ) : (
-                            <span
-                              className={
-                                isCancelled
-                                  ? styles.point_refund_minus
-                                  : styles.plus_point
-                              }
-                            >
-                              {isCancelled ? "-" : "+"}
-                              {actualGetPoint.toLocaleString()}P
-                            </span>
+                            <div style={{ textAlign: "right" }}>
+                              {/* 🌟 사용 내역 (-) 형님의 minus_point 스타일 */}
+                              {hasUsed && (
+                                <span
+                                  className={styles.minus_point}
+                                  style={{ display: "block" }}
+                                >
+                                  -{item.usedPoint.toLocaleString()}P
+                                </span>
+                              )}
+                              {/* 🌟 적립 내역 (+) 형님의 plus_point 스타일 */}
+                              {hasGet && (
+                                <span
+                                  className={
+                                    isPending
+                                      ? styles.point_pending
+                                      : styles.plus_point
+                                  }
+                                  style={{ display: "block" }}
+                                >
+                                  {isPending ? "(예정) " : "+"}
+                                  {item.getPoint.toLocaleString()}P
+                                </span>
+                              )}
+                            </div>
                           )}
                         </div>
                       </div>
                     );
                   })}
-
                   <Pagination
                     currentPage={currentPage}
                     totalPages={totalPages}
@@ -304,9 +288,7 @@ const UserProfile = () => {
                   />
                 </>
               ) : (
-                <div className={styles.empty_msg}>
-                  최근 내역이 없습니다. 🌱
-                </div>
+                <div className={styles.empty_msg}>최근 내역이 없습니다. 🌱</div>
               )}
             </div>
           </Collapse>
