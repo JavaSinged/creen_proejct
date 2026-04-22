@@ -33,7 +33,10 @@ const UserProfile = () => {
   const itemsPerPage = 5;
   const pageGroupSize = 10;
 
-  const filteredHistory = pointHistory.filter((item) => item.orderStatus >= 1);
+  // 🌟 [수정] SQL 조건에 맞춰 사용/적립 내역이 있는 데이터만 필터링
+  const filteredHistory = pointHistory.filter(
+    (item) => item.getPoint > 0 || item.usedPoint > 0,
+  );
   const totalPages = Math.ceil(filteredHistory.length / itemsPerPage) || 1;
 
   const currentGroup = Math.ceil(currentPage / pageGroupSize);
@@ -49,7 +52,7 @@ const UserProfile = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentHistoryItems = filteredHistory.slice(
     indexOfFirstItem,
-    indexOfLastItem
+    indexOfLastItem,
   );
 
   // 헬퍼 함수 및 등급/포맷팅 계산
@@ -77,7 +80,7 @@ const UserProfile = () => {
 
       const historyRes = await axios.get(
         `${backHost}/member/point-history/${user.memberId}`,
-        config
+        config,
       );
       setPointHistory(historyRes.data);
 
@@ -139,8 +142,8 @@ const UserProfile = () => {
             <p className={styles.grade_subtitle}>
               {myGradeInfo.next
                 ? `다음 레벨까지 ${(
-                  myGradeInfo.next - totalCarbon
-                ).toLocaleString()}g`
+                    myGradeInfo.next - totalCarbon
+                  ).toLocaleString()}g`
                 : "🎉 최고 등급 달성!"}
             </p>
           </div>
@@ -211,8 +214,8 @@ const UserProfile = () => {
         <div className={styles.collapse_wrapper}>
           <div className={styles.collapse_header} onClick={toggleHistory}>
             <p>
-              적립 내역{" "}
-              <span className={styles.history_sub}>최근 3개월 적립 내역</span>
+              적립/사용 내역{" "}
+              <span className={styles.history_sub}>최근 3개월 내역</span>
             </p>
             <div className={styles.hs_icon}>
               {openHistory ? (
@@ -227,24 +230,22 @@ const UserProfile = () => {
               {currentHistoryItems.length > 0 ? (
                 <>
                   {currentHistoryItems.map((item) => {
-                    const isCancelled = item.orderStatus === 9;
+                    const isCancelled = item.order_status === 9;
                     const isPending =
-                      item.orderStatus >= 1 && item.orderStatus <= 4;
-                    const actualGetPoint =
-                      isCancelled && item.pointReward === 0
-                        ? 0
-                        : item.getPoint;
+                      item.order_status >= 1 && item.order_status <= 4;
+
+                    // 🌟 사용/적립 여부 판단
+                    const hasUsed = item.usedPoint > 0;
+                    const hasGet = item.getPoint > 0;
 
                     return (
                       <div
                         key={item.orderId}
-                        className={`${styles.history_item} ${isCancelled ? styles.item_cancelled : ""
-                          }`}
+                        className={`${styles.history_item} ${isCancelled ? styles.item_cancelled : ""}`}
                       >
                         <div className={styles.history_left}>
                           <StorefrontIcon
-                            className={`${styles.store_icon} ${isCancelled ? styles.icon_cancelled : ""
-                              }`}
+                            className={`${styles.store_icon} ${isCancelled ? styles.icon_cancelled : ""}`}
                           />
                           <div>
                             <div className={styles.store_name_row}>
@@ -257,7 +258,7 @@ const UserProfile = () => {
                               </strong>
                               {isCancelled && (
                                 <span className={styles.cancel_badge}>
-                                  결제취소
+                                  취소됨
                                 </span>
                               )}
                               {isPending && (
@@ -272,25 +273,39 @@ const UserProfile = () => {
                           </div>
                         </div>
                         <div className={styles.history_right}>
-                          {isPending ? (
-                            <span className={styles.point_pending}>
-                              적립 예정
-                            </span>
-                          ) : isCancelled && actualGetPoint === 0 ? (
+                          {/* 🌟 마이너스(사용)와 플러스(적립)를 동시에 보여주거나 취소 상태 처리 */}
+                          {isCancelled ? (
                             <span className={styles.text_cancelled}>
-                              적립 취소
+                              취소 완료
                             </span>
                           ) : (
-                            <span
-                              className={
-                                isCancelled
-                                  ? styles.point_refund_minus
-                                  : styles.plus_point
-                              }
-                            >
-                              {isCancelled ? "-" : "+"}
-                              {actualGetPoint.toLocaleString()}P
-                            </span>
+                            <div style={{ textAlign: "right" }}>
+                              {hasUsed && (
+                                <span
+                                  className={styles.minus_point}
+                                  style={{
+                                    display: "block",
+                                    color: "#ff4757",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  -{item.usedPoint.toLocaleString()}P
+                                </span>
+                              )}
+                              {hasGet && (
+                                <span
+                                  className={
+                                    isPending
+                                      ? styles.point_pending
+                                      : styles.plus_point
+                                  }
+                                  style={{ display: "block" }}
+                                >
+                                  {isPending ? "(예정) " : "+"}
+                                  {item.getPoint.toLocaleString()}P
+                                </span>
+                              )}
+                            </div>
                           )}
                         </div>
                       </div>
@@ -304,9 +319,7 @@ const UserProfile = () => {
                   />
                 </>
               ) : (
-                <div className={styles.empty_msg}>
-                  최근 내역이 없습니다. 🌱
-                </div>
+                <div className={styles.empty_msg}>최근 내역이 없습니다. 🌱</div>
               )}
             </div>
           </Collapse>
