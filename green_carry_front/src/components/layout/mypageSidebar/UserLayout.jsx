@@ -6,7 +6,6 @@ export default function UserLayout() {
 
   return (
     <div className={styles.container}>
-      {/* 👈 왼쪽 고정 사이드바 */}
       <aside className={styles.sidebar}>
         <h2 className={styles.sidebarTitle}>마이페이지</h2>
         <ul>
@@ -53,8 +52,6 @@ export default function UserLayout() {
           </li>
         </ul>
       </aside>
-
-      {/* 👉 오른쪽 동적 렌더링 영역 */}
       <main className={styles.content}>
         <Outlet />
       </main>

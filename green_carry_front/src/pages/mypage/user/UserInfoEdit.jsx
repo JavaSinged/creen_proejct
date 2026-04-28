@@ -71,7 +71,7 @@ export default function UserInfoEdit() {
       setTimeout(() => {
         addressSectionRef.current?.scrollIntoView({
           behavior: "smooth",
-          block: "center", // 화면의 중앙에 오도록 설정
+          block: "center",
         });
       }, 300);
     }
@@ -244,7 +244,6 @@ export default function UserInfoEdit() {
 
   // 주소 저장
   const updateAddress = withButtonLoading(async () => {
-    console.log("1. 함수 시작");
     if (!newAddress.memberAddrCode || !newAddress.memberDetailAddr.trim()) {
       Swal.fire({
         icon: "warning",
@@ -254,8 +253,6 @@ export default function UserInfoEdit() {
     }
 
     try {
-      console.log("2. 네이버 지오코딩 시작");
-      //네이버 지도 Geocoding으로 위경도 가져오기
       const coords = await new Promise((resolve, reject) => {
         naver.maps.Service.geocode(
           { query: newAddress.memberAddr },
@@ -290,7 +287,7 @@ export default function UserInfoEdit() {
       if (response.status === 200) {
         Swal.fire("성공", "주소지가 성공적으로 변경되었습니다!", "success");
 
-        // 1. 마이페이지 UI 상태 업데이트
+        // 마이페이지 UI 상태 업데이트
         setMemberInfo((prev) => ({
           ...prev,
           memberAddrcode: newAddress.memberAddrCode,
@@ -300,7 +297,6 @@ export default function UserInfoEdit() {
           memberPhone: profileData.memberPhone,
         }));
 
-        // 로컬스토리지에 위도/경도를 직접 덮어쓰기
         localStorage.setItem("LATITUDE", coords.latitude);
         localStorage.setItem("LONGITUDE", coords.longitude);
 
@@ -341,7 +337,7 @@ export default function UserInfoEdit() {
     }
   });
 
-  // 회원 탈퇴 핸들러 (Swal 적용)
+  // 회원 탈퇴
   const handleDeleteClick = withButtonLoading(async () => {
     //탈퇴 시 진행중인 배달 조회
     if (!user.memberId) return;
@@ -377,20 +373,23 @@ export default function UserInfoEdit() {
   return (
     <div className={styles.right}>
       <section
-        className={`${styles.right_main} ${isEditingProfile
-          ? styles.right_main_editing
-          : styles.right_main_default
-          }`}
+        className={`${styles.right_main} ${
+          isEditingProfile
+            ? styles.right_main_editing
+            : styles.right_main_default
+        }`}
       >
         <div
-          className={`${styles.icon_content} ${isEditingProfile
-            ? styles.icon_content_editing
-            : styles.icon_content_default
-            }`}
+          className={`${styles.icon_content} ${
+            isEditingProfile
+              ? styles.icon_content_editing
+              : styles.icon_content_default
+          }`}
         >
           <div
-            className={`${styles.icon_wrapper} ${isEditingProfile ? styles.icon_wrapper_editable : ""
-              }`}
+            className={`${styles.icon_wrapper} ${
+              isEditingProfile ? styles.icon_wrapper_editable : ""
+            }`}
             onClick={() => isEditingProfile && fileInputRef.current.click()}
           >
             {previewImg ? (
@@ -562,8 +561,9 @@ export default function UserInfoEdit() {
                     </div>
                     <p className={styles.address_detail}>
                       {memberInfo?.memberAddr
-                        ? `[${memberInfo.memberAddrcode || ""}] ${memberInfo.memberAddr
-                        } ${memberInfo.memberDetailAddr || ""}`
+                        ? `[${memberInfo.memberAddrcode || ""}] ${
+                            memberInfo.memberAddr
+                          } ${memberInfo.memberDetailAddr || ""}`
                         : "주소 정보 없음"}
                     </p>
                   </div>

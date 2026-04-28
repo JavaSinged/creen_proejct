@@ -12,7 +12,6 @@ const AdminContainerManagement = () => {
   const passedData = location.state?.carbonData;
   const backHost = import.meta.env.VITE_BACKSERVER;
 
-  // 코덱스가 수정함: Cloudinary 절대 URL과 기존 상대 경로를 모두 처리
   const resolveImageUrl = (imagePath) => {
     if (!imagePath) return "";
     if (/^https?:\/\//i.test(imagePath) || imagePath.startsWith("blob:")) {

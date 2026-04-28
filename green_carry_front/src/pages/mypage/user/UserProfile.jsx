@@ -15,7 +15,6 @@ const UserProfile = () => {
   const { user } = useContext(AuthContext);
   const backHost = import.meta.env.VITE_BACKSERVER;
 
-  // 1. 초기 상태 설정 (로컬스토리지를 우선 참조)
   const [point, setPoint] = useState(() => {
     const savedPoint = localStorage.getItem("memberPoint");
     return savedPoint ? Number(savedPoint) : 0;
@@ -31,7 +30,6 @@ const UserProfile = () => {
 
   const itemsPerPage = 5;
 
-  // 2. 페이지네이션 및 필터 로직
   const filteredHistory = pointHistory.filter((item) => item.orderStatus >= 1);
   const totalPages = Math.ceil(filteredHistory.length / itemsPerPage) || 1;
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -41,7 +39,6 @@ const UserProfile = () => {
     indexOfLastItem,
   );
 
-  // 3. 에코 등급 계산 로직
   const getEcoGrade = (currentCarbon) => {
     if (currentCarbon < 1000) return { name: "꼬마 씨앗 🌰", next: 1000 };
     if (currentCarbon < 3000) return { name: "파릇파릇 새싹 🌱", next: 3000 };
@@ -56,7 +53,6 @@ const UserProfile = () => {
       ? (totalCarbon / 1000).toFixed(1) + "kg"
       : totalCarbon.toLocaleString() + "g";
 
-  // 🌟 4. 데이터 동기화 (폴링용)
   const fetchUserData = useCallback(async () => {
     // memberId를 로컬스토리지에서 직접 가져옴
     const memberId = localStorage.getItem("memberId") || user?.memberId;
@@ -66,7 +62,6 @@ const UserProfile = () => {
       const token = localStorage.getItem("accessToken");
       const config = { headers: { Authorization: `Bearer ${token}` } };
 
-      // (1) 최신 포인트 잔액 동기화
       const pointRes = await axios.get(
         `${backHost}/member/point/${memberId}`,
         config,
@@ -75,14 +70,12 @@ const UserProfile = () => {
       localStorage.setItem("memberPoint", latestPoint);
       setPoint(latestPoint);
 
-      // (2) 포인트 내역 동기화
       const historyRes = await axios.get(
         `${backHost}/member/point-history/${memberId}`,
         config,
       );
       setPointHistory(historyRes.data);
 
-      // (3) 탄소 절감 데이터 동기화
       const carbonRes = await axios.get(`${backHost}/member/total-carbon`, {
         params: { memberId: memberId },
         ...config,
@@ -96,14 +89,12 @@ const UserProfile = () => {
     }
   }, [user?.memberId, backHost]);
 
-  // 5. 컴포넌트 제어용 핸들러
   const toggleEco = () => setOpenEco(!openEco);
   const toggleHistory = () => {
     setOpenHistory(!openHistory);
     if (!openHistory) setCurrentPage(1);
   };
 
-  // 🌟 6. 5초마다 실시간 업데이트 (폴링)
   useEffect(() => {
     fetchUserData(); // 초기 로드
     const pollingId = setInterval(() => {
@@ -122,7 +113,6 @@ const UserProfile = () => {
 
   return (
     <div className={styles.right}>
-      {/* --- 나의 에코 등급 섹션 --- */}
       <div className={styles.user_grade}>
         <div className={styles.ecoGrade}>
           <div className={styles.grade_header}>
@@ -176,14 +166,12 @@ const UserProfile = () => {
         </section>
       </div>
 
-      {/* --- 보유 포인트 및 내역 섹션 --- */}
       <section className={styles.right_sub}>
         <div className={styles.my_point}>
           <span>에코 포인트</span>
           <p>보유 포인트 : {point.toLocaleString()}P</p>
         </div>
 
-        {/* 에코 포인트 설명 */}
         <div className={styles.collapse_wrapper}>
           <div className={styles.collapse_header} onClick={toggleEco}>
             <p>에코 포인트란?</p>
@@ -203,7 +191,6 @@ const UserProfile = () => {
           </Collapse>
         </div>
 
-        {/* 적립/사용 내역 리스트 */}
         <div className={styles.collapse_wrapper}>
           <div className={styles.collapse_header} onClick={toggleHistory}>
             <p>
@@ -266,7 +253,6 @@ const UserProfile = () => {
 
                         <div className={styles.history_right}>
                           <div style={{ textAlign: "right" }}>
-                            {/* 🌟 취소 시 포인트 반전 로직 */}
                             {hasUsed && (
                               <span
                                 className={
